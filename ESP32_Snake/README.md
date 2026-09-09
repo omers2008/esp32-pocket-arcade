@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: twelve games
+# ESP32 Pocket Arcade: fourteen games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the twelve games (four visible at a time).
+- At startup, tilt the joystick to scroll between the fourteen games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -145,6 +145,14 @@
   based on the symbol, and three 7s are the jackpot at 50x. The lever, spinning,
   hit, and jackpot states are animated on the OLED. Cash can reach zero; only a
   spin that leaves cash below zero ends the run. GPIO12 returns to the menu.
+- 4 In A Row: move the column selector left/right and press GPIO13 to drop a filled
+  piece. The CPU drops an outline piece after every turn. Make four connected pieces
+  horizontally, vertically, or diagonally before the CPU does. Easy picks legal
+  columns randomly; Hard takes winning moves, blocks you, and prefers the center.
+- Tic-Tac-Toe: move the 3x3 cursor with the joystick and press GPIO13 to place X.
+  The CPU places O after each move. Easy chooses an open square randomly; Hard wins
+  when possible, blocks your wins, then prefers the center and corners. Three in a
+  row wins; a full board is a draw. GPIO14 is unused in both games.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -168,6 +176,8 @@
 | Rogue Cards | Fixed five-card deck, 32 starting HP, heal 2 after wins | Random five-card deck, 26 starting HP, enemies have +4 HP and +1 attack, no base post-battle heal |
 | Temple Quest | 5 lives, slower enemies, longer respawn protection | 3 lives, faster enemies, shorter protection |
 | Slot Machine | Even symbol odds; standard wager and payouts | Realistic weighted symbols; lucky 7 is rare |
+| 4 In A Row | Random legal CPU columns | CPU wins/blocks and prefers center |
+| Tic-Tac-Toe | Random legal CPU squares | CPU wins/blocks and prefers center/corners |
 
 ### Rogue Cards powers
 

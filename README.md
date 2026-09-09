@@ -18,6 +18,8 @@ separate high scores stored in flash for each game and difficulty.
 | Rogue Cards | Scroll cards / rewards | Play card / choose reward | End turn |
 | Temple Quest | Left/right move; up/down climb | Throw dagger | Jump |
 | Slot Machine | Pull down to spin | Raise wager $100 | Lower wager $100 |
+| 4 In A Row | Move column left/right | Drop piece | Unused |
+| Tic-Tac-Toe | Move cursor | Place X | Unused |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -50,6 +52,10 @@ animated reels with classic fruit-machine symbols. Hard mode weights the
 symbols like a real slot machine, making fruit common and lucky 7 rare. Pairs and triples pay out;
 three lucky 7s are the jackpot. Cash may reach zero, but the game ends only after
 a spin leaves the bankroll negative.
+4 In A Row is a seven-column, six-row connect-four-style game: drop filled pieces
+with GPIO13 and stop the CPU from making four. Tic-Tac-Toe uses the joystick to
+move a 3x3 cursor and GPIO13 to place X; the CPU plays O. Hard mode searches for
+wins and blocks, while Easy chooses legal moves randomly.
 
 ## Hardware and setup
 
@@ -70,7 +76,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All twelve games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All fourteen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -86,7 +92,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, and Slot Machine
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, and Tic-Tac-Toe
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

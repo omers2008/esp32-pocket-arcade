@@ -89,6 +89,9 @@ build\temple_test.exe
   animation phases, Hard-mode weighted luck, pair/triple payouts, jackpot scoring, zero-cash play,
   and debt-triggered game over.
 
+- 4 In A Row and Tic-Tac-Toe: cursor/column movement, legal placement, win/draw detection,
+  Easy random CPU choices, and Hard tactical CPU choices.
+
 - Temple Quest: intro/input queue, jumping, ladders and ledges, pit/spike clearance,
   room connections, key gates, gem pickups, dagger ammo/collisions, checkpoint
   persistence, win/loss, and 60,000 input/draw steps. The quest-progression fixture
