@@ -53,7 +53,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Tetris and castle
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, and castle
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

@@ -49,13 +49,16 @@
 |---|---|---|
 | Snake | 200 ms starting step, speeds up to 90 ms | 125 ms starting step, speeds up to 50 ms |
 | Space Invaders | 3 lives, slower aliens and enemy shots | 2 lives, faster aliens, more frequent and faster enemy shots |
-| Pong | Improved basic tracking, slower ball | Faster CPU predicts wall bounces; faster ball and steeper paddle-angle shots |
+| Pong | More accurate tracking, 1.65 px/frame CPU speed, slower ball | Predictive CPU at 2.0 px/frame with more aiming error; faster ball and steeper paddle-angle shots |
 | Tetris | 650 ms starting gravity, 450 ms lock delay | 360 ms starting gravity, 250 ms lock delay |
 | Castlevania | 6 health, slower enemies, one-hit skeletons, slower boss shots | 4 health, faster enemies, two-hit skeletons, tougher bosses and faster firing |
 
 Tetris gravity speeds up every 10 cleared lines. Both difficulties use all seven
 tetrominoes in shuffled groups of seven and have separate saved high scores.
 
+Pong CPUs update their aim every 100 ms. Easy has +/-2 px aiming error; Hard has
++/-4 px error and starts predicting only after the ball passes x=54. Ball speeds,
+paddle sizes, controls, and saved records are unchanged by this CPU rebalance.
 Pong's Hard CPU has a reaction delay and limited paddle speed, so it is designed
 to remain beatable. Both modes still play first to 7. The current difficulty is
 shown during play and on the result screen.

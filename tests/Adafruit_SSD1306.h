@@ -12,5 +12,7 @@ class Adafruit_SSD1306 {
   void fillRect(int, int, int, int, int) {}
   void drawPixel(int, int, int) {}
   void drawLine(int, int, int, int, int) {}
+  void drawFastHLine(int, int, int, int) {}
+  void drawFastVLine(int, int, int, int) {}
   void display() {}
 };

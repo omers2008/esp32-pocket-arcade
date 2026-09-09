@@ -43,17 +43,18 @@ class Pong {
     }
 
     // Hard predicts wall bounces, but waits until the ball approaches midfield.
-    // Reaction delay and capped paddle speed still allow well-placed winners.
-    if (now - lastAim >= (hard ? 80u : 120u)) {
+    // Both react every 100 ms. Hard predicts, but has more aiming error;
+    // Easy tracks the current ball more accurately with a modest speed boost.
+    if (now - lastAim >= 100u) {
       lastAim = now;
-      aimError = random(-3, 4);
+      aimError = hard ? random(-4, 5) : random(-2, 3);
       if (hard) {
-        cpuTarget = vx > 0 && ballX > 48.0f ? predictedLanding() + aimError : 36.0f;
+        cpuTarget = vx > 0 && ballX > 54.0f ? predictedLanding() + aimError : 36.0f;
       } else {
         cpuTarget = vx > 0 ? ballY + aimError : 36.0f;
       }
     }
-    float cpuSpeed = hard ? 2.2f : 1.45f;
+    float cpuSpeed = hard ? 2.0f : 1.65f;
     cpuY += constrain(cpuTarget - cpuY, -cpuSpeed, cpuSpeed);
     cpuY = constrain(cpuY, 17.0f, 56.0f);
 
