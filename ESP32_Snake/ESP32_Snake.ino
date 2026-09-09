@@ -13,6 +13,7 @@
 #include "StreetFighter.h"
 #include "RogueCards.h"
 #include "TempleQuest.h"
+#include "SlotMachine.h"
 
 // ---------- Hardware ----------
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -52,9 +53,10 @@ Blackjack blackjack;
 StreetFighter streetFighter;
 RogueCards rogueCards;
 TempleQuest templeQuest;
-constexpr uint8_t GAME_COUNT = 11;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest"};
-const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple"};
+SlotMachine slotMachine;
+constexpr uint8_t GAME_COUNT = 12;
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine"};
+const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots"};
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
@@ -107,6 +109,11 @@ void startGame() {
   actionArmed = false;  // Release the select button before shooting.
   if (selectedGame == 10) {
     templeQuest.start(selectedDifficulty == 1);
+    gameState = PLAYING;
+    return;
+  }
+  if (selectedGame == 11) {
+    slotMachine.start(selectedDifficulty == 1);
     gameState = PLAYING;
     return;
   }
@@ -177,7 +184,8 @@ uint32_t currentScore() {
   if (selectedGame == 7) return blackjack.score;
   if (selectedGame == 8) return streetFighter.score;
   if (selectedGame == 9) return rogueCards.score;
-  return templeQuest.score;
+  if (selectedGame == 10) return templeQuest.score;
+  return slotMachine.score;
 }
 
 void finishGame() {
@@ -365,6 +373,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  if (selectedGame == 11) { slotMachine.draw(display); return; }
   if (selectedGame == 10) { templeQuest.draw(display); return; }
   if (selectedGame == 9) { rogueCards.draw(display); return; }
   if (selectedGame == 8) { streetFighter.draw(display); return; }
@@ -420,8 +429,9 @@ void drawGameOver() {
     display.print(F("Best rally: ")); display.print(bestScores[selectedGame][selectedDifficulty]);
   } else {
   display.setCursor(23, 20);
-  display.print(F("Score: "));
-  display.print(currentScore());
+  display.print(selectedGame == 11 ? F("Cash: ") : F("Score: "));
+  if (selectedGame == 11) display.print(slotMachine.cash);
+  else display.print(currentScore());
   display.setCursor(23, 31);
   display.print(F("Best:  "));
   display.print(bestScores[selectedGame][selectedDifficulty]);
@@ -535,12 +545,13 @@ void loop() {
     else if (selectedGame == 7) blackjack.update(pressed, holdArmed && holdButton.pressed);
     else if (selectedGame == 8) streetFighter.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     else if (selectedGame == 9) rogueCards.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
-    else templeQuest.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
+    else if (selectedGame == 10) templeQuest.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
+    else slotMachine.update(joystickY(), pressed, holdArmed && holdButton.pressed);
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
                  selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over :
                  selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over :
                  selectedGame == 7 ? blackjack.over : selectedGame == 8 ? streetFighter.over :
-                 selectedGame == 9 ? rogueCards.over : templeQuest.over;
+                 selectedGame == 9 ? rogueCards.over : selectedGame == 10 ? templeQuest.over : slotMachine.over;
     if (ended) {
       finishGame();
       drawGameOver();

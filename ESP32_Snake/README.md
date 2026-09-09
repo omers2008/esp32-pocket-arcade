@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: eleven games
+# ESP32 Pocket Arcade: twelve games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the eleven games (four visible at a time).
+- At startup, tilt the joystick to scroll between the twelve games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -137,6 +137,12 @@
   The HUD shows score, room (`R`), lives (`L`), gems (`G` out of six), and daggers
   (`D`). Gems score 100, keys 50, skulls 50, bats 75, and the idol awards
   500 plus 100 per remaining life. Only high scores persist after power-off.
+- Slot Machine: start with `$10,000`. GPIO13 raises the wager by `$100` and GPIO14
+  lowers it by `$100` (from `$100` to `$5,000`). Pull the joystick down to pull
+  the lever and spin the three animated reels. A pair pays 2x; triples pay more
+  based on the symbol, and three 7s are the jackpot at 50x. The lever, spinning,
+  hit, and jackpot states are animated on the OLED. Cash can reach zero; only a
+  spin that leaves cash below zero ends the run. GPIO12 returns to the menu.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -159,6 +165,7 @@
 | Street Fighter | 8 health, 2 simultaneous enemies, slower enemies and longer attack warnings | 6 health, 3 simultaneous enemies, tougher/faster enemies and shorter warnings |
 | Rogue Cards | Fixed five-card deck, 32 starting HP, heal 2 after wins | Random five-card deck, 26 starting HP, enemies have +4 HP and +1 attack, no base post-battle heal |
 | Temple Quest | 5 lives, slower enemies, longer respawn protection | 3 lives, faster enemies, shorter protection |
+| Slot Machine | $10,000 bankroll; standard wager and payouts | $10,000 bankroll; standard wager and payouts |
 
 ### Rogue Cards powers
 

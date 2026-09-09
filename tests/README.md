@@ -85,6 +85,9 @@ build\temple_test.exe
   poison/thorns, boss reward ordering, free events, campaign win/loss, run reset,
   timer rollover, 40,000 input/draw steps, and 200 complete policy-driven runs.
 
+- Slot Machine: wager controls, joystick lever pull, reel animation phases, pair/triple
+  payouts, jackpot scoring, zero-cash play, and debt-triggered game over.
+
 - Temple Quest: intro/input queue, jumping, ladders and ledges, pit/spike clearance,
   room connections, key gates, gem pickups, dagger ammo/collisions, checkpoint
   persistence, win/loss, and 60,000 input/draw steps. The quest-progression fixture

@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-An eleven-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A twelve-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -17,6 +17,7 @@ separate high scores stored in flash for each game and difficulty.
 | Street Fighter-style brawler | Move left/right; up = jump | Punch | Kick |
 | Rogue Cards | Scroll cards / rewards | Play card / choose reward | End turn |
 | Temple Quest | Left/right move; up/down climb | Throw dagger | Jump |
+| Slot Machine | Pull down to spin | Raise wager $100 | Lower wager $100 |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -42,6 +43,10 @@ of three passives after each battle, earn active powers from bosses, and find
 Temple Quest is an original Montezuma-style six-room exploration platformer:
 find keys, collect six gems, dodge pits/spikes/enemies, and reach the final idol.
 See the [room map and temple guide](ESP32_Snake/README.md#temple-quest-map).
+Slot Machine starts with $10,000. GPIO13 raises the wager, GPIO14 lowers it, and
+pulling the joystick down spins three animated reels. Pairs and triples pay out;
+three 7s are the jackpot. Cash may reach zero, but the game ends only after a
+spin leaves the bankroll negative.
 
 ## Hardware and setup
 
@@ -62,7 +67,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All eleven games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All twelve games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -78,7 +83,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, and Temple Quest
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, and Slot Machine
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

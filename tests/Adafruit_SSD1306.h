@@ -9,7 +9,10 @@ class Adafruit_SSD1306 {
   void setCursor(int, int) {}
   template<class T> void print(T) {}
   void drawRect(int, int, int, int, int) {}
+  void drawRoundRect(int, int, int, int, int, int) {}
   void fillRect(int, int, int, int, int) {}
+  void fillCircle(int, int, int, int) {}
+  void drawCircle(int, int, int, int) {}
   void drawPixel(int, int, int) {}
   void drawLine(int, int, int, int, int) {}
   void drawFastHLine(int, int, int, int) {}
