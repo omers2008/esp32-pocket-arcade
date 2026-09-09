@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: ten games
+# ESP32 Pocket Arcade: eleven games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the ten games (four visible at a time).
+- At startup, tilt the joystick to scroll between the eleven games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -111,6 +111,23 @@
   to the next battle. No event follows the final boss. Its passive and active
   rewards are collected before the victory screen. Upgrades reset on a new run;
   only high scores are saved, not unfinished runs.
+- Temple Quest: an original six-room temple platformer inspired by Montezuma's
+  Revenge, not a port or recreation of its original assets. Move left/right with
+  the joystick; up/down climbs ladders. GPIO14 jumps, including off a ladder;
+  GPIO13 throws a dagger in the direction you face. Each button needs a fresh press.
+  GPIO12 returns to the menu. The introduction waits for GPIO13 before play.
+  Collect a gem in each room, find both keys to open routes, then reach the idol
+  at the right side of room 6. Walk through side doors at ground level; climb the
+  long shafts to change floors. Ladders are needed to reach raised treasure ledges.
+  Pits and spikes cost a life; enemy contact costs a life unless you are briefly
+  protected after entering a room or respawning. Jump over hazards or use your
+  limited daggers against skulls and bats. Six starting daggers, +1 per gem,
+  maximum nine carried and two in flight. A blocked shot slot does not spend ammo.
+  Death returns you to the room entrance checkpoint, preserving collected gems,
+  keys, open doors, and defeated enemies. A new run resets all of these.
+  The HUD shows score, room (`R`), lives (`L`), gems (`G` out of six), and daggers
+  (`D`). Gems score 100, keys 50, skulls 50, bats 75, and the idol awards
+  500 plus 100 per remaining life. Only high scores persist after power-off.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -132,6 +149,7 @@
 | Blackjack | Dealer stands on soft 17 | Dealer hits soft 17 |
 | Street Fighter | 8 health, 2 simultaneous enemies, slower enemies and longer attack warnings | 6 health, 3 simultaneous enemies, tougher/faster enemies and shorter warnings |
 | Rogue Cards | 32 starting HP, heal 2 after wins | 26 starting HP, enemies have +4 HP and +1 attack, no base post-battle heal |
+| Temple Quest | 5 lives, slower enemies, longer respawn protection | 3 lives, faster enemies, shorter protection |
 
 ### Rogue Cards powers
 
@@ -172,6 +190,27 @@ shown during play and on the result screen.
 Keep `ESP32_Snake.ino` and all its `.h` files together in the
 `ESP32_Snake` folder.
 
+## Temple Quest map
+
+Room numbers match the OLED's `R` counter. Letters mark key-locked routes.
+
+```text
+[1 START] --A-- [2] ----- [3]
+    |                     | B
+   [4] ------- [5] --B-- [6 IDOL]
+```
+
+- Key A is on the floor at the right of room 4. It opens the route from 1 to 2.
+- Key B is on the raised ledge at the right of room 2. It opens both entrances
+  to room 6; each key is consumed once and its routes stay open.
+- There is one gem on a raised ledge in every room. Visit room 5 via room 4
+  before heading to the idol, or backtrack to collect any missed gems.
+- The ladder at x=28 connects rooms 1 and 4; the ladder at x=96 connects rooms
+  3 and 6. Press down at the upper room's floor hatch, or climb up to the lower
+  room's ceiling. Move sideways or jump to leave a ladder at a treasure ledge.
+- Jump from a ledge before its edge when crossing a pit beneath it. Spikes and
+  pits remain dangerous during the blinking enemy-protection period.
+
 ## Wiring
 
 Disconnect USB power while making these connections.
@@ -189,7 +228,7 @@ Disconnect USB power while making these connections.
 | Joystick `B` | Not needed | Built-in button is unused; existing GPIO27 wire may remain |
 | Menu button | `GPIO 12` and `GND` | Normally-open switch, pressed = LOW |
 | Select/action button | `GPIO 13` and `GND` | Select/fire/rotate/hit/punch by game; pressed = LOW |
-| Secondary action button | `GPIO 14` and `GND` | Hold/jump/stand/kick by game; pressed = LOW |
+| Secondary action button | `GPIO 14` and `GND` | Hold/jump/stand/kick/end turn by game; pressed = LOW |
 
 The sketch enables internal pull-ups after startup: each new button connects
 its GPIO to GND when pressed. Do not connect the buttons to 5V or 3.3V.

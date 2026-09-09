@@ -12,6 +12,7 @@
 #include "Blackjack.h"
 #include "StreetFighter.h"
 #include "RogueCards.h"
+#include "TempleQuest.h"
 
 // ---------- Hardware ----------
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -50,9 +51,10 @@ PacMan pacMan;
 Blackjack blackjack;
 StreetFighter streetFighter;
 RogueCards rogueCards;
-constexpr uint8_t GAME_COUNT = 10;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards"};
-const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue"};
+TempleQuest templeQuest;
+constexpr uint8_t GAME_COUNT = 11;
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest"};
+const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple"};
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
@@ -103,6 +105,11 @@ void placeFood() {
 void startGame() {
   holdArmed = false; // Require release before the first hold in a new game.
   actionArmed = false;  // Release the select button before shooting.
+  if (selectedGame == 10) {
+    templeQuest.start(selectedDifficulty == 1);
+    gameState = PLAYING;
+    return;
+  }
   if (selectedGame == 9) {
     rogueCards.start(selectedDifficulty == 1);
     gameState = PLAYING;
@@ -169,7 +176,8 @@ uint32_t currentScore() {
   if (selectedGame == 6) return pacMan.score;
   if (selectedGame == 7) return blackjack.score;
   if (selectedGame == 8) return streetFighter.score;
-  return rogueCards.score;
+  if (selectedGame == 9) return rogueCards.score;
+  return templeQuest.score;
 }
 
 void finishGame() {
@@ -357,6 +365,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  if (selectedGame == 10) { templeQuest.draw(display); return; }
   if (selectedGame == 9) { rogueCards.draw(display); return; }
   if (selectedGame == 8) { streetFighter.draw(display); return; }
   if (selectedGame == 7) { blackjack.draw(display); return; }
@@ -399,7 +408,8 @@ void drawGameOver() {
   display.setTextSize(2);
   display.setCursor(selectedGame == 2 ? 16 : 10, 0);
   display.print(selectedGame == 2 ? (pong.playerScore >= 7 ? F("YOU WIN!") : F("CPU WINS")) :
-                (selectedGame == 4 && castle.won) || (selectedGame == 9 && rogueCards.won) ? F("YOU WIN!") :
+                (selectedGame == 4 && castle.won) || (selectedGame == 9 && rogueCards.won) ||
+                (selectedGame == 10 && templeQuest.won) ? F("YOU WIN!") :
                 selectedGame == 7 ? F("FINISHED") : F("GAME OVER"));
   display.setTextSize(1);
   if (selectedGame == 2) {
@@ -524,11 +534,13 @@ void loop() {
     else if (selectedGame == 6) pacMan.update(joystickX(), joystickY());
     else if (selectedGame == 7) blackjack.update(pressed, holdArmed && holdButton.pressed);
     else if (selectedGame == 8) streetFighter.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
-    else rogueCards.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
+    else if (selectedGame == 9) rogueCards.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
+    else templeQuest.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
                  selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over :
                  selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over :
-                 selectedGame == 7 ? blackjack.over : selectedGame == 8 ? streetFighter.over : rogueCards.over;
+                 selectedGame == 7 ? blackjack.over : selectedGame == 8 ? streetFighter.over :
+                 selectedGame == 9 ? rogueCards.over : templeQuest.over;
     if (ended) {
       finishGame();
       drawGameOver();
