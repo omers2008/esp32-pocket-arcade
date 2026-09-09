@@ -18,6 +18,8 @@ g++ -std=c++17 -Itests tests/duckhunt_test.cpp -o build/duckhunt_test
 ./build/duckhunt_test
 g++ -std=c++17 -Itests tests/pacman_test.cpp -o build/pacman_test
 ./build/pacman_test
+g++ -std=c++17 -Itests tests/blackjack_test.cpp -o build/blackjack_test
+./build/blackjack_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -35,6 +37,8 @@ cl /nologo /EHsc /std:c++17 /Itests tests\duckhunt_test.cpp /Fobuild\duckhunt_te
 build\duckhunt_test.exe
 cl /nologo /EHsc /std:c++17 /Itests tests\pacman_test.cpp /Fobuild\pacman_test.obj /Febuild\pacman_test.exe
 build\pacman_test.exe
+cl /nologo /EHsc /std:c++17 /Itests tests\blackjack_test.cpp /Fobuild\blackjack_test.obj /Febuild\blackjack_test.exe
+build\blackjack_test.exe
 ```
 
 - Tetris: rotations, seven-bag distribution, hold restrictions, row clearing,
@@ -54,5 +58,9 @@ build\pacman_test.exe
 - Pac-Man: maze connectivity, pellet collection, power mode, queued turns,
   movement bounds, ghost movement/respawn, collisions, lives, rounds, timer
   rollover, and 40,000 input/draw steps.
+
+- Blackjack: ace valuation, unique deck, natural blackjacks, ties/busts,
+  dealer soft-17 rules, button priority, result guards, ten-hand sessions,
+  timer rollover, and 40,000 input/draw steps.
 
 These are logic tests, not pixel-level rendering tests or hardware tests.

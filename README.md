@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A seven-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+An eight-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -13,6 +13,7 @@ separate high scores stored in flash for each game and difficulty.
 | Castlevania-style adventure | Move left/right | Whip attack | Jump |
 | Duck Hunt-style targets | Aim crosshair in any direction | Shoot (one shot per press) | Unused |
 | Pac-Man-style maze | Steer; turns can be queued | Select / retry | Unused |
+| Blackjack | Unused during play | Hit / next hand | Stand |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -24,6 +25,8 @@ occasional two/three-bird flocks, three shots per encounter, and a countdown bar
 Hit every bird before they escape; overlapping birds can share a single shot.
 Pac-Man uses an original compact maze: eat all pellets, avoid ghosts, and eat
 power pellets to turn the tables. Clear a maze to start a faster round.
+Blackjack is points-only: play 10 hands against the dealer, with automatically
+valued aces and a freshly shuffled 52-card deck each hand. No betting or money.
 
 ## Hardware and setup
 
@@ -44,7 +47,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All seven games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All eight games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -60,7 +63,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, and Pac-Man
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, and Blackjack
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: seven games
+# ESP32 Pocket Arcade: eight games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the seven games (four visible at a time).
+- At startup, tilt the joystick to scroll between the eight games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -62,6 +62,19 @@
   pause, and brief protection after respawning. Eaten pellets stay gone after
   losing a life. GPIO13/14 have no in-game action; GPIO12 returns to the menu.
   This is a small-screen lookalike with original maze/sprites, not the original ROM.
+- Blackjack: GPIO13 hits, GPIO14 stands. Aces automatically count as 1 or 11;
+  face cards and `T` (ten) count as 10. Card ranks are displayed without suits,
+  but each hand uses a freshly shuffled standard 52-card deck. The dealer's
+  second card and total stay hidden until you stand or the hand ends.
+  Reaching 21 automatically stands; going over 21 busts. Dealer draws are automatic.
+  A two-card blackjack beats an ordinary 21; matching totals or two blackjacks
+  push (tie). Easy stands on all 17s; Hard hits soft 17 (17 with an ace valued 11).
+  Sessions last 10 hands. Wins earn 10 points, natural blackjacks 15, pushes 2,
+  and losses 0. After a result, release and press GPIO13 for the next hand;
+  after hand 10, GPIO13 shows the session score and saved best. GPIO12 can exit
+  and save your current score at any time. Joystick movement has no in-game action.
+  No betting, money, splitting, doubling, or insurance. If both buttons are
+  pressed together, Stand takes priority. High scores are separate for Easy/Hard.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -80,6 +93,7 @@
 | Castlevania | 6 health, slower enemies, one-hit skeletons, slower boss shots | 4 health, faster enemies, two-hit skeletons, tougher bosses and faster firing |
 | Duck Hunt | 5 lives, 6.5 seconds base + 1.5 per extra bird, slower flight, forgiving aim | 3 lives, 4.5 seconds base + 1.5 per extra bird, more flocks, faster flight, tighter aim |
 | Pac-Man | 2 ghosts, slower/more random chasing, 6 seconds of power | 3 ghosts, faster/more direct chasing, 3.5 seconds of power |
+| Blackjack | Dealer stands on soft 17 | Dealer hits soft 17 |
 
 Tetris gravity speeds up every 10 cleared lines. Both difficulties use all seven
 tetrominoes in shuffled groups of seven and have separate saved high scores.
@@ -91,7 +105,7 @@ Pong's Hard CPU has a reaction delay and limited paddle speed, so it is designed
 to remain beatable. Both modes still play first to 7. The current difficulty is
 shown during play and on the result screen.
 
-Keep `ESP32_Snake.ino`, `Invaders.h`, `Pong.h`, `Tetris.h`, `Castle.h`, `DuckHunt.h`, `PacMan.h`, and `Buttons.h` together in the
+Keep `ESP32_Snake.ino` and all its `.h` files together in the
 `ESP32_Snake` folder.
 
 ## Wiring
@@ -111,7 +125,7 @@ Disconnect USB power while making these connections.
 | Joystick `B` | Not needed | Built-in button is unused; existing GPIO27 wire may remain |
 | Menu button | `GPIO 12` and `GND` | Normally-open switch, pressed = LOW |
 | Select/fire button | `GPIO 13` and `GND` | Normally-open switch, pressed = LOW |
-| Hold/jump button | `GPIO 14` and `GND` | Tetris hold / Castlevania jump; pressed = LOW |
+| Hold/jump/stand button | `GPIO 14` and `GND` | Tetris hold / Castlevania jump / Blackjack stand; pressed = LOW |
 
 The sketch enables internal pull-ups after startup: each new button connects
 its GPIO to GND when pressed. Do not connect the buttons to 5V or 3.3V.
