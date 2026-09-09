@@ -24,15 +24,16 @@ class SlotMachine {
     stickReady = false;
     phase = IDLE;
     phaseAt = millis();
-    lastWagerAdjust = phaseAt;
+    // Permit the first held-button repeat immediately after entering the game.
+    lastWagerAdjust = phaseAt - 160;
   }
 
-  void update(int stickY, bool increasePressed, bool decreaseHeld) {
+  void update(int stickY, bool increaseHeld, bool decreaseHeld) {
     uint32_t now = millis();
     if (abs(stickY) < 350) stickReady = true;
 
     if (phase == IDLE) {
-      if (increasePressed) adjustWager(100);
+      if (increaseHeld && now - lastWagerAdjust >= 160) adjustWager(100);
       if (decreaseHeld && now - lastWagerAdjust >= 160) adjustWager(-100);
       if (stickReady && stickY < -650) {
         stickReady = false;
@@ -82,15 +83,15 @@ class SlotMachine {
     d.clearDisplay();
     d.setTextColor(SSD1306_WHITE);
     d.setTextSize(1);
-    d.setCursor(0, 0); d.print(F("CASH $")); d.print(cash);
-    d.setCursor(79, 0); d.print(F("BET $")); d.print(wager);
+    d.setCursor(0, 0); d.print(F("C$")); d.print(cash);
+    d.setCursor(78, 0); d.print(F("B$")); d.print(wager);
     d.drawFastHLine(0, 9, 128, SSD1306_WHITE);
 
     for (int i = 0; i < 3; ++i) {
       int x = 5 + i * 36;
       d.drawRoundRect(x, 17, 32, 28, 3, SSD1306_WHITE);
-      d.setTextSize(2);
-      d.setCursor(x + 7, 23);
+      d.setTextSize(1);
+      d.setCursor(x + symbolOffset(reels[i]), 28);
       d.print(symbolText(reels[i]));
     }
 
@@ -102,15 +103,14 @@ class SlotMachine {
 
     d.setTextSize(1);
     if (phase == IDLE) {
-      d.setCursor(0, 53); d.print(F("13:+$100 14:-$100"));
-      d.setCursor(0, 62); d.print(F("Pull joystick down to spin"));
+      d.setCursor(0, 48); d.print(F("13:+$100  14:-$100"));
+      d.setCursor(0, 57); d.print(F("DOWN: SPIN"));
     } else if (phase == LEVER || phase == SPIN) {
       d.setCursor(39, 53); d.print(phase == LEVER ? F("PULL!") : F("SPINNING..."));
     } else {
-      d.setCursor(31, 53);
-      if (resultKind == 2) d.print(F("JACKPOT!"));
-      else if (resultKind == 1) d.print(F("TRIPLE HIT!"));
-      else d.print(F("No win - try again"));
+      if (resultKind == 2) { d.setCursor(31, 53); d.print(F("JACKPOT!")); }
+      else if (resultKind == 1) { d.setCursor(31, 53); d.print(F("TRIPLE HIT!")); }
+      else { d.setCursor(46, 53); d.print(F("NO WIN")); }
     }
     d.display();
   }
@@ -139,8 +139,8 @@ class SlotMachine {
     bool triple = reels[0] == reels[1] && reels[1] == reels[2];
     bool pair = reels[0] == reels[1] || reels[1] == reels[2] || reels[0] == reels[2];
     if (triple) {
-      // Seven is the top jackpot; rarer symbols pay more than fruit.
-      static const int multipliers[6] = {3, 4, 6, 10, 20, 50};
+      // Lucky seven is the top jackpot; classic machine symbols pay by rarity.
+      static const int multipliers[6] = {3, 8, 10, 4, 6, 50};
       cash += wager * multipliers[reels[0]];
       resultKind = reels[0] == 5 ? 2 : 1;
     } else if (pair) {
@@ -153,7 +153,10 @@ class SlotMachine {
   }
 
   static const char *symbolText(int symbol) {
-    static const char *names[] = {"CH", "LE", "BE", "ST", "DI", "7"};
+    static const char *names[] = {"CHRY", "BAR", "BELL", "LEMN", "PLUM", "7"};
     return names[constrain(symbol, 0, 5)];
+  }
+  static int symbolOffset(int symbol) {
+    return symbol == 1 ? 7 : symbol == 5 ? 13 : 4;
   }
 };

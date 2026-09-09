@@ -21,6 +21,8 @@ int main() {
 
   // GPIO13 raises the wager; GPIO14 lowers it with a held-button repeat rate.
   s.update(0, true, false); assert(s.wager == 200);
+  advance(s, 160); s.update(0, true, false); assert(s.wager == 300);
+  advance(s, 160); s.update(0, false, true); assert(s.wager == 200);
   advance(s, 160); s.update(0, false, true); assert(s.wager == 100);
   s.wager = 5000; s.update(0, true, false); assert(s.wager == 5000);
 

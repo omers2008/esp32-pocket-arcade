@@ -44,9 +44,10 @@ Temple Quest is an original Montezuma-style six-room exploration platformer:
 find keys, collect six gems, dodge pits/spikes/enemies, and reach the final idol.
 See the [room map and temple guide](ESP32_Snake/README.md#temple-quest-map).
 Slot Machine starts with $10,000. GPIO13 raises the wager, GPIO14 lowers it, and
-pulling the joystick down spins three animated reels. Pairs and triples pay out;
-three 7s are the jackpot. Cash may reach zero, but the game ends only after a
-spin leaves the bankroll negative.
+holding either button repeats the change. Pulling the joystick down spins three
+animated reels with classic fruit-machine symbols. Pairs and triples pay out;
+three lucky 7s are the jackpot. Cash may reach zero, but the game ends only after
+a spin leaves the bankroll negative.
 
 ## Hardware and setup
 

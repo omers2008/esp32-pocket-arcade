@@ -546,7 +546,7 @@ void loop() {
     else if (selectedGame == 8) streetFighter.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     else if (selectedGame == 9) rogueCards.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     else if (selectedGame == 10) templeQuest.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
-    else slotMachine.update(joystickY(), pressed, holdArmed && holdButton.pressed);
+    else slotMachine.update(joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
                  selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over :
                  selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over :
