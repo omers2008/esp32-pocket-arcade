@@ -46,7 +46,8 @@ See the [room map and temple guide](ESP32_Snake/README.md#temple-quest-map).
 Slot Machine starts with $10,000. GPIO13 raises the wager, GPIO14 lowers it, and
 holding either button repeats the change faster and faster, up to a safe limit;
 releasing resets the repeat speed. Pulling the joystick down spins three
-animated reels with classic fruit-machine symbols. Pairs and triples pay out;
+animated reels with classic fruit-machine symbols. Hard mode weights the
+symbols like a real slot machine, making fruit common and lucky 7 rare. Pairs and triples pay out;
 three lucky 7s are the jackpot. Cash may reach zero, but the game ends only after
 a spin leaves the bankroll negative.
 

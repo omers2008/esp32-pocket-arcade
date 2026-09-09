@@ -18,7 +18,7 @@ class SlotMachine {
     wager = 100;
     score = 10000;
     over = won = false;
-    for (int &reel : reels) reel = random(6);
+    for (int &reel : reels) reel = randomSymbol();
     resultKind = 0;
     leverDown = false;
     stickReady = false;
@@ -65,9 +65,9 @@ class SlotMachine {
       if (elapsed < 1200) {
         if (now - lastReelTick >= 75) {
           lastReelTick = now;
-          reels[0] = random(6);
-          reels[1] = random(6);
-          reels[2] = random(6);
+          reels[0] = randomSymbol();
+          reels[1] = randomSymbol();
+          reels[2] = randomSymbol();
         }
       } else {
         settleSpin();
@@ -133,6 +133,19 @@ class SlotMachine {
   bool hard = false, leverDown = false, stickReady = false;
   uint32_t phaseAt = 0, lastReelTick = 0, lastWagerAdjust = 0;
   uint16_t wagerRepeatMs = 160;
+
+  int randomSymbol() const {
+    if (!hard) return random(6);
+    // Hard uses a weighted reel, closer to a real machine than six equally
+    // likely symbols. Lucky 7 is intentionally rare.
+    static const int weights[6] = {30, 20, 18, 16, 12, 4};
+    int roll = random(100);
+    for (int symbol = 0; symbol < 6; ++symbol) {
+      if (roll < weights[symbol]) return symbol;
+      roll -= weights[symbol];
+    }
+    return 5;
+  }
 
   void adjustWager(int delta) {
     wager = constrain(wager + delta, 100, 10000);

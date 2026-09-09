@@ -24,6 +24,13 @@ int main() {
   s.start(false);
   assert(s.cash == 10000 && s.wager == 100 && !s.over);
 
+  // Hard mode uses realistic weighted luck: fruit is common and lucky 7 is rare.
+  s.start(true); int symbolCounts[6] = {};
+  for (int i = 0; i < 6000; ++i) ++symbolCounts[s.randomSymbol()];
+  assert(symbolCounts[0] > symbolCounts[5] * 4);
+  assert(symbolCounts[5] > 80 && symbolCounts[5] < 400);
+  s.start(false);
+
   // GPIO13 raises the wager; GPIO14 lowers it with a held-button repeat rate.
   s.update(0, true, false); assert(s.wager == 200);
   holdWager(s, 160, true, false); assert(s.wager == 300);

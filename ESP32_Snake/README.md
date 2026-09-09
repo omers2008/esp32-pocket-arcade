@@ -167,7 +167,7 @@
 | Street Fighter | 8 health, 2 simultaneous enemies, slower enemies and longer attack warnings | 6 health, 3 simultaneous enemies, tougher/faster enemies and shorter warnings |
 | Rogue Cards | Fixed five-card deck, 32 starting HP, heal 2 after wins | Random five-card deck, 26 starting HP, enemies have +4 HP and +1 attack, no base post-battle heal |
 | Temple Quest | 5 lives, slower enemies, longer respawn protection | 3 lives, faster enemies, shorter protection |
-| Slot Machine | $10,000 bankroll; standard wager and payouts | $10,000 bankroll; standard wager and payouts |
+| Slot Machine | Even symbol odds; standard wager and payouts | Realistic weighted symbols; lucky 7 is rare |
 
 ### Rogue Cards powers
 

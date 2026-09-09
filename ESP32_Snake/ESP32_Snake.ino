@@ -25,6 +25,7 @@ constexpr uint8_t JOY_Y_PIN = 35;
 constexpr uint8_t MENU_BUTTON_PIN = 12;
 constexpr uint8_t ACTION_BUTTON_PIN = 13;
 constexpr uint8_t HOLD_BUTTON_PIN = 14;
+constexpr uint32_t SLOT_HARD_SCORE_RESET_VERSION = 1;
 
 // Change either value if that joystick axis moves in the opposite direction.
 constexpr bool INVERT_X = false;
@@ -457,6 +458,16 @@ void setup() {
       bestScores[i][1] = preferences.getUInt("highscore_hard", 0);
       preferences.end();
     }
+  }
+  // Reset the Slot Machine Hard record once for the new realistic-odds mode;
+  // the marker keeps later boots and future scores persistent as normal.
+  if (preferences.begin("slots", false)) {
+    if (preferences.getUInt("hard_reset_v", 0) < SLOT_HARD_SCORE_RESET_VERSION) {
+      preferences.putUInt("highscore_hard", 0);
+      preferences.putUInt("hard_reset_v", SLOT_HARD_SCORE_RESET_VERSION);
+      bestScores[11][1] = 0;
+    }
+    preferences.end();
   }
 
   Wire.begin(OLED_SDA_PIN, OLED_SCL_PIN);
