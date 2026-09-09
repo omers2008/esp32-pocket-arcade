@@ -32,7 +32,9 @@ Blackjack is points-only: play 10 hands against the dealer, with automatically
 valued aces and a freshly shuffled 52-card deck each hand. No betting or money.
 Street Fighter is an original tiny arena brawler, not a Street Fighter II port:
 fight enemy waves using punches, kicks, and jumps with original monochrome sprites.
-Rogue Cards is a nine-fight turn-based roguelike: play ability cards, choose one
+Rogue Cards is a nine-fight turn-based roguelike: start with five cards and draw
+three each turn. Easy uses two Strikes, two Guards, and one Heal; Hard rolls
+five cards from that pool once per run, with at least one Strike. Choose one
 of three passives after each battle, earn active powers from bosses, and find
 random free-power events. Powers last for the run; only high scores persist.
 Temple Quest is an original Montezuma-style six-room exploration platformer:

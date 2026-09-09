@@ -79,7 +79,8 @@ build\temple_test.exe
   group hits, damage/immunity, wave progression, spawning, timer rollover,
   and 60,000 input/draw steps.
 
-- Rogue Cards: turn order, cards/energy, passive stacks, active upgrades and uses,
+- Rogue Cards: fixed/random five-card decks, three-card draws without replacement,
+  deck persistence through turns and fights, turn order, energy, passive stacks, active upgrades and uses,
   poison/thorns, boss reward ordering, free events, campaign win/loss, run reset,
   timer rollover, 40,000 input/draw steps, and 200 complete policy-driven runs.
 

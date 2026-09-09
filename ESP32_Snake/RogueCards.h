@@ -15,6 +15,14 @@ class RogueCards {
     for (auto &p : passives) p = 0;
     for (auto &a : actives) a = 0;
     for (auto &u : activeUsed) u = false;
+    const int easyDeck[5] = {STRIKE, STRIKE, SHIELD, SHIELD, HEAL};
+    bool hasAttack = false;
+    for (int i = 0; i < 5; ++i) {
+      starterDeck[i] = hard ? int(random(3)) : easyDeck[i];
+      hasAttack |= starterDeck[i] == STRIKE;
+    }
+    // Avoid a starting hand pool that can never damage the first enemy.
+    if (!hasAttack) starterDeck[random(5)] = STRIKE;
     enter(INTRO);
   }
 
@@ -61,7 +69,7 @@ class RogueCards {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     if (phase == INTRO) {
       line(d, 0, "ROGUE CARDS"); line(d, 13, "Stick: choose card");
-      line(d, 24, "13 play / 14 end"); line(d, 35, "3 energy each turn");
+      line(d, 24, "13 play / 14 end"); line(d, 35, "5 cards / 3 per turn");
       line(d, 46, "9 fights / 3 bosses"); line(d, 56, "13: begin");
     } else if (phase == COMBAT || phase == ENEMY) {
       d.setCursor(0, 0); d.print(F("HP")); d.print(hp); d.print('/'); d.print(maxHp);
@@ -125,7 +133,7 @@ class RogueCards {
   Phase phase = INTRO;
   uint8_t passives[6] = {}, actives[6] = {};
   bool activeUsed[6] = {};
-  int hand[3] = {}, handSize = 0, choices[3] = {};
+  int starterDeck[5] = {}, hand[3] = {}, handSize = 0, choices[3] = {};
   int selected = 0, enemyHp = 0, enemyType = 0, enemyPoison = 0;
   int energy = 3, block = 0, turn = 0, eventKind = 0;
   bool hard = false, stickReady = false, rewardFromEvent = false;
@@ -150,9 +158,10 @@ class RogueCards {
     newTurn();
   }
   void newTurn() {
-    // Three cards drawn without replacement from a six-card starter deck.
-    int deck[6] = {STRIKE, STRIKE, STRIKE, SHIELD, SHIELD, HEAL};
-    for (int i = 5; i > 0; --i) { int j = random(i + 1); int saved = deck[i]; deck[i] = deck[j]; deck[j] = saved; }
+    // Draw three from this run's five cards; Hard does not reroll the deck here.
+    int deck[5];
+    for (int i = 0; i < 5; ++i) deck[i] = starterDeck[i];
+    for (int i = 4; i > 0; --i) { int j = random(i + 1); int saved = deck[i]; deck[i] = deck[j]; deck[j] = saved; }
     for (int i = 0; i < 3; ++i) hand[i] = deck[i];
     handSize = 3; energy = 3; block = 0;
     enter(COMBAT);

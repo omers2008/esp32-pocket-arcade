@@ -94,8 +94,11 @@
   scroll again, and press GPIO13 to play/choose. GPIO14 ends your turn (and wins
   if both buttons are pressed together in combat). GPIO12 exits to the arcade.
   There is no real-time pressure: the enemy acts only after you end your turn.
-  Each turn draws three cards from a freshly shuffled six-card starter deck
-  (three Strikes, two Guards, one Heal). Each costs one of your three energy.
+  You start with five cards. Easy gives two Strikes, two Guards, and one Heal.
+  Hard rolls five cards from the Strike/Guard/Heal pool, allowing duplicates,
+  and ensures at least one Strike. The rolled deck stays fixed for the whole run.
+  Each turn shuffles those five and makes three available to play; the other two are
+  unavailable until a later draw. Each played card costs one of your three energy.
   Strike deals 5 damage, Guard gives 5 block, and Heal restores 3 HP before upgrades.
   Unused cards, remaining energy, and block reset after the enemy turn.
   The HUD shows `HP`, energy (`E`), block (`B`), fight (`F`), enemy HP, and its
@@ -148,7 +151,7 @@
 | Pac-Man | 2 ghosts, slower/more random chasing, 6 seconds of power | 3 ghosts, faster/more direct chasing, 3.5 seconds of power |
 | Blackjack | Dealer stands on soft 17 | Dealer hits soft 17 |
 | Street Fighter | 8 health, 2 simultaneous enemies, slower enemies and longer attack warnings | 6 health, 3 simultaneous enemies, tougher/faster enemies and shorter warnings |
-| Rogue Cards | 32 starting HP, heal 2 after wins | 26 starting HP, enemies have +4 HP and +1 attack, no base post-battle heal |
+| Rogue Cards | Fixed five-card deck, 32 starting HP, heal 2 after wins | Random five-card deck, 26 starting HP, enemies have +4 HP and +1 attack, no base post-battle heal |
 | Temple Quest | 5 lives, slower enemies, longer respawn protection | 3 lives, faster enemies, shorter protection |
 
 ### Rogue Cards powers

@@ -37,12 +37,41 @@ int main() {
   tick(g, 0, 0, true, true, 599); assert(g.phase == RogueCards::ENEMY);
   tick(g, 0, 0, false, false, 1);
   assert(g.phase == RogueCards::COMBAT && g.hp == 14 && g.block == 0 && g.handSize == 3 && g.energy == 3);
-  // Every starter hand comes from the defined six-card deck.
+  // Only three of the five starting cards are available each turn.
+  int drawn[3] = {};
   for (int i = 0; i < 1000; ++i) {
     g.newTurn(); int counts[3] = {};
-    for (int c : g.hand) { assert(c >= 0 && c < 3); ++counts[c]; }
-    assert(counts[0] <= 3 && counts[1] <= 2 && counts[2] <= 1);
+    for (int c : g.hand) { assert(c >= 0 && c < 3); ++counts[c]; ++drawn[c]; }
+    assert(g.handSize == 3 && g.energy == 3);
+    assert(counts[0] <= 2 && counts[1] <= 2 && counts[2] <= 1);
+    assert(counts[0] + counts[1] + counts[2] == 3);
   }
+  assert(drawn[0] > 1000 && drawn[0] < 1400);
+  assert(drawn[1] > 1000 && drawn[1] < 1400);
+  assert(drawn[2] > 450 && drawn[2] < 750);
+  // Hard rolls a persistent five-card deck once per run, not once per turn.
+  bool sawDifferentHardDeck = false;
+  int previous[5] = {-1, -1, -1, -1, -1};
+  for (int run = 0; run < 200; ++run) {
+    g.start(true);
+    int available[3] = {}, saved[5];
+    for (int i = 0; i < 5; ++i) {
+      int card = g.starterDeck[i]; assert(card >= 0 && card < 3);
+      ++available[card]; saved[i] = card;
+      if (run > 0 && card != previous[i]) sawDifferentHardDeck = true;
+      previous[i] = card;
+    }
+    assert(available[RogueCards::STRIKE] >= 1);
+    for (int turn = 0; turn < 30; ++turn) {
+      g.newTurn(); int used[3] = {};
+      for (int c : g.hand) ++used[c];
+      for (int c = 0; c < 3; ++c) assert(used[c] <= available[c]);
+      for (int i = 0; i < 5; ++i) assert(g.starterDeck[i] == saved[i]);
+    }
+    g.beginBattle();
+    for (int i = 0; i < 5; ++i) assert(g.starterDeck[i] == saved[i]);
+  }
+  assert(sawDifferentHardDeck);
   combat(g); g.hp = 20; g.gainPassive(RogueCards::HEART);
   assert(g.maxHp == 37 && g.hp == 25);
   g.gainPassive(RogueCards::HEART); assert(g.maxHp == 42 && g.hp == 30);
