@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A nine-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A ten-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -15,6 +15,7 @@ separate high scores stored in flash for each game and difficulty.
 | Pac-Man-style maze | Steer; turns can be queued | Select / retry | Unused |
 | Blackjack | Unused during play | Hit / next hand | Stand |
 | Street Fighter-style brawler | Move left/right; up = jump | Punch | Kick |
+| Rogue Cards | Scroll cards / rewards | Play card / choose reward | End turn |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -30,6 +31,9 @@ Blackjack is points-only: play 10 hands against the dealer, with automatically
 valued aces and a freshly shuffled 52-card deck each hand. No betting or money.
 Street Fighter is an original tiny arena brawler, not a Street Fighter II port:
 fight enemy waves using punches, kicks, and jumps with original monochrome sprites.
+Rogue Cards is a nine-fight turn-based roguelike: play ability cards, choose one
+of three passives after each battle, earn active powers from bosses, and find
+random free-power events. Powers last for the run; only high scores persist.
 
 ## Hardware and setup
 
@@ -50,7 +54,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All nine games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All ten games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -66,7 +70,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, and brawler
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, and Rogue Cards
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

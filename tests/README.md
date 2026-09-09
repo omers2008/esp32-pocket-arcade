@@ -22,6 +22,8 @@ g++ -std=c++17 -Itests tests/blackjack_test.cpp -o build/blackjack_test
 ./build/blackjack_test
 g++ -std=c++17 -Itests tests/fighter_test.cpp -o build/fighter_test
 ./build/fighter_test
+g++ -std=c++17 -Itests tests/rogue_test.cpp -o build/rogue_test
+./build/rogue_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -43,6 +45,8 @@ cl /nologo /EHsc /std:c++17 /Itests tests\blackjack_test.cpp /Fobuild\blackjack_
 build\blackjack_test.exe
 cl /nologo /EHsc /std:c++17 /Itests tests\fighter_test.cpp /Fobuild\fighter_test.obj /Febuild\fighter_test.exe
 build\fighter_test.exe
+cl /nologo /EHsc /std:c++17 /Itests tests\rogue_test.cpp /Fobuild\rogue_test.obj /Febuild\rogue_test.exe
+build\rogue_test.exe
 ```
 
 - Tetris: rotations, seven-bag distribution, hold restrictions, row clearing,
@@ -70,5 +74,9 @@ build\fighter_test.exe
 - Fighter: short-press queue, jump/rearm, punch/kick ranges and cooldowns,
   group hits, damage/immunity, wave progression, spawning, timer rollover,
   and 60,000 input/draw steps.
+
+- Rogue Cards: turn order, cards/energy, passive stacks, active upgrades and uses,
+  poison/thorns, boss reward ordering, free events, campaign win/loss, run reset,
+  timer rollover, 40,000 input/draw steps, and 200 complete policy-driven runs.
 
 These are logic tests, not pixel-level rendering tests or hardware tests.

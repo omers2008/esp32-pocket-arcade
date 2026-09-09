@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: nine games
+# ESP32 Pocket Arcade: ten games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the nine games (four visible at a time).
+- At startup, tilt the joystick to scroll between the ten games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -89,6 +89,28 @@
   250 points and restores one health. Lose all health to end the run. The HUD
   shows score, wave, health, and enemies remaining (including upcoming spawns).
   Saved scores are separate by difficulty; all previous games' records remain.
+- Rogue Cards: a turn-based roguelike with nine fights and bosses on fights 3,
+  6, and 9. Move the joystick to scroll cards or rewards, return it to center to
+  scroll again, and press GPIO13 to play/choose. GPIO14 ends your turn (and wins
+  if both buttons are pressed together in combat). GPIO12 exits to the arcade.
+  There is no real-time pressure: the enemy acts only after you end your turn.
+  Each turn draws three cards from a freshly shuffled six-card starter deck
+  (three Strikes, two Guards, one Heal). Each costs one of your three energy.
+  Strike deals 5 damage, Guard gives 5 block, and Heal restores 3 HP before upgrades.
+  Unused cards, remaining energy, and block reset after the enemy turn.
+  The HUD shows `HP`, energy (`E`), block (`B`), fight (`F`), enemy HP, and its
+  next `ATK`. The selected card/power's effect appears below the scrolling list.
+  Enemy attack rises every three turns, up to 30 damage before block.
+  Every victory offers **three distinct passive choices**, including boss wins.
+  After taking a boss passive, choose one of three active powers as an extra reward.
+  Actives appear after your hand in the scrolling action list, cost no energy,
+  and can each be used once per fight (`FREE`/`USED`). They reset next fight,
+  not next turn. Taking an owned passive stacks it; taking an owned active upgrades it.
+  After rewards, there is a 20% chance of a free passive-choice shrine, 20% of a
+  free active-choice cache, 15% of a spring healing 7 HP, or 45% of moving straight
+  to the next battle. No event follows the final boss. Its passive and active
+  rewards are collected before the victory screen. Upgrades reset on a new run;
+  only high scores are saved, not unfinished runs.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -109,6 +131,33 @@
 | Pac-Man | 2 ghosts, slower/more random chasing, 6 seconds of power | 3 ghosts, faster/more direct chasing, 3.5 seconds of power |
 | Blackjack | Dealer stands on soft 17 | Dealer hits soft 17 |
 | Street Fighter | 8 health, 2 simultaneous enemies, slower enemies and longer attack warnings | 6 health, 3 simultaneous enemies, tougher/faster enemies and shorter warnings |
+| Rogue Cards | 32 starting HP, heal 2 after wins | 26 starting HP, enemies have +4 HP and +1 attack, no base post-battle heal |
+
+### Rogue Cards powers
+
+| Passive | Effect per copy, for this run |
+|---|---|
+| Might | +1 damage to attacks |
+| Iron guard | +2 block from Guard and Ward |
+| Big heart | +5 max HP and immediately heal 5 |
+| Herbs | +1 healing from Heal, Mend, and Leech |
+| Thorns | Deal 2 damage whenever the enemy attacks, even if blocked |
+| Campfire | Heal 3 after every victory |
+
+| Active | First-copy effect; once per fight, no energy cost |
+|---|---|
+| Fireball | Deal 12 damage |
+| Ward | Gain 12 block |
+| Mend | Heal 8 HP |
+| Venom | Deal 4 poison damage at the start of every enemy turn this fight |
+| Leech | Deal 8 damage and heal 4 HP |
+| Storm | Deal 6 damage and gain 6 block |
+
+Each additional active copy adds 2 to its main value (both damage and block for
+Storm; Leech's healing stays at 4 before Herbs). Might/Herbs/Iron guard also apply
+where described above. Poison kills prevent the enemy attack; simultaneous
+player/enemy deaths from Thorns count as a loss. Each win scores `100 + 25 * fight`,
+with +200 for a boss and +500 for clearing the entire run.
 
 Tetris gravity speeds up every 10 cleared lines. Both difficulties use all seven
 tetrominoes in shuffled groups of seven and have separate saved high scores.
