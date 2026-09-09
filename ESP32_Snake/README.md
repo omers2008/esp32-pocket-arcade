@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: Snake, Space Invaders, Pong, Tetris, Castlevania-style adventure, and Duck Hunt
+# ESP32 Pocket Arcade: seven games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the six games (four visible at a time).
+- At startup, tilt the joystick to scroll between the seven games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -45,6 +45,17 @@
   advances the round and increases speed, capped after 10 speed increases.
   Lose all lives to end the run. The HUD shows score, round, lives, and ammo.
   This is original monochrome target-shooting code, not the original NES game.
+- Pac-Man: steer with the joystick. Movement continues after releasing the stick;
+  a requested turn is queued until the next opening, and walls stop movement.
+  Eat all pellets to clear the original 21x11 maze and start a faster round.
+  Small pellets earn 10 points, large corner power pellets earn 50, and clearing
+  the maze earns 500. Power pellets make ghosts flee and become edible (outlined
+  sprites); successive ghosts earn 200/400/800/1600 points, capped at 1600.
+  The top bar shows remaining power time; ghosts flash as it runs out.
+  Eaten ghosts return home after 2.2 seconds. You have three lives, a short READY
+  pause, and brief protection after respawning. Eaten pellets stay gone after
+  losing a life. GPIO13/14 have no in-game action; GPIO12 returns to the menu.
+  This is a small-screen lookalike with original maze/sprites, not the original ROM.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -62,6 +73,7 @@
 | Tetris | 650 ms starting gravity, 450 ms lock delay | 360 ms starting gravity, 250 ms lock delay |
 | Castlevania | 6 health, slower enemies, one-hit skeletons, slower boss shots | 4 health, faster enemies, two-hit skeletons, tougher bosses and faster firing |
 | Duck Hunt | 5 lives, 6.5 seconds/target, slower flight, 2 px hit-area padding | 3 lives, 4.5 seconds/target, faster flight, tighter aim required |
+| Pac-Man | 2 ghosts, slower/more random chasing, 6 seconds of power | 3 ghosts, faster/more direct chasing, 3.5 seconds of power |
 
 Tetris gravity speeds up every 10 cleared lines. Both difficulties use all seven
 tetrominoes in shuffled groups of seven and have separate saved high scores.
@@ -73,7 +85,7 @@ Pong's Hard CPU has a reaction delay and limited paddle speed, so it is designed
 to remain beatable. Both modes still play first to 7. The current difficulty is
 shown during play and on the result screen.
 
-Keep `ESP32_Snake.ino`, `Invaders.h`, `Pong.h`, `Tetris.h`, `Castle.h`, `DuckHunt.h`, and `Buttons.h` together in the
+Keep `ESP32_Snake.ino`, `Invaders.h`, `Pong.h`, `Tetris.h`, `Castle.h`, `DuckHunt.h`, `PacMan.h`, and `Buttons.h` together in the
 `ESP32_Snake` folder.
 
 ## Wiring

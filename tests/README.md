@@ -16,6 +16,8 @@ g++ -std=c++17 -Itests tests/pong_test.cpp -o build/pong_test
 ./build/pong_test
 g++ -std=c++17 -Itests tests/duckhunt_test.cpp -o build/duckhunt_test
 ./build/duckhunt_test
+g++ -std=c++17 -Itests tests/pacman_test.cpp -o build/pacman_test
+./build/pacman_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -31,6 +33,8 @@ cl /nologo /EHsc /std:c++17 /Itests tests\pong_test.cpp /Fobuild\pong_test.obj /
 build\pong_test.exe
 cl /nologo /EHsc /std:c++17 /Itests tests\duckhunt_test.cpp /Fobuild\duckhunt_test.obj /Febuild\duckhunt_test.exe
 build\duckhunt_test.exe
+cl /nologo /EHsc /std:c++17 /Itests tests\pacman_test.cpp /Fobuild\pacman_test.obj /Febuild\pacman_test.exe
+build\pacman_test.exe
 ```
 
 - Tetris: rotations, seven-bag distribution, hold restrictions, row clearing,
@@ -44,6 +48,10 @@ build\duckhunt_test.exe
 
 - Duck Hunt: aim movement/bounds, hit detection, ammo/scoring, shot events,
   result transitions, timeouts, lives, target bounces, rounds, restart, timer
+  rollover, and 40,000 input/draw steps.
+
+- Pac-Man: maze connectivity, pellet collection, power mode, queued turns,
+  movement bounds, ghost movement/respawn, collisions, lives, rounds, timer
   rollover, and 40,000 input/draw steps.
 
 These are logic tests, not pixel-level rendering tests or hardware tests.
