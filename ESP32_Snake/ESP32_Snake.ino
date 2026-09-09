@@ -10,6 +10,7 @@
 #include "DuckHunt.h"
 #include "PacMan.h"
 #include "Blackjack.h"
+#include "StreetFighter.h"
 
 // ---------- Hardware ----------
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -46,10 +47,11 @@ CastleGame castle;
 DuckHunt duckHunt;
 PacMan pacMan;
 Blackjack blackjack;
-constexpr uint8_t GAME_COUNT = 8;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack"};
-const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack"};
-uint8_t selectedGame = 0;  // Snake, Invaders, Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack
+StreetFighter streetFighter;
+constexpr uint8_t GAME_COUNT = 9;
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter"};
+const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter"};
+uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
 bool menuStickReady = true;
@@ -99,6 +101,11 @@ void placeFood() {
 void startGame() {
   holdArmed = false; // Require release before the first hold in a new game.
   actionArmed = false;  // Release the select button before shooting.
+  if (selectedGame == 8) {
+    streetFighter.start(selectedDifficulty == 1);
+    gameState = PLAYING;
+    return;
+  }
   if (selectedGame == 7) {
     blackjack.start(selectedDifficulty == 1);
     gameState = PLAYING;
@@ -153,7 +160,8 @@ uint32_t currentScore() {
   if (selectedGame == 4) return castle.score;
   if (selectedGame == 5) return duckHunt.score;
   if (selectedGame == 6) return pacMan.score;
-  return blackjack.score;
+  if (selectedGame == 7) return blackjack.score;
+  return streetFighter.score;
 }
 
 void finishGame() {
@@ -341,6 +349,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  if (selectedGame == 8) { streetFighter.draw(display); return; }
   if (selectedGame == 7) { blackjack.draw(display); return; }
   if (selectedGame == 6) { pacMan.draw(display); return; }
   if (selectedGame == 5) { duckHunt.draw(display); return; }
@@ -504,10 +513,12 @@ void loop() {
     else if (selectedGame == 4) castle.update(joystickX(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
     else if (selectedGame == 5) duckHunt.update(joystickX(), joystickY(), pressed);
     else if (selectedGame == 6) pacMan.update(joystickX(), joystickY());
-    else blackjack.update(pressed, holdArmed && holdButton.pressed);
+    else if (selectedGame == 7) blackjack.update(pressed, holdArmed && holdButton.pressed);
+    else streetFighter.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
                  selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over :
-                 selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over : blackjack.over;
+                 selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over :
+                 selectedGame == 7 ? blackjack.over : streetFighter.over;
     if (ended) {
       finishGame();
       drawGameOver();

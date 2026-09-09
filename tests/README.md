@@ -20,6 +20,8 @@ g++ -std=c++17 -Itests tests/pacman_test.cpp -o build/pacman_test
 ./build/pacman_test
 g++ -std=c++17 -Itests tests/blackjack_test.cpp -o build/blackjack_test
 ./build/blackjack_test
+g++ -std=c++17 -Itests tests/fighter_test.cpp -o build/fighter_test
+./build/fighter_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -39,6 +41,8 @@ cl /nologo /EHsc /std:c++17 /Itests tests\pacman_test.cpp /Fobuild\pacman_test.o
 build\pacman_test.exe
 cl /nologo /EHsc /std:c++17 /Itests tests\blackjack_test.cpp /Fobuild\blackjack_test.obj /Febuild\blackjack_test.exe
 build\blackjack_test.exe
+cl /nologo /EHsc /std:c++17 /Itests tests\fighter_test.cpp /Fobuild\fighter_test.obj /Febuild\fighter_test.exe
+build\fighter_test.exe
 ```
 
 - Tetris: rotations, seven-bag distribution, hold restrictions, row clearing,
@@ -62,5 +66,9 @@ build\blackjack_test.exe
 - Blackjack: ace valuation, unique deck, natural blackjacks, ties/busts,
   dealer soft-17 rules, button priority, result guards, ten-hand sessions,
   timer rollover, and 40,000 input/draw steps.
+
+- Fighter: short-press queue, jump/rearm, punch/kick ranges and cooldowns,
+  group hits, damage/immunity, wave progression, spawning, timer rollover,
+  and 60,000 input/draw steps.
 
 These are logic tests, not pixel-level rendering tests or hardware tests.
