@@ -53,7 +53,7 @@ class SlotMachine {
 
     if (phase == SPIN) {
       uint32_t elapsed = now - phaseAt;
-      if (elapsed < 2000) {
+      if (elapsed < 1200) {
         if (now - lastReelTick >= 75) {
           lastReelTick = now;
           reels[0] = random(6);
@@ -90,7 +90,9 @@ class SlotMachine {
     for (int i = 0; i < 3; ++i) {
       int x = 5 + i * 36;
       d.drawRoundRect(x, 17, 32, 28, 3, SSD1306_WHITE);
-      drawSymbol(d, reels[i], x, 17);
+      d.setTextSize(1);
+      d.setCursor(x + symbolOffset(reels[i]), 28);
+      d.print(symbolText(reels[i]));
     }
 
     // Animated lever: it drops during the pull and rises after the result.
@@ -107,7 +109,8 @@ class SlotMachine {
       d.setCursor(39, 53); d.print(phase == LEVER ? F("PULL!") : F("SPINNING..."));
     } else {
       if (resultKind == 2) { d.setCursor(31, 53); d.print(F("JACKPOT!")); }
-      else if (resultKind == 1) { d.setCursor(31, 53); d.print(F("TRIPLE HIT!")); }
+      else if (resultKind == 3) { d.setCursor(31, 53); d.print(F("TRIPLE HIT!")); }
+      else if (resultKind == 1) { d.setCursor(43, 53); d.print(F("PAIR HIT!")); }
       else { d.setCursor(46, 53); d.print(F("NO WIN")); }
     }
     d.display();
@@ -140,7 +143,7 @@ class SlotMachine {
       // Lucky seven is the top jackpot; classic machine symbols pay by rarity.
       static const int multipliers[6] = {3, 8, 10, 4, 6, 50};
       cash += wager * multipliers[reels[0]];
-      resultKind = reels[0] == 5 ? 2 : 1;
+      resultKind = reels[0] == 5 ? 2 : 3;
     } else if (pair) {
       cash += wager * 2;
       resultKind = 1;
@@ -150,40 +153,11 @@ class SlotMachine {
     if (cash > int32_t(score)) score = uint32_t(cash);
   }
 
-  static void drawSymbol(Adafruit_SSD1306 &d, int symbol, int x, int y) {
-    int cx = x + 16, cy = y + 14;
-    switch (constrain(symbol, 0, 5)) {
-      case 0: // Cherries.
-        d.drawLine(cx - 5, cy - 5, cx - 2, cy - 11, SSD1306_WHITE);
-        d.drawLine(cx + 5, cy - 5, cx + 2, cy - 11, SSD1306_WHITE);
-        d.drawCircle(cx - 6, cy - 1, 5, SSD1306_WHITE);
-        d.drawCircle(cx + 6, cy - 1, 5, SSD1306_WHITE);
-        break;
-      case 1: // BAR symbol: three stacked bars, no text required.
-        d.drawRect(x + 4, y + 5, 24, 18, SSD1306_WHITE);
-        d.drawFastHLine(x + 6, y + 10, 20, SSD1306_WHITE);
-        d.drawFastHLine(x + 6, y + 17, 20, SSD1306_WHITE);
-        break;
-      case 2: // Lucky seven.
-        d.drawFastHLine(x + 7, y + 6, 18, SSD1306_WHITE);
-        d.drawLine(x + 24, y + 6, x + 13, y + 22, SSD1306_WHITE);
-        d.drawLine(x + 13, y + 22, x + 10, y + 22, SSD1306_WHITE);
-        break;
-      case 3: // Liberty Bell silhouette.
-        d.drawCircle(cx, cy - 2, 8, SSD1306_WHITE);
-        d.fillRect(x + 8, y + 16, 16, 5, SSD1306_WHITE);
-        d.drawFastHLine(x + 6, y + 22, 20, SSD1306_WHITE);
-        d.fillCircle(cx, y + 22, 2, SSD1306_WHITE);
-        break;
-      case 4: // Lemon.
-        d.drawCircle(cx, cy, 9, SSD1306_WHITE);
-        d.drawLine(cx - 6, cy + 6, cx + 5, cy - 6, SSD1306_WHITE);
-        break;
-      default: // Plum.
-        d.drawCircle(cx, cy + 1, 8, SSD1306_WHITE);
-        d.drawLine(cx, cy - 7, cx + 5, cy - 11, SSD1306_WHITE);
-        d.drawLine(cx + 4, cy - 10, cx + 9, cy - 9, SSD1306_WHITE);
-        break;
-    }
+  static const char *symbolText(int symbol) {
+    static const char *names[] = {"CHRY", "BAR", "BELL", "LEMN", "PLUM", "7"};
+    return names[constrain(symbol, 0, 5)];
+  }
+  static int symbolOffset(int symbol) {
+    return symbol == 1 ? 7 : symbol == 5 ? 13 : 4;
   }
 };

@@ -32,15 +32,22 @@ int main() {
   assert(s.phase == SlotMachine::LEVER && s.cash == 5000);
   advance(s, 240); assert(s.phase == SlotMachine::SPIN);
   // A triple seven is the jackpot and raises the run's peak score.
-  advance(s, 1999); s.reels[0] = s.reels[1] = s.reels[2] = 5;
+  advance(s, 1199); s.reels[0] = s.reels[1] = s.reels[2] = 5;
   advance(s, 1); assert(s.phase == SlotMachine::RESULT && s.resultKind == 2);
   assert(s.cash == 255000 && s.score == 255000);
+  advance(s, 1400); assert(s.phase == SlotMachine::IDLE && !s.over);
+
+  // A pair is a normal hit, not a triple result.
+  s.cash = 10000; s.wager = 100; s.reels[0] = 3; s.reels[1] = 1; s.reels[2] = 1;
+  s.update(0, false, false); s.update(-1000, false, false);
+  advance(s, 240); advance(s, 1199); s.reels[0] = 3; s.reels[1] = 1; s.reels[2] = 1;
+  advance(s, 1); assert(s.phase == SlotMachine::RESULT && s.resultKind == 1 && s.cash == 10100);
   advance(s, 1400); assert(s.phase == SlotMachine::IDLE && !s.over);
 
   // The machine permits zero cash but ends only after a spin leaves cash negative.
   s.cash = 0; s.wager = 100; s.reels[0] = 0; s.reels[1] = 1; s.reels[2] = 2;
   s.update(0, false, false); s.update(-1000, false, false);
-  advance(s, 240); advance(s, 1999); s.reels[0] = 0; s.reels[1] = 1; s.reels[2] = 2;
+  advance(s, 240); advance(s, 1199); s.reels[0] = 0; s.reels[1] = 1; s.reels[2] = 2;
   advance(s, 1); assert(s.phase == SlotMachine::RESULT && s.cash == -100);
   advance(s, 1400); assert(s.over);
 

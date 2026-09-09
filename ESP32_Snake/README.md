@@ -142,8 +142,7 @@
   change. Pull the joystick down to pull
   the lever and spin the three animated reels. A pair pays 2x; triples pay more
   based on the symbol, and three 7s are the jackpot at 50x. The lever, spinning,
-  hit, and jackpot states are animated on the OLED, with the reels spinning for
-  roughly two seconds. Cash can reach zero; only a
+  hit, and jackpot states are animated on the OLED. Cash can reach zero; only a
   spin that leaves cash below zero ends the run. GPIO12 returns to the menu.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
