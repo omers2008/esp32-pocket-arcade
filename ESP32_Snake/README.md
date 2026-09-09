@@ -38,12 +38,18 @@
   Easy/Hard; the other games' existing records are unchanged.
 - Duck Hunt: move the crosshair with both joystick axes; tilting farther aims faster.
   Press GPIO13 to shoot (release before shooting again). GPIO14 is unused.
-  Each flying duck gives you three shots and a limited time, shown by the top bar.
+  Encounters contain one, two, or three flying ducks sharing three shots and a
+  timer shown by the top bar. Easy spawns 1/2/3 birds with 60%/30%/10% chances;
+  Hard uses 45%/35%/20%. Each extra bird adds 1.5 seconds to the timer.
   A hit earns 100 points plus 25 for each unused shot (150/125/100 for a first/
-  second/third-shot hit). Running out of shots or time costs one life. After a
-  short HIT/FLEW AWAY message, another duck appears. Every 10 resolved targets
+  second/third-shot hit), per bird. A shot can hit multiple overlapping birds.
+  Surviving birds keep flying after a hit. Clear every bird to finish the encounter;
+  running out of shots or time with survivors costs one life total, keeping points
+  already earned. After a short HIT/FLEW AWAY message, another encounter starts.
+  Every 10 resolved encounters
   advances the round and increases speed, capped after 10 speed increases.
-  Lose all lives to end the run. The HUD shows score, round, lives, and ammo.
+  Lose all lives to end the run. The HUD shows score, round, lives, ammo (`A`),
+  and birds remaining/total (`B`).
   This is original monochrome target-shooting code, not the original NES game.
 - Pac-Man: steer with the joystick. Movement continues after releasing the stick;
   a requested turn is queued until the next opening, and walls stop movement.
@@ -72,7 +78,7 @@
 | Pong | More accurate tracking, 1.65 px/frame CPU speed, slower ball | Predictive CPU at 2.0 px/frame with more aiming error; faster ball and steeper paddle-angle shots |
 | Tetris | 650 ms starting gravity, 450 ms lock delay | 360 ms starting gravity, 250 ms lock delay |
 | Castlevania | 6 health, slower enemies, one-hit skeletons, slower boss shots | 4 health, faster enemies, two-hit skeletons, tougher bosses and faster firing |
-| Duck Hunt | 5 lives, 6.5 seconds/target, slower flight, 2 px hit-area padding | 3 lives, 4.5 seconds/target, faster flight, tighter aim required |
+| Duck Hunt | 5 lives, 6.5 seconds base + 1.5 per extra bird, slower flight, forgiving aim | 3 lives, 4.5 seconds base + 1.5 per extra bird, more flocks, faster flight, tighter aim |
 | Pac-Man | 2 ghosts, slower/more random chasing, 6 seconds of power | 3 ghosts, faster/more direct chasing, 3.5 seconds of power |
 
 Tetris gravity speeds up every 10 cleared lines. Both difficulties use all seven

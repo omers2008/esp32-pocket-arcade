@@ -20,7 +20,8 @@ Tetris hold is available once per piece, resetting after the piece locks.
 The castle adventure is an original miniature three-stage game, not a port of
 the original NES ROM; no original game assets are included.
 Duck Hunt is also an original small-screen lookalike, with flying targets,
-three shots per target, and a countdown bar. Hit targets before they escape.
+occasional two/three-bird flocks, three shots per encounter, and a countdown bar.
+Hit every bird before they escape; overlapping birds can share a single shot.
 Pac-Man uses an original compact maze: eat all pellets, avoid ghosts, and eat
 power pellets to turn the tables. Clear a maze to start a faster round.
 

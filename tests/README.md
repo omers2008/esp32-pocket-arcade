@@ -46,7 +46,8 @@ build\pacman_test.exe
 - Pong: CPU speed/reaction/accuracy, prediction threshold, serve buffering,
   unchanged ball speed caps, scoring, restart, and 40,000 input/draw steps.
 
-- Duck Hunt: aim movement/bounds, hit detection, ammo/scoring, shot events,
+- Duck Hunt: single/flock spawn frequencies, overlapping multi-hit shots,
+  no duplicate scoring, partial-flock completion, aim movement/bounds, ammo, shot events,
   result transitions, timeouts, lives, target bounces, rounds, restart, timer
   rollover, and 40,000 input/draw steps.
 
