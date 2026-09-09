@@ -1,0 +1,21 @@
+# Generated firmware, host-test binaries, and local build directories
+/build/
+/.arduino/
+*.bin
+*.elf
+*.hex
+*.map
+*.o
+*.obj
+*.exe
+*.pdb
+*.ilk
+# Editor, OS, and local credential files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.env
+.env.*
+*.pem
+*.key
