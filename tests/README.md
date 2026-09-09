@@ -80,7 +80,8 @@ build\temple_test.exe
   and 60,000 input/draw steps.
 
 - Rogue Cards: fixed/random five-card decks, three-card draws without replacement,
-  deck persistence through turns and fights, turn order, energy, passive stacks, active upgrades and uses,
+  deck persistence through turns and fights, differentiated card/spell energy costs,
+  Hard-mode random spell rewards, turn order, energy, passive stacks, active upgrades and uses,
   poison/thorns, boss reward ordering, free events, campaign win/loss, run reset,
   timer rollover, 40,000 input/draw steps, and 200 complete policy-driven runs.
 

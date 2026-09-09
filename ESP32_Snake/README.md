@@ -98,7 +98,10 @@
   Hard rolls five cards from the Strike/Guard/Heal pool, allowing duplicates,
   and ensures at least one Strike. The rolled deck stays fixed for the whole run.
   Each turn shuffles those five and makes three available to play; the other two are
-  unavailable until a later draw. Each played card costs one of your three energy.
+  unavailable until a later draw. Each basic card costs one of your three energy.
+  Earned spell powers have different costs: Fireball, Ward, and Mend cost 2 energy;
+  Venom, Leech, and Storm cost 3 energy. Stronger spells use more of the current
+  turn's energy, but can still be saved for the right turn.
   Strike deals 5 damage, Guard gives 5 block, and Heal restores 3 HP before upgrades.
   Unused cards, remaining energy, and block reset after the enemy turn.
   The HUD shows `HP`, energy (`E`), block (`B`), fight (`F`), enemy HP, and its
@@ -106,9 +109,12 @@
   Enemy attack rises every three turns, up to 30 damage before block.
   Every victory offers **three distinct passive choices**, including boss wins.
   After taking a boss passive, choose one of three active powers as an extra reward.
-  Actives appear after your hand in the scrolling action list, cost no energy,
-  and can each be used once per fight (`FREE`/`USED`). They reset next fight,
-  not next turn. Taking an owned passive stacks it; taking an owned active upgrades it.
+  Easy spell rewards follow a simple rotation. Hard spell rewards randomly choose
+  three distinct spells from the complete six-spell pool, including spell-cache
+  events. Actives appear after your hand in the scrolling action list and show
+  their energy cost; they can each be used once per fight (`E`/`USED`). They reset
+  next fight, not next turn. Taking an owned passive stacks it; taking an owned active
+  upgrades it.
   After rewards, there is a 20% chance of a free passive-choice shrine, 20% of a
   free active-choice cache, 15% of a spring healing 7 HP, or 45% of moving straight
   to the next battle. No event follows the final boss. Its passive and active
@@ -165,14 +171,14 @@
 | Thorns | Deal 2 damage whenever the enemy attacks, even if blocked |
 | Campfire | Heal 3 after every victory |
 
-| Active | First-copy effect; once per fight, no energy cost |
+| Active | First-copy effect; energy cost; once per fight |
 |---|---|
-| Fireball | Deal 12 damage |
-| Ward | Gain 12 block |
-| Mend | Heal 8 HP |
-| Venom | Deal 4 poison damage at the start of every enemy turn this fight |
-| Leech | Deal 8 damage and heal 4 HP |
-| Storm | Deal 6 damage and gain 6 block |
+| Fireball | Deal 12 damage; 2 energy |
+| Ward | Gain 12 block; 2 energy |
+| Mend | Heal 8 HP; 2 energy |
+| Venom | Deal 4 poison damage at the start of every enemy turn this fight; 3 energy |
+| Leech | Deal 8 damage and heal 4 HP; 3 energy |
+| Storm | Deal 6 damage and gain 6 block; 3 energy |
 
 Each additional active copy adds 2 to its main value (both damage and block for
 Storm; Leech's healing stays at 4 before Herbs). Might/Herbs/Iron guard also apply

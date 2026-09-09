@@ -36,7 +36,9 @@ Rogue Cards is a nine-fight turn-based roguelike: start with five cards and draw
 three each turn. Easy uses two Strikes, two Guards, and one Heal; Hard rolls
 five cards from that pool once per run, with at least one Strike. Choose one
 of three passives after each battle, earn active powers from bosses, and find
-random free-power events. Powers last for the run; only high scores persist.
+  random free-power events. Basic cards cost 1 energy; earned spells cost 2 or 3,
+  and Hard spell rewards are random three-of-six selections from the full pool.
+  Powers last for the run; only high scores persist.
 Temple Quest is an original Montezuma-style six-room exploration platformer:
 find keys, collect six gems, dodge pits/spikes/enemies, and reach the final idol.
 See the [room map and temple guide](ESP32_Snake/README.md#temple-quest-map).

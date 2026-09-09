@@ -75,11 +75,11 @@ int main() {
   combat(g); g.hp = 20; g.gainPassive(RogueCards::HEART);
   assert(g.maxHp == 37 && g.hp == 25);
   g.gainPassive(RogueCards::HEART); assert(g.maxHp == 42 && g.hp == 30);
-  // Actives are free, once per battle; duplicates upgrade their effects.
+  // Active spells have differentiated costs and remain once per battle; duplicates upgrade their effects.
   for (int a = 0; a < 6; ++a) {
     combat(g); g.handSize = 0; g.actives[a] = 2; g.enemyHp = 100; g.hp = 10;
     tick(g, 0, 0, true);
-    assert(g.activeUsed[a] && g.energy == 3);
+    assert(g.activeUsed[a] && g.energy == 3 - g.activeCost(a));
     if (a == RogueCards::FIREBALL) assert(g.enemyHp == 86);
     if (a == RogueCards::WARD) assert(g.block == 14);
     if (a == RogueCards::MEND) assert(g.hp == 20);
@@ -91,6 +91,17 @@ int main() {
     g.newTurn(); assert(g.activeUsed[a]); // Does not reset each turn.
     g.beginBattle(); assert(!g.activeUsed[a] && g.actives[a] == 2);
   }
+  // Hard spell rewards vary across the complete six-spell pool and never duplicate
+  // a spell within one offer. Easy uses its predictable rotation.
+  g.start(true); g.battle = 3; bool differentSpellOffer = false; int firstOffer[3] = {-1, -1, -1};
+  for (int roll = 0; roll < 20; ++roll) {
+    g.offer(true, false); uniqueChoices(g);
+    if (roll == 0) for (int i = 0; i < 3; ++i) firstOffer[i] = g.choices[i];
+    else for (int i = 0; i < 3; ++i) if (g.choices[i] != firstOffer[i]) differentSpellOffer = true;
+  }
+  assert(differentSpellOffer);
+  g.start(false); g.battle = 3; g.offer(true, false);
+  assert(g.choices[0] == 3 && g.choices[1] == 4 && g.choices[2] == 5);
   combat(g); g.enemyHp = 3; g.enemyPoison = 4; g.hp = 1; g.enter(RogueCards::ENEMY);
   tick(g, 0, 0, false, false, 600);
   assert(g.phase == RogueCards::PASSIVE && !g.over); // Poison wins before incoming damage.
@@ -162,7 +173,7 @@ int main() {
           if (action < 0) {
             int index = g.handSize;
             for (int a = 0; a < 6; ++a) if (g.actives[a]) {
-              if (!g.activeUsed[a] &&
+              if (!g.activeUsed[a] && g.activeCost(a) <= g.energy &&
                   (a != RogueCards::MEND || g.hp <= g.maxHp - 5) &&
                   (a != RogueCards::WARD || g.block < g.intent())) action = index;
               ++index;

@@ -89,10 +89,10 @@ class RogueCards {
           highlight(d, y, i == selected);
           d.setCursor(2, y); d.print(i == selected ? '>' : ' ');
           if (i < handSize) {
-            d.print(cardName(hand[i])); d.print(F(" 1E"));
+            d.print(cardName(hand[i])); d.print(' '); d.print(cardCost(hand[i])); d.print('E');
           } else {
             int a = activeAt(i - handSize);
-            d.print(activeName(a)); d.print(activeUsed[a] ? " USED" : " FREE");
+            d.print(activeName(a)); d.print(' '); d.print(activeCost(a)); d.print(activeUsed[a] ? "E USED" : "E");
           }
         }
         d.setTextColor(SSD1306_WHITE);
@@ -169,9 +169,10 @@ class RogueCards {
   void playSelected() {
     if (selected >= actionCount()) return;
     if (selected < handSize) {
-      if (!energy) return;
       int card = hand[selected];
-      --energy;
+      int cost = cardCost(card);
+      if (energy < cost) return;
+      energy -= cost;
       if (card == STRIKE) enemyHp -= 5 + passives[MIGHT];
       else if (card == SHIELD) block += 5 + 2 * passives[GUARD];
       else heal(3 + passives[HERBS]);
@@ -180,7 +181,10 @@ class RogueCards {
     } else {
       int a = activeAt(selected - handSize);
       if (a < 0 || activeUsed[a]) return;
+      int cost = activeCost(a);
+      if (energy < cost) return;
       activeUsed[a] = true;
+      energy -= cost;
       int boost = 2 * (actives[a] - 1);
       switch (a) {
         case FIREBALL: enemyHp -= 12 + boost + passives[MIGHT]; break;
@@ -211,8 +215,15 @@ class RogueCards {
   }
   void offer(bool active, bool fromEvent) {
     int pool[6] = {0, 1, 2, 3, 4, 5};
-    for (int i = 5; i > 0; --i) { int j = random(i + 1); int saved = pool[i]; pool[i] = pool[j]; pool[j] = saved; }
-    for (int i = 0; i < 3; ++i) choices[i] = pool[i];
+    if (active && !hard) {
+      // Easy follows a predictable spell rotation; Hard samples three distinct
+      // spells from the complete pool every time a spell reward appears.
+      int first = ((max(1, battle) / 3) * 3) % 6;
+      for (int i = 0; i < 3; ++i) choices[i] = (first + i) % 6;
+    } else {
+      for (int i = 5; i > 0; --i) { int j = random(i + 1); int saved = pool[i]; pool[i] = pool[j]; pool[j] = saved; }
+      for (int i = 0; i < 3; ++i) choices[i] = pool[i];
+    }
     rewardFromEvent = fromEvent; enter(active ? ACTIVE : PASSIVE);
   }
   void gainPassive(int p) {
@@ -233,6 +244,7 @@ class RogueCards {
     static const char *names[] = {"Slime", "Goblin", "Wisp"}; return names;
   }
   static const char *cardName(int c) { return c == STRIKE ? "Strike" : c == SHIELD ? "Guard" : "Heal"; }
+  static int cardCost(int) { return 1; }
   static const char *passiveName(int p) {
     static const char *names[] = {"Might", "Iron guard", "Big heart", "Herbs", "Thorns", "Campfire"}; return names[p];
   }
@@ -242,6 +254,10 @@ class RogueCards {
   static const char *activeName(int a) {
     static const char *names[] = {"Fireball", "Ward", "Mend", "Venom", "Leech", "Storm"}; return names[a];
   }
+  static int activeCost(int a) {
+    // The first three spells are strong but affordable; the last three are advanced.
+    return a <= MEND ? 2 : 3;
+  }
   void describeCard(Adafruit_SSD1306 &d, int c) const {
     if (c == STRIKE) { d.print(5 + passives[MIGHT]); d.print(F(" damage / 1 energy")); }
     else if (c == SHIELD) { d.print(5 + 2 * passives[GUARD]); d.print(F(" block / 1 energy")); }
@@ -250,13 +266,14 @@ class RogueCards {
   void describeActive(Adafruit_SSD1306 &d, int a, bool upgrading) const {
     int boost = 2 * max(0, int(actives[a]) - (upgrading ? 0 : 1));
     switch (a) {
-      case FIREBALL: d.print(12 + boost + passives[MIGHT]); d.print(F(" damage, once/fight")); break;
-      case WARD: d.print(12 + boost + 2 * passives[GUARD]); d.print(F(" block, once/fight")); break;
-      case MEND: d.print(8 + boost + passives[HERBS]); d.print(F(" heal, once/fight")); break;
-      case VENOM: d.print(4 + boost); d.print(F(" poison every turn")); break;
-      case LEECH: d.print(8 + boost + passives[MIGHT]); d.print(F(" dmg + ")); d.print(4 + passives[HERBS]); d.print(F(" heal")); break;
-      case STORM: d.print(6 + boost + passives[MIGHT]); d.print(F(" dmg + ")); d.print(6 + boost); d.print(F(" block")); break;
+      case FIREBALL: d.print(12 + boost + passives[MIGHT]); d.print(F(" dmg / ")); break;
+      case WARD: d.print(12 + boost + 2 * passives[GUARD]); d.print(F(" block / ")); break;
+      case MEND: d.print(8 + boost + passives[HERBS]); d.print(F(" heal / ")); break;
+      case VENOM: d.print(4 + boost); d.print(F(" poison / ")); break;
+      case LEECH: d.print(8 + boost + passives[MIGHT]); d.print(F(" dmg + ")); d.print(4 + passives[HERBS]); d.print(F(" heal / ")); break;
+      case STORM: d.print(6 + boost + passives[MIGHT]); d.print(F(" dmg + ")); d.print(6 + boost); d.print(F(" block / ")); break;
     }
+    d.print(activeCost(a)); d.print(F("E, once/fight"));
   }
   static void line(Adafruit_SSD1306 &d, int y, const char *text) { d.setCursor(0, y); d.print(text); }
   static void highlight(Adafruit_SSD1306 &d, int y, bool on) {
