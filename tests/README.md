@@ -14,6 +14,8 @@ g++ -std=c++17 -Itests tests/castle_test.cpp -o build/castle_test
 ./build/castle_test
 g++ -std=c++17 -Itests tests/pong_test.cpp -o build/pong_test
 ./build/pong_test
+g++ -std=c++17 -Itests tests/duckhunt_test.cpp -o build/duckhunt_test
+./build/duckhunt_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -27,6 +29,8 @@ cl /nologo /EHsc /std:c++17 /Itests tests\castle_test.cpp /Fobuild\castle_test.o
 build\castle_test.exe
 cl /nologo /EHsc /std:c++17 /Itests tests\pong_test.cpp /Fobuild\pong_test.obj /Febuild\pong_test.exe
 build\pong_test.exe
+cl /nologo /EHsc /std:c++17 /Itests tests\duckhunt_test.cpp /Fobuild\duckhunt_test.obj /Febuild\duckhunt_test.exe
+build\duckhunt_test.exe
 ```
 
 - Tetris: rotations, seven-bag distribution, hold restrictions, row clearing,
@@ -37,5 +41,9 @@ build\pong_test.exe
 
 - Pong: CPU speed/reaction/accuracy, prediction threshold, serve buffering,
   unchanged ball speed caps, scoring, restart, and 40,000 input/draw steps.
+
+- Duck Hunt: aim movement/bounds, hit detection, ammo/scoring, shot events,
+  result transitions, timeouts, lives, target bounces, rounds, restart, timer
+  rollover, and 40,000 input/draw steps.
 
 These are logic tests, not pixel-level rendering tests or hardware tests.

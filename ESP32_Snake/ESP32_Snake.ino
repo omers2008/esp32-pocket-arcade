@@ -7,6 +7,7 @@
 #include "Pong.h"
 #include "Tetris.h"
 #include "Castle.h"
+#include "DuckHunt.h"
 
 // ---------- Hardware ----------
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -40,10 +41,11 @@ Invaders invaders;
 Pong pong;
 Tetris tetris;
 CastleGame castle;
-constexpr uint8_t GAME_COUNT = 5;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania"};
-const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle"};
-uint8_t selectedGame = 0;  // Snake, Invaders, Pong, Tetris, Castlevania-style adventure
+DuckHunt duckHunt;
+constexpr uint8_t GAME_COUNT = 6;
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt"};
+const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt"};
+uint8_t selectedGame = 0;  // Snake, Invaders, Pong, Tetris, castle adventure, Duck Hunt
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
 bool menuStickReady = true;
@@ -93,6 +95,11 @@ void placeFood() {
 void startGame() {
   holdArmed = false; // Require release before the first hold in a new game.
   actionArmed = false;  // Release the select button before shooting.
+  if (selectedGame == 5) {
+    duckHunt.start(selectedDifficulty == 1);
+    gameState = PLAYING;
+    return;
+  }
   if (selectedGame == 4) {
     castle.start(selectedDifficulty == 1);
     gameState = PLAYING;
@@ -129,7 +136,8 @@ uint32_t currentScore() {
   if (selectedGame == 1) return invaders.score;
   if (selectedGame == 2) return pong.bestRally;
   if (selectedGame == 3) return tetris.score;
-  return castle.score;
+  if (selectedGame == 4) return castle.score;
+  return duckHunt.score;
 }
 
 void finishGame() {
@@ -317,6 +325,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  if (selectedGame == 5) { duckHunt.draw(display); return; }
   if (selectedGame == 4) { castle.draw(display); return; }
   if (selectedGame == 3) { tetris.draw(display); return; }
   if (selectedGame == 2) { pong.draw(display); return; }
@@ -473,9 +482,10 @@ void loop() {
     if (selectedGame == 1) invaders.update(joystickX(), actionArmed && actionButton.held());
     else if (selectedGame == 2) pong.update(joystickY(), pressed);
     else if (selectedGame == 3) tetris.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
-    else castle.update(joystickX(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
+    else if (selectedGame == 4) castle.update(joystickX(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
+    else duckHunt.update(joystickX(), joystickY(), pressed);
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
-                 selectedGame == 3 ? tetris.over : castle.over;
+                 selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over : duckHunt.over;
     if (ended) {
       finishGame();
       drawGameOver();

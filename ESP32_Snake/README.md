@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: Snake, Space Invaders, Pong, Tetris, and Castlevania-style adventure
+# ESP32 Pocket Arcade: Snake, Space Invaders, Pong, Tetris, Castlevania-style adventure, and Duck Hunt
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the five games (four visible at a time).
+- At startup, tilt the joystick to scroll between the six games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -36,6 +36,15 @@
   and respawn you at your last safe ground position. The third exit wins the run.
   The HUD shows health, score, stage, and difficulty. Scores save separately for
   Easy/Hard; the other games' existing records are unchanged.
+- Duck Hunt: move the crosshair with both joystick axes; tilting farther aims faster.
+  Press GPIO13 to shoot (release before shooting again). GPIO14 is unused.
+  Each flying duck gives you three shots and a limited time, shown by the top bar.
+  A hit earns 100 points plus 25 for each unused shot (150/125/100 for a first/
+  second/third-shot hit). Running out of shots or time costs one life. After a
+  short HIT/FLEW AWAY message, another duck appears. Every 10 resolved targets
+  advances the round and increases speed, capped after 10 speed increases.
+  Lose all lives to end the run. The HUD shows score, round, lives, and ammo.
+  This is original monochrome target-shooting code, not the original NES game.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -52,6 +61,7 @@
 | Pong | More accurate tracking, 1.65 px/frame CPU speed, slower ball | Predictive CPU at 2.0 px/frame with more aiming error; faster ball and steeper paddle-angle shots |
 | Tetris | 650 ms starting gravity, 450 ms lock delay | 360 ms starting gravity, 250 ms lock delay |
 | Castlevania | 6 health, slower enemies, one-hit skeletons, slower boss shots | 4 health, faster enemies, two-hit skeletons, tougher bosses and faster firing |
+| Duck Hunt | 5 lives, 6.5 seconds/target, slower flight, 2 px hit-area padding | 3 lives, 4.5 seconds/target, faster flight, tighter aim required |
 
 Tetris gravity speeds up every 10 cleared lines. Both difficulties use all seven
 tetrominoes in shuffled groups of seven and have separate saved high scores.
@@ -63,7 +73,7 @@ Pong's Hard CPU has a reaction delay and limited paddle speed, so it is designed
 to remain beatable. Both modes still play first to 7. The current difficulty is
 shown during play and on the result screen.
 
-Keep `ESP32_Snake.ino`, `Invaders.h`, `Pong.h`, `Tetris.h`, `Castle.h`, and `Buttons.h` together in the
+Keep `ESP32_Snake.ino`, `Invaders.h`, `Pong.h`, `Tetris.h`, `Castle.h`, `DuckHunt.h`, and `Buttons.h` together in the
 `ESP32_Snake` folder.
 
 ## Wiring
