@@ -26,6 +26,7 @@ class SlotMachine {
     phaseAt = millis();
     // Permit the first held-button repeat immediately after entering the game.
     lastWagerAdjust = phaseAt - 160;
+    wagerRepeatMs = 160;
   }
 
   void update(int stickY, bool increaseHeld, bool decreaseHeld) {
@@ -33,8 +34,16 @@ class SlotMachine {
     if (abs(stickY) < 350) stickReady = true;
 
     if (phase == IDLE) {
-      if (increaseHeld && now - lastWagerAdjust >= 160) adjustWager(100);
-      if (decreaseHeld && now - lastWagerAdjust >= 160) adjustWager(-100);
+      if (increaseHeld || decreaseHeld) {
+        if (now - lastWagerAdjust >= wagerRepeatMs) {
+          adjustWager(increaseHeld ? 100 : -100);
+          wagerRepeatMs = wagerRepeatMs > 57 ? wagerRepeatMs - 12 : 45;
+        }
+      } else {
+        // A new hold always starts at the comfortable default repeat rate.
+        wagerRepeatMs = 160;
+        lastWagerAdjust = now;
+      }
       if (stickReady && stickY < -650) {
         stickReady = false;
         beginSpin(now);
@@ -123,9 +132,10 @@ class SlotMachine {
   int resultKind = 0;
   bool hard = false, leverDown = false, stickReady = false;
   uint32_t phaseAt = 0, lastReelTick = 0, lastWagerAdjust = 0;
+  uint16_t wagerRepeatMs = 160;
 
   void adjustWager(int delta) {
-    wager = constrain(wager + delta, 100, 5000);
+    wager = constrain(wager + delta, 100, 10000);
     lastWagerAdjust = millis();
   }
 

@@ -138,8 +138,9 @@
   (`D`). Gems score 100, keys 50, skulls 50, bats 75, and the idol awards
   500 plus 100 per remaining life. Only high scores persist after power-off.
 - Slot Machine: start with `$10,000`. GPIO13 raises the wager by `$100` and GPIO14
-  lowers it by `$100` (from `$100` to `$5,000`); holding either button repeats the
-  change. Pull the joystick down to pull
+  lowers it by `$100` (from `$100` to `$10,000`); holding either button repeats the
+  change, accelerating while held and resetting to the default rate when released.
+  Pull the joystick down to pull
   the lever and spin the three animated reels. A pair pays 2x; triples pay more
   based on the symbol, and three 7s are the jackpot at 50x. The lever, spinning,
   hit, and jackpot states are animated on the OLED. Cash can reach zero; only a
