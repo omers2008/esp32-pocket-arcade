@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: fifteen games
+# ESP32 Pocket Arcade: sixteen games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the fifteen games (four visible at a time).
+- At startup, tilt the joystick to scroll between the sixteen games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -157,6 +157,11 @@
   flags or unflags it. The first dig is always safe; empty squares flood-clear their
   neighbors. Easy uses an 8x6 field with 8 mines, while Hard uses 12x6 with 16 mines.
   Clear every non-mine square to win; digging a mine ends the run.
+- Pinball: GPIO13 controls the left flipper and GPIO14 controls the right flipper.
+  Press either button to launch a ball at the start of a ball; hold the buttons to
+  raise the flippers and save the ball. Bumpers score 25, flipper hits score 10,
+  and the ball drain costs one life. Easy gives three balls and a slower ball;
+  Hard gives two balls and a faster ball.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -183,6 +188,7 @@
 | 4 In A Row | Random legal CPU columns | CPU wins/blocks and prefers center |
 | Tic-Tac-Toe | Random legal CPU squares | CPU wins/blocks and prefers center/corners |
 | Minesweeper | 8x6 field, 8 mines | 12x6 field, 16 mines |
+| Pinball | 3 balls; slower launch and gravity | 2 balls; faster launch and gravity |
 
 ### Rogue Cards powers
 

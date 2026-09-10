@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A fifteen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A sixteen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -21,6 +21,7 @@ separate high scores stored in flash for each game and difficulty.
 | 4 In A Row | Move column left/right | Drop piece | Unused |
 | Tic-Tac-Toe | Move cursor | Place X | Unused |
 | Minesweeper | Move cursor | Dig | Flag |
+| Pinball | Unused | Left flipper / launch | Right flipper / launch |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -59,6 +60,10 @@ move a 3x3 cursor and GPIO13 to place X; the CPU plays O. Hard mode searches for
 wins and blocks, while Easy chooses legal moves randomly.
 Minesweeper uses a smaller 8x6 field with 8 mines on Easy and a larger 12x6
 field with 16 mines on Hard. GPIO13 digs and GPIO14 flags; the first dig is safe.
+Pinball uses GPIO13 for the left flipper and GPIO14 for the right flipper. Press
+either button to launch a new ball, then hold the buttons to save it with the
+flippers. Bumpers and flipper hits add points; three balls are available on Easy
+and two on Hard.
 
 ## Hardware and setup
 
@@ -79,7 +84,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All fourteen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All sixteen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -95,7 +100,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, and Tic-Tac-Toe
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, and Pinball
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

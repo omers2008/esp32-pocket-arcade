@@ -95,6 +95,9 @@ build\temple_test.exe
 - Minesweeper: Easy/Hard field sizes, safe first dig, joystick cursor movement, digging,
   flag toggling, flood clearing, mine loss, and completion scoring.
 
+- Pinball: launch arming, left/right flippers, walls, bumpers, scoring, ball drains,
+  lives, and Easy/Hard physics.
+
 - Temple Quest: intro/input queue, jumping, ladders and ledges, pit/spike clearance,
   room connections, key gates, gem pickups, dagger ammo/collisions, checkpoint
   persistence, win/loss, and 60,000 input/draw steps. The quest-progression fixture
