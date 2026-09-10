@@ -27,9 +27,10 @@ class FourInRow {
 
   void draw(Adafruit_SSD1306 &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
-    d.setCursor(0, 0); d.print(F("4 IN A ROW  ")); d.print(hard ? 'H' : 'E');
-    d.setCursor(84, 0); d.print(F("13 DROP"));
-    const int x0 = 36, y0 = 14, cell = 8;
+    d.setCursor(0, 0); d.print(F("4 IN ROW"));
+    d.setCursor(52, 0); d.print(hard ? 'H' : 'E');
+    d.setCursor(68, 0); d.print(F("13"));
+    const int x0 = 70, y0 = 14, cell = 8;
     d.drawRect(x0 - 1, y0 - 1, COLS * cell + 2, ROWS * cell + 2, SSD1306_WHITE);
     int markerX = x0 + selectedCol * cell + 3;
     d.drawFastVLine(markerX, 10, 3, SSD1306_WHITE);
@@ -38,10 +39,10 @@ class FourInRow {
       if (board[y][x] == 1) d.fillCircle(cx, cy, 3, SSD1306_WHITE);
       else if (board[y][x] == 2) d.drawCircle(cx, cy, 3, SSD1306_WHITE);
     }
-    d.setCursor(0, 22); d.print(F("YOU: filled"));
-    d.setCursor(0, 34); d.print(F("CPU: outline"));
-    d.setCursor(0, 49); d.print(F("Move: left/right"));
-    d.setCursor(0, 59); d.print(F("Drop: GPIO13"));
+    d.setCursor(0, 22); d.print(F("FILLED=YOU"));
+    d.setCursor(0, 34); d.print(F("RING=CPU"));
+    d.setCursor(0, 49); d.print(F("LEFT/RIGHT"));
+    d.setCursor(0, 59); d.print(F("13 DROP"));
     d.display();
   }
 

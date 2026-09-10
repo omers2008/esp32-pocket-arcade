@@ -16,6 +16,7 @@
 #include "SlotMachine.h"
 #include "FourInRow.h"
 #include "TicTacToe.h"
+#include "Minesweeper.h"
 
 // ---------- Hardware ----------
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -59,9 +60,10 @@ TempleQuest templeQuest;
 SlotMachine slotMachine;
 FourInRow fourInRow;
 TicTacToe ticTacToe;
-constexpr uint8_t GAME_COUNT = 14;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe"};
-const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe"};
+Minesweeper minesweeper;
+constexpr uint8_t GAME_COUNT = 15;
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper"};
+const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines"};
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
@@ -129,6 +131,11 @@ void startGame() {
   }
   if (selectedGame == 13) {
     ticTacToe.start(selectedDifficulty == 1);
+    gameState = PLAYING;
+    return;
+  }
+  if (selectedGame == 14) {
+    minesweeper.start(selectedDifficulty == 1);
     gameState = PLAYING;
     return;
   }
@@ -202,7 +209,8 @@ uint32_t currentScore() {
   if (selectedGame == 10) return templeQuest.score;
   if (selectedGame == 11) return slotMachine.score;
   if (selectedGame == 12) return fourInRow.score;
-  return ticTacToe.score;
+  if (selectedGame == 13) return ticTacToe.score;
+  return minesweeper.score;
 }
 
 void finishGame() {
@@ -390,6 +398,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  if (selectedGame == 14) { minesweeper.draw(display); return; }
   if (selectedGame == 13) { ticTacToe.draw(display); return; }
   if (selectedGame == 12) { fourInRow.draw(display); return; }
   if (selectedGame == 11) { slotMachine.draw(display); return; }
@@ -439,7 +448,8 @@ void drawGameOver() {
                 (selectedGame == 4 && castle.won) || (selectedGame == 9 && rogueCards.won) ||
                 ((selectedGame == 10 && templeQuest.won) ||
                  (selectedGame == 12 && fourInRow.won) ||
-                 (selectedGame == 13 && ticTacToe.won)) ? F("YOU WIN!") :
+                 (selectedGame == 13 && ticTacToe.won) ||
+                 (selectedGame == 14 && minesweeper.won)) ? F("YOU WIN!") :
                 selectedGame == 7 ? F("FINISHED") : F("GAME OVER"));
   display.setTextSize(1);
   if (selectedGame == 2) {
@@ -579,13 +589,15 @@ void loop() {
     else if (selectedGame == 10) templeQuest.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     else if (selectedGame == 11) slotMachine.update(joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
     else if (selectedGame == 12) fourInRow.update(joystickX(), pressed);
-    else ticTacToe.update(joystickX(), joystickY(), pressed);
+    else if (selectedGame == 13) ticTacToe.update(joystickX(), joystickY(), pressed);
+    else minesweeper.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
                  selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over :
                  selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over :
                  selectedGame == 7 ? blackjack.over : selectedGame == 8 ? streetFighter.over :
                  selectedGame == 9 ? rogueCards.over : selectedGame == 10 ? templeQuest.over :
-                 selectedGame == 11 ? slotMachine.over : selectedGame == 12 ? fourInRow.over : ticTacToe.over;
+                 selectedGame == 11 ? slotMachine.over : selectedGame == 12 ? fourInRow.over :
+                 selectedGame == 13 ? ticTacToe.over : minesweeper.over;
     if (ended) {
       finishGame();
       drawGameOver();

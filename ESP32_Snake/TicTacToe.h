@@ -28,9 +28,10 @@ class TicTacToe {
 
   void draw(Adafruit_SSD1306 &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
-    d.setCursor(0, 0); d.print(F("TIC TAC TOE  ")); d.print(hard ? 'H' : 'E');
-    d.setCursor(84, 0); d.print(F("13 PLACE"));
-    const int x0 = 39, y0 = 11, cell = 17;
+    d.setCursor(0, 0); d.print(F("TIC TAC"));
+    d.setCursor(54, 0); d.print(hard ? 'H' : 'E');
+    d.setCursor(74, 0); d.print(F("13"));
+    const int x0 = 72, y0 = 11, cell = 17;
     for (int i = 1; i < 3; ++i) {
       d.drawFastVLine(x0 + i * cell, y0, 51, SSD1306_WHITE);
       d.drawFastHLine(x0, y0 + i * cell, 51, SSD1306_WHITE);
@@ -43,10 +44,10 @@ class TicTacToe {
         d.drawLine(cx + 5, cy - 5, cx - 5, cy + 5, SSD1306_WHITE);
       } else if (board[y * 3 + x] == 2) d.drawCircle(cx, cy, 5, SSD1306_WHITE);
     }
-    d.setCursor(0, 22); d.print(F("X YOU"));
-    d.setCursor(0, 34); d.print(F("O CPU"));
-    d.setCursor(0, 49); d.print(F("Move: joystick"));
-    d.setCursor(0, 59); d.print(F("Place: GPIO13"));
+    d.setCursor(0, 22); d.print(F("X=YOU"));
+    d.setCursor(0, 34); d.print(F("O=CPU"));
+    d.setCursor(0, 49); d.print(F("MOVE STICK"));
+    d.setCursor(0, 59); d.print(F("13 PLACE"));
     d.display();
   }
 

@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: fourteen games
+# ESP32 Pocket Arcade: fifteen games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the fourteen games (four visible at a time).
+- At startup, tilt the joystick to scroll between the fifteen games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -153,6 +153,10 @@
   The CPU places O after each move. Easy chooses an open square randomly; Hard wins
   when possible, blocks your wins, then prefers the center and corners. Three in a
   row wins; a full board is a draw. GPIO14 is unused in both games.
+- Minesweeper: move the cursor with the joystick. GPIO13 digs a square and GPIO14
+  flags or unflags it. The first dig is always safe; empty squares flood-clear their
+  neighbors. Easy uses an 8x6 field with 8 mines, while Hard uses 12x6 with 16 mines.
+  Clear every non-mine square to win; digging a mine ends the run.
 - Press GPIO12 to return to the game menu immediately, during play or after
   death. Press GPIO13 on the death screen to retry. The joystick's built-in
   button is unused; stick movement never selects a menu item, fires, or exits a game.
@@ -178,6 +182,7 @@
 | Slot Machine | Even symbol odds; standard wager and payouts | Realistic weighted symbols; lucky 7 is rare |
 | 4 In A Row | Random legal CPU columns | CPU wins/blocks and prefers center |
 | Tic-Tac-Toe | Random legal CPU squares | CPU wins/blocks and prefers center/corners |
+| Minesweeper | 8x6 field, 8 mines | 12x6 field, 16 mines |
 
 ### Rogue Cards powers
 

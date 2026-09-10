@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A twelve-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A fifteen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -20,6 +20,7 @@ separate high scores stored in flash for each game and difficulty.
 | Slot Machine | Pull down to spin | Raise wager $100 | Lower wager $100 |
 | 4 In A Row | Move column left/right | Drop piece | Unused |
 | Tic-Tac-Toe | Move cursor | Place X | Unused |
+| Minesweeper | Move cursor | Dig | Flag |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -56,6 +57,8 @@ a spin leaves the bankroll negative.
 with GPIO13 and stop the CPU from making four. Tic-Tac-Toe uses the joystick to
 move a 3x3 cursor and GPIO13 to place X; the CPU plays O. Hard mode searches for
 wins and blocks, while Easy chooses legal moves randomly.
+Minesweeper uses a smaller 8x6 field with 8 mines on Easy and a larger 12x6
+field with 16 mines on Hard. GPIO13 digs and GPIO14 flags; the first dig is safe.
 
 ## Hardware and setup
 
