@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A sixteen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A seventeen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -22,6 +22,7 @@ separate high scores stored in flash for each game and difficulty.
 | Tic-Tac-Toe | Move cursor | Place X | Unused |
 | Minesweeper | Move cursor | Dig | Flag |
 | Pinball | Unused | Left flipper / launch | Right flipper / launch |
+| Forest Quest | Move | Punch / sword | Pick or throw rock; bow |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -64,6 +65,11 @@ Pinball uses GPIO13 for the left flipper and GPIO14 for the right flipper. Press
 either button to launch a new ball, then hold the buttons to save it with the
 flippers. Bumpers and flipper hits add points; three balls are available on Easy
 and two on Hard.
+Forest Quest is an original top-down RPG. Start with a punch and no inventory;
+GPIO14 picks one rock and throws it, while GPIO13 attacks. Defeat the marked
+reward fights to unlock the sword and then the bow. The bow starts with five
+arrows, can recover arrows from the ground, and crafts five arrows when you have
+none and stand on a rock.
 
 ## Hardware and setup
 
@@ -84,7 +90,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All sixteen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All seventeen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -100,7 +106,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, and Pinball
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, and Forest Quest
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

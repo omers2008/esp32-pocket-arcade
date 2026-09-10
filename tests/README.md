@@ -26,6 +26,8 @@ g++ -std=c++17 -Itests tests/rogue_test.cpp -o build/rogue_test
 ./build/rogue_test
 g++ -std=c++17 -Itests tests/temple_test.cpp -o build/temple_test
 ./build/temple_test
+g++ -std=c++17 -Itests tests/topdown_test.cpp -o build/topdown_test
+./build/topdown_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -102,5 +104,8 @@ build\temple_test.exe
   room connections, key gates, gem pickups, dagger ammo/collisions, checkpoint
   persistence, win/loss, and 60,000 input/draw steps. The quest-progression fixture
   positions the player at pickups; movement and hazard clearance are tested separately.
+
+- Forest Quest: intro, punch/sword reward, single-rock pickup/throw, bow replacement,
+  arrow recovery/crafting, damage immunity, and world bounds.
 
 These are logic tests, not pixel-level rendering tests or hardware tests.
