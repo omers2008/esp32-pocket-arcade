@@ -40,8 +40,16 @@ class Pinball {
     // like the compact Tetris layout.
     d.drawFastVLine(56, 0, 64, SSD1306_WHITE);
     d.drawRect(2, 1, 51, 62, SSD1306_WHITE);
-    // Bumpers.
-    drawBumper(d, 16, 23); drawBumper(d, 27, 14); drawBumper(d, 38, 23);
+    // Small, widely spaced bumpers, like a real tabletop's upper playfield.
+    drawBumper(d, 13, 15); drawBumper(d, 27, 9); drawBumper(d, 41, 15);
+    drawBumper(d, 18, 25); drawBumper(d, 36, 25);
+    // Narrow posts and three drop targets add different obstacle shapes.
+    drawPost(d, 10, 31, 39); drawPost(d, 17, 33, 42);
+    drawPost(d, 37, 33, 42); drawPost(d, 44, 31, 39);
+    drawTarget(d, 22, 32); drawTarget(d, 27, 32); drawTarget(d, 32, 32);
+    // Angled guides funnel the ball toward the flippers.
+    d.drawLine(7, 45, 15, 49, SSD1306_WHITE);
+    d.drawLine(47, 45, 39, 49, SSD1306_WHITE);
     // Two flippers: button-held positions lift toward the center.
     if (leftHeld) d.drawLine(10, 58, 25, 51, SSD1306_WHITE);
     else d.drawLine(10, 58, 25, 60, SSD1306_WHITE);
@@ -72,17 +80,42 @@ class Pinball {
   }
 
   static void drawBumper(Adafruit_SSD1306 &d, int x, int y) {
-    d.drawCircle(x, y, 6, SSD1306_WHITE);
-    d.fillCircle(x, y, 2, SSD1306_WHITE);
+    d.drawCircle(x, y, 3, SSD1306_WHITE);
+    d.fillCircle(x, y, 1, SSD1306_WHITE);
+  }
+
+  static void drawPost(Adafruit_SSD1306 &d, int x, int y1, int y2) {
+    d.drawFastVLine(x, y1, y2 - y1 + 1, SSD1306_WHITE);
+    d.drawPixel(x - 1, y1, SSD1306_WHITE);
+    d.drawPixel(x + 1, y2, SSD1306_WHITE);
+  }
+
+  static void drawTarget(Adafruit_SSD1306 &d, int x, int y) {
+    d.drawRect(x, y, 4, 3, SSD1306_WHITE);
+    d.drawPixel(x + 1, y + 1, SSD1306_WHITE);
   }
 
   void hitBumper(int x, int y) {
     float dx = ballX - x, dy = ballY - y;
-    if (dx * dx + dy * dy >= 64.0f) return;
+    if (dx * dx + dy * dy >= 25.0f) return;
     ballVy = -abs(ballVy) - 0.15f;
     ballVx += dx < 0 ? -0.35f : 0.35f;
-    ballX = x + (dx < 0 ? -9 : 9);
+    ballX = x + (dx < 0 ? -6 : 6);
     score += 25;
+  }
+
+  void hitPost(int x, int y1, int y2) {
+    if (ballY < y1 - 3 || ballY > y2 + 3 || ballX < x - 3 || ballX > x + 3) return;
+    ballVx = ballX < x ? -abs(ballVx) - 0.25f : abs(ballVx) + 0.25f;
+    ballX = x + (ballX < x ? -4 : 4);
+    score += 5;
+  }
+
+  void hitTarget(int x, int y) {
+    if (ballX < x - 2 || ballX > x + 6 || ballY < y - 3 || ballY > y + 6) return;
+    ballVy = ballY < y ? -abs(ballVy) - 0.2f : abs(ballVy) + 0.2f;
+    ballY = y + (ballY < y ? -4 : 7);
+    score += 15;
   }
 
   void stepBall() {
@@ -91,7 +124,11 @@ class Pinball {
     if (ballX < 7) { ballX = 7; ballVx = abs(ballVx); }
     if (ballX > 47) { ballX = 47; ballVx = -abs(ballVx); }
     if (ballY < 5) { ballY = 5; ballVy = abs(ballVy); }
-    hitBumper(16, 23); hitBumper(27, 14); hitBumper(38, 23);
+    hitBumper(13, 15); hitBumper(27, 9); hitBumper(41, 15);
+    hitBumper(18, 25); hitBumper(36, 25);
+    hitPost(10, 31, 39); hitPost(17, 33, 42);
+    hitPost(37, 33, 42); hitPost(44, 31, 39);
+    hitTarget(22, 32); hitTarget(27, 32); hitTarget(32, 32);
     if (ballY > 51 && ballVy > 0) {
       if (leftHeld && ballX < 27 && ballX > 7) {
         ballY = 50; ballVy = -abs(ballVy) - 0.25f; ballVx += (ballX - 17) / 18.0f; score += 10;
