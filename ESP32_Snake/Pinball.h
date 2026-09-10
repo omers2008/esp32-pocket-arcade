@@ -39,7 +39,7 @@ class Pinball {
     // A narrow, tall table leaves the right side for readable status information,
     // like the compact Tetris layout.
     d.drawFastVLine(56, 0, 64, SSD1306_WHITE);
-    d.drawRect(2, 1, 51, 62, SSD1306_WHITE);
+    d.drawRect(1, 1, 54, 62, SSD1306_WHITE);
     // Small, widely spaced bumpers, like a real tabletop's upper playfield.
     drawBumper(d, 13, 15); drawBumper(d, 27, 9); drawBumper(d, 41, 15);
     drawBumper(d, 18, 25); drawBumper(d, 36, 25);
@@ -51,11 +51,11 @@ class Pinball {
     d.drawLine(7, 45, 15, 49, SSD1306_WHITE);
     d.drawLine(47, 45, 39, 49, SSD1306_WHITE);
     // Two flippers: button-held positions lift toward the center.
-    if (leftHeld) d.drawLine(10, 58, 25, 51, SSD1306_WHITE);
-    else d.drawLine(10, 58, 25, 60, SSD1306_WHITE);
-    if (rightHeld) d.drawLine(44, 58, 29, 51, SSD1306_WHITE);
-    else d.drawLine(44, 58, 29, 60, SSD1306_WHITE);
-    if (!waiting) d.fillCircle(int(ballX), int(ballY), 2, SSD1306_WHITE);
+    if (leftHeld) d.drawLine(9, 58, 23, 52, SSD1306_WHITE);
+    else d.drawLine(9, 58, 22, 60, SSD1306_WHITE);
+    if (rightHeld) d.drawLine(45, 58, 31, 52, SSD1306_WHITE);
+    else d.drawLine(45, 58, 32, 60, SSD1306_WHITE);
+    if (!waiting) d.fillCircle(int(ballX), int(ballY), 1, SSD1306_WHITE);
     else {
       d.drawCircle(27, 47, 3, SSD1306_WHITE);
       d.setCursor(15, 38); d.print(F("START"));
@@ -80,59 +80,59 @@ class Pinball {
   }
 
   static void drawBumper(Adafruit_SSD1306 &d, int x, int y) {
-    d.drawCircle(x, y, 3, SSD1306_WHITE);
+    d.drawCircle(x, y, 2, SSD1306_WHITE);
     d.fillCircle(x, y, 1, SSD1306_WHITE);
   }
 
   static void drawPost(Adafruit_SSD1306 &d, int x, int y1, int y2) {
     d.drawFastVLine(x, y1, y2 - y1 + 1, SSD1306_WHITE);
-    d.drawPixel(x - 1, y1, SSD1306_WHITE);
-    d.drawPixel(x + 1, y2, SSD1306_WHITE);
+    d.drawPixel(x, y1 - 1, SSD1306_WHITE);
+    d.drawPixel(x, y2 + 1, SSD1306_WHITE);
   }
 
   static void drawTarget(Adafruit_SSD1306 &d, int x, int y) {
-    d.drawRect(x, y, 4, 3, SSD1306_WHITE);
-    d.drawPixel(x + 1, y + 1, SSD1306_WHITE);
+    d.drawRect(x, y, 3, 2, SSD1306_WHITE);
+    d.drawPixel(x + 1, y, SSD1306_WHITE);
   }
 
   void hitBumper(int x, int y) {
     float dx = ballX - x, dy = ballY - y;
-    if (dx * dx + dy * dy >= 25.0f) return;
+    if (dx * dx + dy * dy >= 16.0f) return;
     ballVy = -abs(ballVy) - 0.15f;
     ballVx += dx < 0 ? -0.35f : 0.35f;
-    ballX = x + (dx < 0 ? -6 : 6);
+    ballX = x + (dx < 0 ? -4 : 4);
     score += 25;
   }
 
   void hitPost(int x, int y1, int y2) {
-    if (ballY < y1 - 3 || ballY > y2 + 3 || ballX < x - 3 || ballX > x + 3) return;
+    if (ballY < y1 - 2 || ballY > y2 + 2 || ballX < x - 2 || ballX > x + 2) return;
     ballVx = ballX < x ? -abs(ballVx) - 0.25f : abs(ballVx) + 0.25f;
-    ballX = x + (ballX < x ? -4 : 4);
+    ballX = x + (ballX < x ? -3 : 3);
     score += 5;
   }
 
   void hitTarget(int x, int y) {
-    if (ballX < x - 2 || ballX > x + 6 || ballY < y - 3 || ballY > y + 6) return;
+    if (ballX < x - 2 || ballX > x + 5 || ballY < y - 2 || ballY > y + 4) return;
     ballVy = ballY < y ? -abs(ballVy) - 0.2f : abs(ballVy) + 0.2f;
-    ballY = y + (ballY < y ? -4 : 7);
+    ballY = y + (ballY < y ? -3 : 5);
     score += 15;
   }
 
   void stepBall() {
     ballVy += hard ? 0.075f : 0.06f;
     ballX += ballVx; ballY += ballVy;
-    if (ballX < 7) { ballX = 7; ballVx = abs(ballVx); }
-    if (ballX > 47) { ballX = 47; ballVx = -abs(ballVx); }
+    if (ballX < 5) { ballX = 5; ballVx = abs(ballVx); }
+    if (ballX > 49) { ballX = 49; ballVx = -abs(ballVx); }
     if (ballY < 5) { ballY = 5; ballVy = abs(ballVy); }
     hitBumper(13, 15); hitBumper(27, 9); hitBumper(41, 15);
     hitBumper(18, 25); hitBumper(36, 25);
-    hitPost(10, 31, 39); hitPost(17, 33, 42);
-    hitPost(37, 33, 42); hitPost(44, 31, 39);
+    hitPost(9, 31, 37); hitPost(16, 33, 40);
+    hitPost(38, 33, 40); hitPost(45, 31, 37);
     hitTarget(22, 32); hitTarget(27, 32); hitTarget(32, 32);
     if (ballY > 51 && ballVy > 0) {
-      if (leftHeld && ballX < 27 && ballX > 7) {
+      if (leftHeld && ballX < 27 && ballX > 5) {
         ballY = 50; ballVy = -abs(ballVy) - 0.25f; ballVx += (ballX - 17) / 18.0f; score += 10;
-      } else if (rightHeld && ballX > 27 && ballX < 47) {
+      } else if (rightHeld && ballX > 27 && ballX < 49) {
         ballY = 50; ballVy = -abs(ballVy) - 0.25f; ballVx += (ballX - 37) / 18.0f; score += 10;
       }
     }
