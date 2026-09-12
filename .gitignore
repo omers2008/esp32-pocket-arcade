@@ -1,5 +1,6 @@
 # Generated firmware, host-test binaries, and local build directories
 /build/
+/ESP32_Snake/build/
 /.arduino/
 *.bin
 *.elf

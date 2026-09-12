@@ -28,6 +28,8 @@ g++ -std=c++17 -Itests tests/temple_test.cpp -o build/temple_test
 ./build/temple_test
 g++ -std=c++17 -Itests tests/topdown_test.cpp -o build/topdown_test
 ./build/topdown_test
+g++ -std=c++17 -Itests tests/tanks_test.cpp -o build/tanks_test
+./build/tanks_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -109,3 +111,8 @@ build\temple_test.exe
   arrow recovery/crafting, damage immunity, and world bounds.
 
 These are logic tests, not pixel-level rendering tests or hardware tests.
+
+- Battle Tanks: steering/reverse, tank collisions with cover and boundaries,
+  intro release and buffered firing, normal shells, exactly four ricochets,
+  corner/cover reflections, damage/immunity/scoring, CPU line of sight,
+  five-wave victory, restart, timer rollover, and 40,000 input/draw steps.

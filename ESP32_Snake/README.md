@@ -1,11 +1,17 @@
-# ESP32 Pocket Arcade: sixteen games
+# ESP32 Pocket Arcade: eighteen games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the sixteen games (four visible at a time).
+- At startup, tilt the joystick to scroll between the eighteen games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
+- Battle Tanks: left/right rotates the tank and barrel; up drives forward and down
+  reverses. Hold GPIO13 for normal shells or GPIO14 for four-bounce shells.
+  Ricochets bounce off walls and cover four times, expire at impact five, and can
+  hit you on their return. Defeat CPU tanks over five waves; two hits destroy each
+  CPU. Later waves add a third opponent. Easy gives five health; Hard gives three
+  and faster enemies. Wave clears heal one health. GPIO12 exits to the arcade.
 - Snake: steer with the joystick.
 - Space Invaders: left/right moves your ship; hold GPIO13 to fire repeatedly.
   Release the select button after entering the game, then press it to shoot.

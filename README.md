@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A seventeen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+An eighteen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -23,6 +23,7 @@ separate high scores stored in flash for each game and difficulty.
 | Minesweeper | Move cursor | Dig | Flag |
 | Pinball | Unused | Left flipper / launch | Right flipper / launch |
 | Forest Quest | Move | Punch / sword | Pick or throw rock; bow |
+| Battle Tanks | Left/right rotate; up forward, down reverse | Normal shell | Four-bounce shell |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -71,6 +72,18 @@ reward fights to unlock the sword and then the bow. The bow starts with five
 arrows, can recover arrows from the ground, and crafts five arrows when you have
 none and stand on a rock.
 
+Battle Tanks pits your tank against CPU tanks across five arena waves. The barrel
+follows the hull: left/right rotates in place, up drives forward, and down reverses.
+Hold GPIO13 for normal shells or GPIO14 for ricochet shells (GPIO14 wins if both
+are held). Ammo is unlimited with a firing cooldown. Normal shells stop at walls
+and cover; ricochet shells reflect four times and disappear on the fifth impact.
+Any tank hit consumes the shell. Your returning ricochets can damage you.
+CPU tanks steer, aim, and fire normal shells when they have a clear shot.
+Each CPU takes two hits; later waves add a third CPU. Easy starts with five health,
+Hard with three and faster CPUs. Clearing a wave restores one health and earns
+200 points; each defeated tank earns 100. Clearing wave five wins the run.
+Scores save separately for Easy and Hard. GPIO12 returns to the arcade menu.
+
 ## Hardware and setup
 
 - ESP32 Dev Module (classic ESP32/WROOM).
@@ -90,7 +103,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All seventeen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All eighteen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -106,7 +119,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, and Forest Quest
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, and Battle Tanks
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 
