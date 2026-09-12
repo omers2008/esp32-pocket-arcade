@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: nineteen games
+# ESP32 Pocket Arcade: twenty games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the nineteen games (four visible at a time).
+- At startup, tilt the joystick to scroll between the twenty games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -17,6 +17,11 @@
   duck under higher birds, and survive as the speed increases. Birds appear
   after 150 points. Hard starts faster with closer obstacles. Collisions end
   the run; distance scores save separately for Easy/Hard. GPIO12 exits.
+- Asteroids: left/right rotates, up thrusts, and the ship coasts when released.
+  Hold GPIO13 to fire; GPIO14 teleports with a four-second cooldown and a brief
+  shield. Ship, shots, and rocks wrap around the playfield. Shooting large rocks
+  splits them into medium rocks, then small fragments. Clear waves to progress.
+  Easy has three lives, Hard two with faster/more rocks. GPIO12 exits.
 - Snake: steer with the joystick.
 - Space Invaders: left/right moves your ship; hold GPIO13 to fire repeatedly.
   Release the select button after entering the game, then press it to shoot.

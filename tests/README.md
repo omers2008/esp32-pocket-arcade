@@ -32,6 +32,8 @@ g++ -std=c++17 -Itests tests/tanks_test.cpp -o build/tanks_test
 ./build/tanks_test
 g++ -std=c++17 -Itests tests/dino_test.cpp -o build/dino_test
 ./build/dino_test
+g++ -std=c++17 -Itests tests/asteroids_test.cpp -o build/asteroids_test
+./build/asteroids_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -123,3 +125,8 @@ These are logic tests, not pixel-level rendering tests or hardware tests.
   reachable jump windows for every ground hazard at starting/maximum speeds,
   both bird heights, reset/timer rollover, and 32,000 frames of generated
   obstacle sequences survived by a jump/duck policy in both difficulties.
+
+- Asteroids: steering/thrust/inertia and speed cap, ship/shot wrapping, collisions
+  across seams, firing queue/cooldown, all splitting stages and maximum fragment
+  capacity, scoring, waves, death/protection, hyperspace cooldown, reset/rollover,
+  and 40,000 randomized input/draw frames.

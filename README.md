@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A nineteen-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A twenty-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -25,6 +25,7 @@ separate high scores stored in flash for each game and difficulty.
 | Forest Quest | Move | Punch / sword | Pick or throw rock; bow |
 | Battle Tanks | Left/right rotate; up forward, down reverse | Normal shell | Four-bounce shell |
 | Dino Runner | Up jump; down duck | Jump | Hold to duck |
+| Asteroids | Left/right rotate; up thrust | Hold to shoot | Hyperspace |
 
 GPIO12 returns to the game menu in every game. Scroll with the joystick,
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
@@ -94,6 +95,16 @@ gradually increases speed to a cap. Hard starts faster and has tighter obstacle
 spacing. A collision ends the run; GPIO13 retries through difficulty selection,
 and GPIO12 returns to the arcade. High scores persist separately for Easy/Hard.
 
+Asteroids is an original monochrome space shooter. Rotate with left/right, thrust
+with up, and coast when you release the stick. The ship, rocks, and shots wrap at
+all screen edges. Hold GPIO13 to shoot: large asteroids split into two medium ones,
+then into small fragments. Hits award 20/50/100 points for large/medium/small rocks;
+clearing a wave adds 200 and starts the next, with increasing rock counts and speed.
+GPIO14 teleports to a clearer location, cancels drift, and grants a brief shield;
+the HUD's `H` countdown shows seconds until hyperspace is ready again (four seconds).
+Easy starts with three ships; Hard has two and more, faster rocks. Respawns provide
+two seconds of protection. Scores save separately for each difficulty; GPIO12 exits.
+
 ## Hardware and setup
 
 - ESP32 Dev Module (classic ESP32/WROOM).
@@ -113,7 +124,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All nineteen games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All twenty games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -129,7 +140,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, Battle Tanks, and Dino Runner
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, Battle Tanks, Dino Runner, and Asteroids
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 
