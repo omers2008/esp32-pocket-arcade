@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A twenty-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A twenty-one-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -26,8 +26,11 @@ separate high scores stored in flash for each game and difficulty.
 | Battle Tanks | Left/right rotate; up forward, down reverse | Normal shell | Four-bounce shell |
 | Dino Runner | Up jump; down duck | Jump | Hold to duck |
 | Asteroids | Left/right rotate; up thrust | Hold to shoot | Hyperspace |
+| Sky Patrol | Point toward desired heading | Hold to boost | Hold to fire |
 
-GPIO12 returns to the game menu in every game. Scroll with the joystick,
+GPIO12 returns to the game menu in every game. Tap the joystick to step through
+games, or hold up/down to scroll repeatedly until you release it. Repeating starts
+after 400 ms, then advances every 130 ms. Center the stick after returning from a game;
 press GPIO13 to select a game, then choose Easy or Hard and press GPIO13 again.
 Tetris hold is available once per piece, resetting after the piece locks.
 The castle adventure is an original miniature three-stage game, not a port of
@@ -105,6 +108,17 @@ the HUD's `H` countdown shows seconds until hyperspace is ready again (four seco
 Easy starts with three ships; Hard has two and more, faster rocks. Respawns provide
 two seconds of protection. Scores save separately for each difficulty; GPIO12 exits.
 
+Sky Patrol is a side-scrolling air-combat game over the sea. Point the joystick
+in any direction and the plane banks toward that heading; release to keep flying
+that way. Hold GPIO13 to boost and GPIO14 to fire along the nose; both work together.
+The camera follows horizontal flight, including leftward flight and reversals.
+Shoot down enemy aircraft for 100 points each. Every five kills increases the wave
+and ramps up enemy speed/spawning, up to a cap. Easy has three lives and enemies
+that take one hit; Hard has two lives, tougher enemies, and faster enemy fire.
+Collisions with aircraft or enemy bullets cost a life. Touching the water also
+costs a life, even during the brief respawn shield. GPIO12 exits; high scores save
+separately for Easy and Hard.
+
 ## Hardware and setup
 
 - ESP32 Dev Module (classic ESP32/WROOM).
@@ -124,7 +138,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All twenty games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All twenty-one games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -140,7 +154,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, Battle Tanks, Dino Runner, and Asteroids
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, Battle Tanks, Dino Runner, Asteroids, and Sky Patrol
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

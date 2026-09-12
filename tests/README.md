@@ -34,6 +34,10 @@ g++ -std=c++17 -Itests tests/dino_test.cpp -o build/dino_test
 ./build/dino_test
 g++ -std=c++17 -Itests tests/asteroids_test.cpp -o build/asteroids_test
 ./build/asteroids_test
+g++ -std=c++17 -Itests tests/sky_test.cpp -o build/sky_test
+./build/sky_test
+g++ -std=c++17 -Itests tests/menu_test.cpp -o build/menu_test
+./build/menu_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -130,3 +134,10 @@ These are logic tests, not pixel-level rendering tests or hardware tests.
   across seams, firing queue/cooldown, all splitting stages and maximum fragment
   capacity, scoring, waves, death/protection, hyperspace cooldown, reset/rollover,
   and 40,000 randomized input/draw frames.
+
+- Sky Patrol: absolute eight-direction joystick steering, shortest-angle banking,
+  correct boost/fire mapping, simultaneous controls and shot buffering, camera
+  reversal, enemy combat/scoring, sea crashes, ceiling, shields, spawning,
+  reset/rollover, and 40,000 input/draw frames.
+- Menu: immediate tap, vertical hold delay/repeat, release and direction changes,
+  horizontal single-step behavior, centering after gameplay, and timer rollover.

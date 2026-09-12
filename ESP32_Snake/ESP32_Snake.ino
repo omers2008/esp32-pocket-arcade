@@ -22,6 +22,8 @@
 #include "BattleTanks.h"
 #include "DinoRunner.h"
 #include "Asteroids.h"
+#include "SkyPatrol.h"
+#include "MenuScroll.h"
 
 // ---------- Hardware ----------
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -71,9 +73,11 @@ TopdownRPG topdownRPG;
 BattleTanks battleTanks;
 DinoRunner dinoRunner;
 Asteroids asteroids;
-constexpr uint8_t GAME_COUNT = 20;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids"};
-const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks", "dino", "asteroids"};
+SkyPatrol skyPatrol;
+MenuScroll menuScroll;
+constexpr uint8_t GAME_COUNT = 21;
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids", "Sky Patrol"};
+const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks", "dino", "asteroids", "sky"};
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
@@ -124,6 +128,11 @@ void placeFood() {
 void startGame() {
   holdArmed = false; // Require release before the first hold in a new game.
   actionArmed = false;  // Release the select button before shooting.
+  if (selectedGame == 20) {
+    skyPatrol.start(selectedDifficulty == 1);
+    gameState = PLAYING;
+    return;
+  }
   if (selectedGame == 19) {
     asteroids.start(selectedDifficulty == 1);
     gameState = PLAYING;
@@ -250,7 +259,8 @@ uint32_t currentScore() {
   if (selectedGame == 16) return topdownRPG.score;
   if (selectedGame == 17) return battleTanks.score;
   if (selectedGame == 18) return dinoRunner.score;
-  return asteroids.score;
+  if (selectedGame == 19) return asteroids.score;
+  return skyPatrol.score;
 }
 
 void finishGame() {
@@ -404,7 +414,7 @@ void drawTitle() {
   }
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 55);
-  display.print(F("Scroll / 13 select"));
+  display.print(F("Hold U/D / 13 select"));
   display.display();
 }
 
@@ -438,6 +448,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  if (selectedGame == 20) { skyPatrol.draw(display); return; }
   if (selectedGame == 19) { asteroids.draw(display); return; }
   if (selectedGame == 18) { dinoRunner.draw(display); return; }
   if (selectedGame == 17) { battleTanks.draw(display); return; }
@@ -579,6 +590,7 @@ void loop() {
     gameState = TITLE;
     actionArmed = false;
     menuStickReady = false;
+    menuScroll.reset(); // Center after gameplay before moving the game list.
     drawTitle();
     return;
   }
@@ -591,11 +603,9 @@ void loop() {
 
   if (gameState == TITLE) {
     int x = joystickX(), y = joystickY();
-    if (abs(x) < 350 && abs(y) < 350) menuStickReady = true;
-    if (menuStickReady && (abs(x) > JOYSTICK_DEAD_ZONE || abs(y) > JOYSTICK_DEAD_ZONE)) {
-      int step = abs(y) >= abs(x) ? (y > 0 ? -1 : 1) : (x > 0 ? 1 : -1);
+    int step = menuScroll.update(x, y);
+    if (step) {
       selectedGame = (selectedGame + GAME_COUNT + step) % GAME_COUNT;
-      menuStickReady = false; // Return to center before scrolling again.
       drawTitle();
     }
     if (pressed) {
@@ -643,7 +653,8 @@ void loop() {
     else if (selectedGame == 16) topdownRPG.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
     else if (selectedGame == 17) battleTanks.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.held());
     else if (selectedGame == 18) dinoRunner.update(joystickY(), pressed, holdArmed && holdButton.held());
-    else asteroids.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
+    else if (selectedGame == 19) asteroids.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
+    else skyPatrol.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.held());
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
                  selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over :
                  selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over :
@@ -652,7 +663,8 @@ void loop() {
                  selectedGame == 11 ? slotMachine.over : selectedGame == 12 ? fourInRow.over :
                  selectedGame == 13 ? ticTacToe.over : selectedGame == 14 ? minesweeper.over :
                  selectedGame == 15 ? pinball.over : selectedGame == 16 ? topdownRPG.over :
-                 selectedGame == 17 ? battleTanks.over : selectedGame == 18 ? dinoRunner.over : asteroids.over;
+                 selectedGame == 17 ? battleTanks.over : selectedGame == 18 ? dinoRunner.over :
+                 selectedGame == 19 ? asteroids.over : skyPatrol.over;
     if (ended) {
       finishGame();
       drawGameOver();

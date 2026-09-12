@@ -1,9 +1,11 @@
-# ESP32 Pocket Arcade: twenty games
+# ESP32 Pocket Arcade: twenty-one games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the twenty games (four visible at a time).
-  Return the stick to center before the next scroll; press GPIO13 to select.
+- At startup, tilt the joystick to scroll between the twenty-one games (four visible at a time).
+  Tap for one step or hold up/down to repeat after 400 ms, then every 130 ms.
+  Release to stop scrolling; press GPIO13 to select. After exiting gameplay,
+  center the stick before scrolling again.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
 - Battle Tanks: left/right rotates the tank and barrel; up drives forward and down
@@ -22,6 +24,13 @@
   shield. Ship, shots, and rocks wrap around the playfield. Shooting large rocks
   splits them into medium rocks, then small fragments. Clear waves to progress.
   Easy has three lives, Hard two with faster/more rocks. GPIO12 exits.
+- Sky Patrol: point the joystick toward the desired plane heading. The plane
+  banks toward it and keeps flying when the stick is released. Hold GPIO13 to
+  boost and GPIO14 to shoot (both can be held). Shoot down enemy aircraft and
+  avoid the water below. Camera scrolling follows forward/reverse flight.
+  Earn 100 points per kill; waves get harder every five kills. Easy has three
+  lives and one-hit enemies; Hard has two lives and two-hit enemies. Water
+  crashes cost a life even during respawn protection. GPIO12 exits.
 - Snake: steer with the joystick.
 - Space Invaders: left/right moves your ship; hold GPIO13 to fire repeatedly.
   Release the select button after entering the game, then press it to shoot.
