@@ -30,6 +30,8 @@ g++ -std=c++17 -Itests tests/topdown_test.cpp -o build/topdown_test
 ./build/topdown_test
 g++ -std=c++17 -Itests tests/tanks_test.cpp -o build/tanks_test
 ./build/tanks_test
+g++ -std=c++17 -Itests tests/dino_test.cpp -o build/dino_test
+./build/dino_test
 ```
 
 On Windows, open an **x64 Native Tools Command Prompt for Visual Studio**,
@@ -116,3 +118,8 @@ These are logic tests, not pixel-level rendering tests or hardware tests.
   intro release and buffered firing, normal shells, exactly four ricochets,
   corner/cover reflections, damage/immunity/scoring, CPU line of sight,
   five-wave victory, restart, timer rollover, and 40,000 input/draw steps.
+
+- Dino Runner: queued jump, no double/held jumps, ducking, collision and death,
+  reachable jump windows for every ground hazard at starting/maximum speeds,
+  both bird heights, reset/timer rollover, and 32,000 frames of generated
+  obstacle sequences survived by a jump/duck policy in both difficulties.

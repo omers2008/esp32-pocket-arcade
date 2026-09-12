@@ -20,6 +20,7 @@
 #include "Pinball.h"
 #include "TopdownRPG.h"
 #include "BattleTanks.h"
+#include "DinoRunner.h"
 
 // ---------- Hardware ----------
 constexpr uint8_t OLED_SDA_PIN = 21;
@@ -67,9 +68,10 @@ Minesweeper minesweeper;
 Pinball pinball;
 TopdownRPG topdownRPG;
 BattleTanks battleTanks;
-constexpr uint8_t GAME_COUNT = 18;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks"};
-const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks"};
+DinoRunner dinoRunner;
+constexpr uint8_t GAME_COUNT = 19;
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner"};
+const char *const SCORE_NAMESPACES[GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks", "dino"};
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
@@ -120,6 +122,11 @@ void placeFood() {
 void startGame() {
   holdArmed = false; // Require release before the first hold in a new game.
   actionArmed = false;  // Release the select button before shooting.
+  if (selectedGame == 18) {
+    dinoRunner.start(selectedDifficulty == 1);
+    gameState = PLAYING;
+    return;
+  }
   if (selectedGame == 17) {
     battleTanks.start(selectedDifficulty == 1);
     gameState = PLAYING;
@@ -234,7 +241,8 @@ uint32_t currentScore() {
   if (selectedGame == 14) return minesweeper.score;
   if (selectedGame == 15) return pinball.score;
   if (selectedGame == 16) return topdownRPG.score;
-  return battleTanks.score;
+  if (selectedGame == 17) return battleTanks.score;
+  return dinoRunner.score;
 }
 
 void finishGame() {
@@ -422,6 +430,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  if (selectedGame == 18) { dinoRunner.draw(display); return; }
   if (selectedGame == 17) { battleTanks.draw(display); return; }
   if (selectedGame == 16) { topdownRPG.draw(display); return; }
   if (selectedGame == 15) { pinball.draw(display); return; }
@@ -623,7 +632,8 @@ void loop() {
     else if (selectedGame == 14) minesweeper.update(joystickX(), joystickY(), pressed, holdArmed && holdButton.pressed);
     else if (selectedGame == 15) pinball.update(actionArmed && actionButton.held(), holdArmed && holdButton.held());
     else if (selectedGame == 16) topdownRPG.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.pressed);
-    else battleTanks.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.held());
+    else if (selectedGame == 17) battleTanks.update(joystickX(), joystickY(), actionArmed && actionButton.held(), holdArmed && holdButton.held());
+    else dinoRunner.update(joystickY(), pressed, holdArmed && holdButton.held());
     bool ended = selectedGame == 1 ? invaders.over : selectedGame == 2 ? pong.over :
                  selectedGame == 3 ? tetris.over : selectedGame == 4 ? castle.over :
                  selectedGame == 5 ? duckHunt.over : selectedGame == 6 ? pacMan.over :
@@ -631,7 +641,8 @@ void loop() {
                  selectedGame == 9 ? rogueCards.over : selectedGame == 10 ? templeQuest.over :
                  selectedGame == 11 ? slotMachine.over : selectedGame == 12 ? fourInRow.over :
                  selectedGame == 13 ? ticTacToe.over : selectedGame == 14 ? minesweeper.over :
-                 selectedGame == 15 ? pinball.over : selectedGame == 16 ? topdownRPG.over : battleTanks.over;
+                 selectedGame == 15 ? pinball.over : selectedGame == 16 ? topdownRPG.over :
+                 selectedGame == 17 ? battleTanks.over : dinoRunner.over;
     if (ended) {
       finishGame();
       drawGameOver();

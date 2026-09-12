@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: eighteen games
+# ESP32 Pocket Arcade: nineteen games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the eighteen games (four visible at a time).
+- At startup, tilt the joystick to scroll between the nineteen games (four visible at a time).
   Return the stick to center before the next scroll; press GPIO13 to select.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
@@ -12,6 +12,11 @@
   hit you on their return. Defeat CPU tanks over five waves; two hits destroy each
   CPU. Later waves add a third opponent. Easy gives five health; Hard gives three
   and faster enemies. Wave clears heal one health. GPIO12 exits to the arcade.
+- Dino Runner: an automatic dinosaur runner. GPIO13 or joystick-up jumps;
+  GPIO14 or joystick-down ducks while held. Jump over cacti and low birds,
+  duck under higher birds, and survive as the speed increases. Birds appear
+  after 150 points. Hard starts faster with closer obstacles. Collisions end
+  the run; distance scores save separately for Easy/Hard. GPIO12 exits.
 - Snake: steer with the joystick.
 - Space Invaders: left/right moves your ship; hold GPIO13 to fire repeatedly.
   Release the select button after entering the game, then press it to shoot.
