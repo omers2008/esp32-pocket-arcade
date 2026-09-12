@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: twenty-one games
+# ESP32 Pocket Arcade: twenty-two games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the twenty-one games (four visible at a time).
+- At startup, tilt the joystick to scroll between the twenty-two games (four visible at a time).
   Tap for one step or hold up/down to repeat after 400 ms, then every 130 ms.
   Release to stop scrolling; press GPIO13 to select. After exiting gameplay,
   center the stick before scrolling again.
@@ -274,6 +274,22 @@ Room numbers match the OLED's `R` counter. Letters mark key-locked routes.
   room's ceiling. Move sideways or jump to leave a ladder at a treasure ledge.
 - Jump from a ledge before its edge when crossing a pit beneath it. Spikes and
   pits remain dangerous during the blinking enemy-protection period.
+
+## Skull Depths
+
+Move and face your sword with the joystick. Hold GPIO13 to attack; tap GPIO14 to
+dash with 0.2 seconds of invulnerability. Dash charges refill every two seconds.
+Skull enemies wind up before attacking; touching them does no damage. Hat-wearing
+skulls are archers. Clear three rooms, buy supplies in the shop, then defeat the
+area boss. Repeat through Crypt, Ruins, and Keep to win.
+
+After each battle, choose one of three passive upgrades with the joystick and
+GPIO13. These include auto-arrows, extra dashes, stealth with double damage on the
+first sword hit, sword strength/reach/speed, health, room healing, frost dashes,
+gold bonuses, and healing from sword kills. Read the full
+[upgrade list](../README.md#skull-depths) for stacking and stealth details.
+Easy starts with eight health; Hard starts with six and adds enemies, faster
+arrows and shorter windups. Scores are saved separately by difficulty.
 
 ## Wiring
 

@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A twenty-one-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A twenty-two-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -27,6 +27,7 @@ separate high scores stored in flash for each game and difficulty.
 | Dino Runner | Up jump; down duck | Jump | Hold to duck |
 | Asteroids | Left/right rotate; up thrust | Hold to shoot | Hyperspace |
 | Sky Patrol | Point toward desired heading | Hold to boost | Hold to fire |
+| Skull Depths | Move / face sword direction; choose upgrades | Sword / confirm | Dash with invulnerability |
 
 GPIO12 returns to the game menu in every game. Tap the joystick to step through
 games, or hold up/down to scroll repeatedly until you release it. Repeating starts
@@ -119,6 +120,44 @@ Collisions with aircraft or enemy bullets cost a life. Touching the water also
 costs a life, even during the brief respawn shield. GPIO12 exits; high scores save
 separately for Easy and Hard.
 
+## Skull Depths
+
+An action roguelike with three areas (Crypt, Ruins, Keep). Each area contains
+three battle rooms, a shop, then a boss. Joystick movement sets the sword's facing;
+hold GPIO13 to swing and press GPIO14 to dash. A dash grants 0.2 seconds of
+invulnerability and recharges one charge every two seconds. Release GPIO14 between
+dashes. GPIO12 exits. Easy has eight starting health; Hard has six, more enemies,
+faster arrows and shorter enemy windups. Runs start fresh; best scores persist.
+
+Skulls only hurt you when their attack lands, never from touching. Melee enemies
+mark their attack area before striking, giving you time to move or dash. Skulls
+wearing hats aim, then fire arrows. Bosses alternate marked slams and arrow bursts,
+with stronger bursts in later areas. Pillars block movement and projectiles.
+
+Each battle clear offers three randomly selected, distinct passive upgrades. Tilt
+the stick to inspect each description, then press GPIO13 to choose. Upgrades stay
+for the run and can stack to their stated limits:
+
+| Upgrade | Effect |
+|---|---|
+| Sentry arrow | An arrow toward the nearest enemy every second; each rank adds 1 damage |
+| Extra dash | +1 dash charge, up to three total |
+| Shadow dash | Dash grants five seconds of stealth; the first connected sword swing does 200% damage and ends stealth |
+| Sharp steel | +1 sword damage per rank |
+| Long blade | +2 pixels of sword reach per rank |
+| Quick hands | Faster sword swings per rank |
+| Vital heart | +2 maximum health and heal 2 |
+| Room mend | Heal 1 per rank after clearing a battle |
+| Frost dash | Dash slows enemy movement for two seconds |
+| Gold hunter | +5 gold per enemy defeated per rank |
+| Soul drinker | Heal 1 after every six sword kills |
+
+Stealth prevents enemies from starting new attacks; arrows and attacks already
+in progress remain dangerous after dash invulnerability ends. Missing a swing
+does not consume the stealth damage bonus. Auto-arrows do not consume it either.
+The shop sells healing (20 gold), maximum health (35), and sword damage (40).
+Select `Enter boss arena` when ready. Defeat the third boss to win.
+
 ## Hardware and setup
 
 - ESP32 Dev Module (classic ESP32/WROOM).
@@ -138,7 +177,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All twenty-one games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All twenty-two games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
@@ -154,7 +193,7 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 ## Tests
 
-[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, Battle Tanks, Dino Runner, Asteroids, and Sky Patrol
+[Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, Battle Tanks, Dino Runner, Asteroids, Sky Patrol, and Skull Depths
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
 but do not replace testing the physical buttons, OLED, and ESP32.
 

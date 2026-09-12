@@ -4,6 +4,13 @@ These tests compile the actual game headers, using `Arduino.h` for a controlled
 clock/random generator and `Adafruit_SSD1306.h` for no-op drawing calls.
 Keep assertions enabled (do not define `NDEBUG`). No external libraries needed.
 
+`skull_test.cpp` covers Skull Depths' lack of contact damage, enemy windups and
+aimed arrows, dash invulnerability/recharge, queued button taps, cover collision,
+five-second stealth and double damage, automatic arrows, passive upgrades, shop
+prices, all three areas and bosses, menu confirmation arming, and movement bounds.
+Build with `g++ -std=c++17 -Itests tests/skull_test.cpp -o build/skull_test`, or
+`cl /nologo /EHsc /std:c++17 /Itests tests\skull_test.cpp /Fobuild\skull_test.obj /Febuild\skull_test.exe`.
+
 From the repository root, with a C++17 compiler:
 
 ```sh
