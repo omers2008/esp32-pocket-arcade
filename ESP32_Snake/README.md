@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: twenty-two games
+# ESP32 Pocket Arcade: twenty-three games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the twenty-two games (four visible at a time).
+- At startup, tilt the joystick to scroll between the twenty-three games (four visible at a time).
   Tap for one step or hold up/down to repeat after 400 ms, then every 130 ms.
   Release to stop scrolling; press GPIO13 to select. After exiting gameplay,
   center the stick before scrolling again.
@@ -290,6 +290,18 @@ gold bonuses, and healing from sword kills. Read the full
 [upgrade list](../README.md#skull-depths) for stacking and stealth details.
 Easy starts with eight health; Hard starts with six and adds enemies, faster
 arrows and shorter windups. Scores are saved separately by difficulty.
+
+## Donkey Kong
+
+An OLED adaptation of the classic barrel stage. Joystick left/right moves;
+up/down climbs ladders; GPIO13 jumps, and GPIO12 exits. Climb five sloping girders
+and reach the rescue character at the top right. Hammers are picked up by walking
+over them, last five seconds and smash barrels; they prevent jumping/climbing
+until they expire. Jumped barrels earn 100 points, smashed barrels 300, and a rescue
+earns 1,000 plus remaining-time bonus. Successful rescues start faster rounds.
+Easy has three lives and 120 seconds; Hard has two lives and 90 seconds with more
+frequent and faster barrels. High scores save separately. This is a compact newly
+written adaptation of the barrel stage, not the original game's ROM.
 
 ## Wiring
 

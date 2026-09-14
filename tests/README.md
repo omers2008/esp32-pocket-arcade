@@ -4,6 +4,12 @@ These tests compile the actual game headers, using `Arduino.h` for a controlled
 clock/random generator and `Adafruit_SSD1306.h` for no-op drawing calls.
 Keep assertions enabled (do not define `NDEBUG`). No external libraries needed.
 
+`dkong_test.cpp` checks jump height/arming, every ladder in both directions,
+sloped floors, barrel rolling and drops, collision and jump awards, hammer
+pickup/expiry, fire, timeout, rescue progression, and difficulty. Build with
+`g++ -std=c++17 -Itests tests/dkong_test.cpp -o build/dkong_test`, or
+`cl /nologo /EHsc /std:c++17 /Itests tests\dkong_test.cpp /Fobuild\dkong_test.obj /Febuild\dkong_test.exe`.
+
 `skull_test.cpp` covers Skull Depths' lack of contact damage, enemy windups and
 aimed arrows, dash invulnerability/recharge, queued button taps, cover collision,
 five-second stealth and double damage, automatic arrows, passive upgrades, shop

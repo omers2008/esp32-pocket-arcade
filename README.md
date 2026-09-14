@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A twenty-two-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A twenty-three-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -28,6 +28,7 @@ separate high scores stored in flash for each game and difficulty.
 | Asteroids | Left/right rotate; up thrust | Hold to shoot | Hyperspace |
 | Sky Patrol | Point toward desired heading | Hold to boost | Hold to fire |
 | Skull Depths | Move / face sword direction; choose upgrades | Sword / confirm | Dash with invulnerability |
+| Donkey Kong | Left/right move; up/down climb ladders | Jump / start | Unused |
 
 GPIO12 returns to the game menu in every game. Tap the joystick to step through
 games, or hold up/down to scroll repeatedly until you release it. Repeating starts
@@ -158,6 +159,22 @@ does not consume the stealth damage bonus. Auto-arrows do not consume it either.
 The shop sells healing (20 gold), maximum health (35), and sword damage (40).
 Select `Enter boss arena` when ready. Defeat the third boss to win.
 
+## Donkey Kong
+
+A compact OLED adaptation of the classic barrel stage, with five sloped girders,
+ladders, rolling barrels, an oil fire, hammers, and a rescue at the top right.
+This is a newly written game, not an emulation of the original ROM or its full
+set of arcade stages. Left/right moves, up/down climbs when near a ladder, and
+GPIO13 jumps. Release before jumping again. GPIO12 returns to the arcade.
+
+Jump over barrels for 100 points. Walk over a hammer pickup to wield it for five
+seconds and smash barrels for 300 points each; jumping and climbing are disabled
+while holding the hammer. Barrels can randomly take ladders. Reach the rescue
+character for 1,000 points plus a time bonus, then start a faster round.
+Contact with a barrel/fire or running out of time costs a life. Easy starts with
+three lives and 120 seconds per life; Hard has two lives, 90 seconds, faster barrels,
+more frequent throws, and more ladder drops. Scores persist per difficulty.
+
 ## Hardware and setup
 
 - ESP32 Dev Module (classic ESP32/WROOM).
@@ -177,7 +194,7 @@ Disconnect power before changing wiring. See the
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All twenty-two games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All twenty-three games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:
