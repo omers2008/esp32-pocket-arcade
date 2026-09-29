@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 #include <math.h>
 
 // Original monochrome space shooter with a toroidal (wrapping) playfield.
@@ -62,7 +62,7 @@ class Asteroids {
     if (cleared) { addScore(200); wave = min(wave + 1, 999); loadWave(); }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
     if (!started) {
       line(d, 0, "ASTEROIDS"); line(d, 12, "L/R turn, UP thrust");
@@ -195,5 +195,5 @@ class Asteroids {
     immune = 100; fireCooldown = hyperCooldown = 0;
     fireQueued = hyperQueued = false; lastFrame = millis();
   }
-  static void line(Adafruit_SSD1306 &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
+  static void line(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
 };

@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Original three-by-three Tic-Tac-Toe against the CPU.
 class TicTacToe {
@@ -26,7 +26,7 @@ class TicTacToe {
     if (placePressed && board[cursorY * 3 + cursorX] == 0) placePlayer();
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     d.setCursor(0, 0); d.print(F("TIC TAC"));
     d.setCursor(54, 0); d.print(hard ? 'H' : 'E');

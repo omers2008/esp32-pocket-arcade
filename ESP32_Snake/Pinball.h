@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // A compact original pinball table with two button-controlled flippers.
 class Pinball {
@@ -34,7 +34,7 @@ class Pinball {
     stepBall();
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     // A narrow, tall table leaves the right side for readable status information,
     // like the compact Tetris layout.
@@ -79,18 +79,18 @@ class Pinball {
     ballX = 27; ballY = 47; ballVx = ballVy = 0;
   }
 
-  static void drawBumper(Adafruit_SSD1306 &d, int x, int y) {
+  static void drawBumper(ArcadeDisplay &d, int x, int y) {
     d.drawCircle(x, y, 2, SSD1306_WHITE);
     d.fillCircle(x, y, 1, SSD1306_WHITE);
   }
 
-  static void drawPost(Adafruit_SSD1306 &d, int x, int y1, int y2) {
+  static void drawPost(ArcadeDisplay &d, int x, int y1, int y2) {
     d.drawFastVLine(x, y1, y2 - y1 + 1, SSD1306_WHITE);
     d.drawPixel(x, y1 - 1, SSD1306_WHITE);
     d.drawPixel(x, y2 + 1, SSD1306_WHITE);
   }
 
-  static void drawTarget(Adafruit_SSD1306 &d, int x, int y) {
+  static void drawTarget(ArcadeDisplay &d, int x, int y) {
     d.drawRect(x, y, 3, 2, SSD1306_WHITE);
     d.drawPixel(x + 1, y, SSD1306_WHITE);
   }

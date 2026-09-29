@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 class Tetris {
  public:
@@ -68,7 +68,7 @@ class Tetris {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay();
     d.setTextSize(1);
     d.setTextColor(SSD1306_WHITE);
@@ -205,13 +205,13 @@ class Tetris {
     introduceNext();
   }
 
-  static void drawCell(Adafruit_SSD1306 &d, int x, int y, bool ghost) {
+  static void drawCell(ArcadeDisplay &d, int x, int y, bool ghost) {
     if (y < 0 || y >= 20 || x < 0 || x >= 10) return;
     if (ghost) d.drawPixel(47 + x * 3, 3 + y * 3, SSD1306_WHITE);
     else d.fillRect(46 + x * 3, 2 + y * 3, 2, 2, SSD1306_WHITE);
   }
 
-  static void preview(Adafruit_SSD1306 &d, int type, int px, int py, int size) {
+  static void preview(ArcadeDisplay &d, int type, int px, int py, int size) {
     for (int y = 0; y < 4; ++y) {
       for (int x = 0; x < 4; ++x) {
         if (block(type, 0, x, y)) d.fillRect(px + x * size, py + y * size, size - 1, size - 1, SSD1306_WHITE);

@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Ten-hand, points-only Blackjack. No betting, splitting, doubling, or insurance.
 class Blackjack {
@@ -46,7 +46,7 @@ class Blackjack {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     d.setCursor(0, 0); d.print(F("BJ ")); d.print(handNumber); d.print(F("/10"));
     d.setCursor(64, 0); d.print(F("S")); d.print(score);
@@ -131,7 +131,7 @@ class Blackjack {
     result = outcome; phase = RESULT; phaseAt = millis();
     score += outcome == NATURAL ? 15 : outcome == WIN ? 10 : outcome == PUSH ? 2 : 0;
   }
-  static void drawHand(Adafruit_SSD1306 &d, const Hand &hand, int y, bool hideHole) {
+  static void drawHand(ArcadeDisplay &d, const Hand &hand, int y, bool hideHole) {
     const char ranks[] = "A23456789TJQK";
     for (int i = 0; i < hand.count; ++i) {
       int x = 2 + i * 10;

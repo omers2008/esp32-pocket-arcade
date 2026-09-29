@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Original miniature whip-and-jump adventure inspired by classic castle games.
 class CastleGame {
@@ -110,7 +110,7 @@ class CastleGame {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     int camera = max(0, min(int(x) - 42, 512));
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     // Sparse towers and windows behind the action, below the HUD.

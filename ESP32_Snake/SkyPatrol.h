@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 #include <math.h>
 
 // Side-scrolling dogfights. Coordinates are relative to a camera following
@@ -68,7 +68,7 @@ class SkyPatrol {
     if (!spawnTimer) spawn();
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
     if (!started) {
       line(d, 0, "SKY PATROL"); line(d, 12, "Point stick to steer");
@@ -188,7 +188,7 @@ class SkyPatrol {
     if (--lives <= 0) { lives = 0; over = true; return; }
     respawn();
   }
-  static void plane(Adafruit_SSD1306 &d, float x, float y, float a, bool player) {
+  static void plane(ArcadeDisplay &d, float x, float y, float a, bool player) {
     float cs = cosf(a), sn = sinf(a);
     d.drawLine(int(x - cs * 5), int(y - sn * 5), int(x + cs * 7), int(y + sn * 7), SSD1306_WHITE);
     d.drawLine(int(x - cs * 2 - sn * 5), int(y - sn * 2 + cs * 5),
@@ -200,5 +200,5 @@ class SkyPatrol {
     if (player) d.fillCircle(int(x), int(y), 1, SSD1306_WHITE);
     else d.drawCircle(int(x), int(y), 2, SSD1306_WHITE);
   }
-  static void line(Adafruit_SSD1306 &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
+  static void line(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
 };

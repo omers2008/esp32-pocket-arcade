@@ -4,6 +4,13 @@ These tests compile the actual game headers, using `Arduino.h` for a controlled
 clock/random generator and `Adafruit_SSD1306.h` for no-op drawing calls.
 Keep assertions enabled (do not define `NDEBUG`). No external libraries needed.
 
+The game headers use `ArcadeDisplay`, which maps to the existing no-op display
+stub on host builds. On ESP32 it uses a GFXcanvas1 and the ST7789 driver.
+`display_test.cpp` exercises the real adapter against SPI/GFX/TFT test doubles:
+pin mapping, panel initialization, 2x scaling, output bounds, bit boundaries,
+inversion of logical pixels, clearing and allocation failure. Compile this test
+with `-Itests/tft -Itests` (or `/Itests\tft /Itests` on MSVC).
+
 `dkong_test.cpp` checks jump height/arming, every ladder in both directions,
 sloped floors, barrel rolling and drops, collision and jump awards, hammer
 pickup/expiry, fire, timeout, rescue progression, and difficulty. Build with

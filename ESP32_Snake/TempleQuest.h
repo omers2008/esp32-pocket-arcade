@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Original six-room temple adventure; no original Montezuma game code or assets.
 class TempleQuest {
@@ -120,7 +120,7 @@ class TempleQuest {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
     if (!started) {
       line(d, 0, "TEMPLE QUEST"); line(d, 12, "L/R move, U/D climb");
@@ -241,5 +241,5 @@ class TempleQuest {
     if (--lives == 0) { over = true; return; }
     respawn();
   }
-  static void line(Adafruit_SSD1306 &d, int y, const char *text) { d.setCursor(0, y); d.print(text); }
+  static void line(ArcadeDisplay &d, int y, const char *text) { d.setCursor(0, y); d.print(text); }
 };

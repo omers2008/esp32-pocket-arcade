@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Original tiny arena brawler, not a port of Street Fighter II or its assets.
 class StreetFighter {
@@ -88,7 +88,7 @@ class StreetFighter {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     d.setCursor(0, 0); d.print(score);
     d.setCursor(54, 0); d.print(F("W")); d.print(wave);
@@ -164,7 +164,7 @@ class StreetFighter {
     e.hit = attackTicks > 0;
     ++spawned; --toSpawn;
   }
-  static void fighter(Adafruit_SSD1306 &d, int px, int py, int facing, bool player, bool attack, bool kick) {
+  static void fighter(ArcadeDisplay &d, int px, int py, int facing, bool player, bool attack, bool kick) {
     d.fillRect(px + 2, py, 4, 4, SSD1306_WHITE);
     d.drawPixel(px + (facing > 0 ? 5 : 2), py + 1, SSD1306_BLACK);
     if (player) d.fillRect(px + 1, py + 4, 6, 6, SSD1306_WHITE);

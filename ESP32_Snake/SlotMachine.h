@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // A small animated three-reel slot machine. Cash is allowed to reach zero;
 // the run ends only after a spin leaves the player in debt.
@@ -88,7 +88,7 @@ class SlotMachine {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay();
     d.setTextColor(SSD1306_WHITE);
     d.setTextSize(1);

@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 #include <math.h>
 
 class BattleTanks {
@@ -51,7 +51,7 @@ class BattleTanks {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     if (!started) {
       line(d, 0, "BATTLE TANKS"); line(d, 11, "L/R turn, U/D drive");
@@ -199,7 +199,7 @@ class BattleTanks {
     immune = 75; cooldown = 0; normalQueued = bounceQueued = false;
     lastFrame = millis();
   }
-  static void drawTank(Adafruit_SSD1306 &d, const Tank &t, bool filled) {
+  static void drawTank(ArcadeDisplay &d, const Tank &t, bool filled) {
     float cs = cosf(t.angle), sn = sinf(t.angle);
     int px[4], py[4];
     const int forward[] = {-4, 4, 4, -4}, side[] = {-3, -3, 3, 3};
@@ -212,5 +212,5 @@ class BattleTanks {
     else d.drawCircle(int(t.x), int(t.y), 1, SSD1306_WHITE);
     d.drawLine(int(t.x), int(t.y), int(t.x + cs * 7), int(t.y + sn * 7), SSD1306_WHITE);
   }
-  static void line(Adafruit_SSD1306 &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
+  static void line(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
 };

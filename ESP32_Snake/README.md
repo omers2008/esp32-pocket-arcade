@@ -309,18 +309,27 @@ Disconnect USB power while making these connections.
 
 | Module pin | ESP32 pin | Purpose |
 |---|---:|---|
-| OLED `GND` | `GND` | Ground |
-| OLED `VCC` | `3.3V` | Power |
-| OLED `SDA` | `GPIO 21` | I2C data |
-| OLED `SCL` | `GPIO 22` | I2C clock |
+| TFT `GND` | `GND` | Ground |
+| TFT `VCC` | `3.3V` | Power |
+| TFT `SDA` | `GPIO 23` | SPI MOSI data, not I2C |
+| TFT `SCL` | `GPIO 18` | SPI clock, not I2C |
+| TFT `RST` | `GPIO 25` | Reset |
+| TFT `DC` | `GPIO 26` | Data/command |
+| TFT `CS` | `GPIO 27` | Chip select |
+| TFT `BL` | `3.3V` | Backlight enable |
 | Joystick `G` | `GND` | Ground |
 | Joystick `V` | `3.3V` | Power; do not use 5V |
 | Joystick `X` | `GPIO 34` | Horizontal analog input |
 | Joystick `Y` | `GPIO 35` | Vertical analog input |
-| Joystick `B` | Not needed | Built-in button is unused; existing GPIO27 wire may remain |
+| Joystick `B` | Disconnected | Remove any old GPIO27 wire; TFT now uses that pin |
 | Menu button | `GPIO 12` and `GND` | Normally-open switch, pressed = LOW |
 | Select/action button | `GPIO 13` and `GND` | Select/fire/rotate/hit/punch by game; pressed = LOW |
 | Secondary action button | `GPIO 14` and `GND` | Hold/jump/stand/kick/end turn by game; pressed = LOW |
+
+The screen is a GMT020-02-8P ST7789 240x320 SPI module. The firmware uses
+landscape orientation and centers the games at twice their original pixel size.
+The new TFT firmware does not drive the old SSD1306 OLED. The old GPIO21/22
+OLED wires are no longer used. Solder headers or wires into the screen's pads.
 
 The sketch enables internal pull-ups after startup: each new button connects
 its GPIO to GND when pressed. Do not connect the buttons to 5V or 3.3V.
@@ -334,7 +343,7 @@ The joystick board in the photo labels its five pins `Y`, `X`, `B`, `V`, and
 ## Arduino IDE setup
 
 1. Install the **esp32 by Espressif Systems** board package in Boards Manager.
-2. In Library Manager, install **Adafruit SSD1306** and **Adafruit GFX Library**.
+2. In Library Manager, install **Adafruit ST7735 and ST7789 Library** and **Adafruit GFX Library**.
    Allow the IDE to install any dependencies it offers.
 3. Open `ESP32_Snake.ino` and select **ESP32 Dev Module** (or the exact ESP32
    board entry if you know it).
@@ -355,9 +364,13 @@ is disconnected or the board is reset.
   on 2026-09-09. Keep SignalRGB closed while uploading, or exclude this adapter
   in SignalRGB. No startup setting was changed during troubleshooting.
 
-- Blank OLED: change `OLED_ADDRESS` near the top of the sketch from `0x3C` to
-  `0x3D`, then upload again. The solder-jumper markings on the back of this OLED
-  show that those are its two address choices.
+- Dark TFT: check VCC, GND and BL; VCC/BL should be connected to 3.3V.
+- Lit but blank TFT: check SDA=23, SCL=18, CS=27, DC=26 and RST=25.
+  This is a write-only SPI module: successful firmware initialization cannot
+  detect a disconnected or incorrectly wired screen. No I2C address is involved.
+- Upside-down TFT: change `ROTATION` from 1 to 3 in `DisplayConfig.h`.
+- Negative-looking image: toggle `INVERT` in `DisplayConfig.h`.
+- Corrupted image: shorten jumper wires and try `SPI_HZ = 10000000`.
 - Up/down or left/right is reversed: change `INVERT_Y` or `INVERT_X` between
   `true` and `false` near the top of the sketch.
 - Snake turns by itself: increase `JOYSTICK_DEAD_ZONE` from `650` to about `800`,

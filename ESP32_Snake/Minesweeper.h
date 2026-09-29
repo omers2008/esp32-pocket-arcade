@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Original small-screen Minesweeper. The first dig is always safe.
 class Minesweeper {
@@ -32,7 +32,7 @@ class Minesweeper {
     else if (flagPressed) toggleFlag();
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     d.setCursor(0, 0); d.print(F("MINES ")); d.print(hard ? 'H' : 'E');
     d.setCursor(51, 0); d.print(F("M:")); d.print(mineTotal - flags);

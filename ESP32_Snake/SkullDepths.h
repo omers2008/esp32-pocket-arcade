@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 #include <math.h>
 
 // Three areas: three arenas -> shop -> boss. All combat timers tick at 50 Hz;
@@ -48,7 +48,7 @@ class SkullDepths {
     attackQueued = dashQueued = false;
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
     if (phase == INTRO) {
       text(d, 0, "SKULL DEPTHS"); text(d, 11, "Stick: move / aim");
@@ -320,8 +320,8 @@ class SkullDepths {
     static const char *const next[] = {"each sec; +1 damage", "Each refills in 2s", "First sword hit: x2", "Stacks up to 3", "Stacks twice", "Stacks up to 3", "Also heal 2", "Stacks up to 3", "for 2 seconds", "Stacks up to 3", "heal 1 health"};
     return second ? next[p] : first[p];
   }
-  static void text(Adafruit_SSD1306 &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
-  static void skull(Adafruit_SSD1306 &d, const Enemy &e) {
+  static void text(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
+  static void skull(ArcadeDisplay &d, const Enemy &e) {
     int ex = int(e.x), ey = int(e.y), r = e.boss ? 5 : 3;
     d.fillRect(ex-r, ey-r, r*2+1, r*2, SSD1306_WHITE);
     d.fillRect(ex-r+1, ey, r*2-1, r+2, SSD1306_WHITE);

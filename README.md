@@ -1,6 +1,6 @@
 # ESP32 Pocket Arcade
 
-A twenty-three-game handheld arcade for an ESP32, a 128x64 SSD1306 I2C OLED,
+A twenty-three-game handheld arcade for an ESP32, a 2-inch ST7789 SPI TFT,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -178,7 +178,7 @@ more frequent throws, and more ladder drops. Scores persist per difficulty.
 ## Hardware and setup
 
 - ESP32 Dev Module (classic ESP32/WROOM).
-- SSD1306 OLED: SDA = GPIO21, SCL = GPIO22, VCC = 3.3V, GND = GND.
+- GMT020-02-8P ST7789 TFT, 240x320, used in landscape orientation.
 - Joystick: X = GPIO34, Y = GPIO35, power = 3.3V, ground = GND.
 - Normally-open buttons from GPIO12, GPIO13, and GPIO14 to GND.
   Internal pull-ups are enabled; do not connect buttons to a supply voltage.
@@ -187,8 +187,33 @@ more frequent throws, and more ladder drops. Scores persist per difficulty.
 Disconnect power before changing wiring. See the
 [complete wiring, controls, difficulty, and troubleshooting guide](ESP32_Snake/README.md).
 
+| Screen pin | ESP32 connection |
+|---|---|
+| GND | GND |
+| VCC | 3.3V |
+| SCL | GPIO18 (SPI clock) |
+| SDA | GPIO23 (SPI MOSI) |
+| RST | GPIO25 |
+| DC | GPIO26 |
+| CS | GPIO27 |
+| BL | 3.3V (backlight enable) |
+
+SDA/SCL here are SPI signals, not I2C. Remove the old OLED and disconnect any
+unused joystick B wire from GPIO27, which is now the screen's CS pin. Solder
+the screen's eight-pin header or wires; loose wires in unsoldered holes are
+not reliable connections. Power down before changing wires.
+
+The games retain their 128x64 logical canvas and monochrome graphics. The new
+display presents them as crisp 256x128 images centered on its 320x240 landscape
+panel, preserving game dimensions and physics. It does not stretch them. The
+TFT supports color, but individual game artwork has not been recolored.
+Wiring, rotation (1 or 3), inversion, colors, and SPI speed are in
+[DisplayConfig.h](ESP32_Snake/DisplayConfig.h). The adapter uses a small scanline
+buffer instead of allocating a full RGB frame. Existing high-score namespaces
+and control pins are unchanged.
+
 1. Install **esp32 by Espressif Systems** in Arduino IDE Boards Manager.
-2. Install **Adafruit SSD1306** and **Adafruit GFX Library**, including dependencies.
+2. Install **Adafruit ST7735 and ST7789 Library** and **Adafruit GFX Library**, including dependencies.
 3. Open [ESP32_Snake/ESP32_Snake.ino](ESP32_Snake/ESP32_Snake.ino).
 4. Select **ESP32 Dev Module**, choose the serial port, and upload.
 5. Keep the joystick centered during startup calibration.
@@ -212,6 +237,6 @@ to the menu; cutting power in the middle of a run does not save that run.
 
 [Host-side gameplay tests](tests/README.md) exercise the actual Pong, Tetris, castle, Duck Hunt, Pac-Man, Blackjack, brawler, Rogue Cards, Temple Quest, Slot Machine, 4 In A Row, Tic-Tac-Toe, Pinball, Forest Quest, Battle Tanks, Dino Runner, Asteroids, Sky Patrol, and Skull Depths
 headers with lightweight Arduino/display stubs. They cover mechanics and bounds,
-but do not replace testing the physical buttons, OLED, and ESP32.
+but do not replace testing the physical buttons, screen, and ESP32.
 
 Local build outputs, executables, and credentials are excluded from Git.

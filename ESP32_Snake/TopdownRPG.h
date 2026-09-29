@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // A small original top-down adventure designed for the 128x64 OLED.
 // The player starts with only a directional punch. The first reward fight
@@ -101,7 +101,7 @@ class TopdownRPG {
     if (allEnemiesDefeated()) { won = over = true; }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay();
     d.setTextColor(SSD1306_WHITE);
     d.setTextSize(1);
@@ -349,19 +349,19 @@ class TopdownRPG {
     return true;
   }
 
-  static void drawRock(Adafruit_SSD1306 &d, int px, int py) {
+  static void drawRock(ArcadeDisplay &d, int px, int py) {
     d.drawLine(px + 3, py, px + 7, py + 3, SSD1306_WHITE);
     d.drawLine(px + 7, py + 3, px + 3, py + 7, SSD1306_WHITE);
     d.drawLine(px + 3, py + 7, px, py + 3, SSD1306_WHITE);
     d.drawLine(px, py + 3, px + 3, py, SSD1306_WHITE);
   }
 
-  static void drawArrow(Adafruit_SSD1306 &d, int px, int py, float vx, float vy) {
+  static void drawArrow(ArcadeDisplay &d, int px, int py, float vx, float vy) {
     if (abs(vx) >= abs(vy)) d.drawFastHLine(px - 3, py, 7, SSD1306_WHITE);
     else d.drawFastVLine(px, py - 3, 7, SSD1306_WHITE);
   }
 
-  static void drawTrees(Adafruit_SSD1306 &d, int cameraX, int cameraY) {
+  static void drawTrees(ArcadeDisplay &d, int cameraX, int cameraY) {
     static const int trees[][2] = {{18, 18}, {76, 22}, {112, 91}, {166, 55}, {207, 18}, {244, 84}};
     for (auto &tree : trees) {
       int tx = tree[0] - cameraX, ty = tree[1] - cameraY + 10;
@@ -371,7 +371,7 @@ class TopdownRPG {
     }
   }
 
-  static void line(Adafruit_SSD1306 &d, int y, const char *text) {
+  static void line(ArcadeDisplay &d, int y, const char *text) {
     d.setCursor(0, y); d.print(text);
   }
 };

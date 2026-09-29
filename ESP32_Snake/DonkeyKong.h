@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Compact barrel-stage adaptation: five sloped girders, ladders, rescue,
 // hammers and the oil fire. Geometry is shared by drawing and movement.
@@ -31,7 +31,7 @@ class DonkeyKong {
     }
     tick(sx, sy, jumpQueued); jumpQueued = false;
   }
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     if (!started) {
       line(d, 0, "DONKEY KONG"); line(d, 11, "Stick: move / climb");
@@ -201,11 +201,11 @@ class DonkeyKong {
       score += 1000 + uint32_t(timeLeft/50)*10; score = min(score,uint32_t(999999)); cleared = 100;
     }
   }
-  static void line(Adafruit_SSD1306 &d,int y,const char *s) { d.setCursor(0,y); d.print(s); }
-  static void drawHammer(Adafruit_SSD1306 &d,int x,int y) {
+  static void line(ArcadeDisplay &d,int y,const char *s) { d.setCursor(0,y); d.print(s); }
+  static void drawHammer(ArcadeDisplay &d,int x,int y) {
     d.drawFastVLine(x,y,5,SSD1306_WHITE); d.fillRect(x-2,y,5,2,SSD1306_WHITE);
   }
-  void gorilla(Adafruit_SSD1306 &d) const {
+  void gorilla(ArcadeDisplay &d) const {
     int gy = int(floorY(4,13));
     d.fillRect(8,gy-6,9,5,SSD1306_WHITE); d.fillRect(10,gy-9,6,4,SSD1306_WHITE);
     d.drawPixel(11,gy-8,SSD1306_BLACK); d.drawPixel(14,gy-8,SSD1306_BLACK);

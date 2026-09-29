@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Original seven-column, six-row four-in-a-row game against the CPU.
 class FourInRow {
@@ -25,7 +25,7 @@ class FourInRow {
     if (dropPressed) dropPlayer();
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     d.setCursor(0, 0); d.print(F("4 IN ROW"));
     d.setCursor(52, 0); d.print(hard ? 'H' : 'E');

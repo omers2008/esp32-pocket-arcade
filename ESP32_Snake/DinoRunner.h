@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // Original OLED runner inspired by the offline dinosaur game.
 class DinoRunner {
@@ -61,7 +61,7 @@ class DinoRunner {
     if (spawnDistance <= 0) spawn();
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     if (!started) {
       line(d, 0, "DINO RUNNER"); line(d, 12, "13 / UP: jump");
@@ -144,12 +144,12 @@ class DinoRunner {
       return;
     }
   }
-  static void cactus(Adafruit_SSD1306 &d, int x, int y, int w, int h) {
+  static void cactus(ArcadeDisplay &d, int x, int y, int w, int h) {
     d.fillRect(x + w / 2 - 1, y, 3, h, SSD1306_WHITE);
     d.drawFastVLine(x, y + 3, h / 2, SSD1306_WHITE);
     d.drawFastHLine(x, y + 3 + h / 2, w / 2, SSD1306_WHITE);
     d.drawFastVLine(x + w - 1, y + 1, h / 2, SSD1306_WHITE);
     d.drawFastHLine(x + w / 2, y + 1 + h / 2, w / 2, SSD1306_WHITE);
   }
-  static void line(Adafruit_SSD1306 &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
+  static void line(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
 };

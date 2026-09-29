@@ -112,7 +112,7 @@ class Invaders {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay();
     d.setTextSize(1);
     d.setTextColor(SSD1306_WHITE);

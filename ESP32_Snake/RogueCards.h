@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 // A short, turn-based run: nine fights, three bosses, and run-long upgrades.
 class RogueCards {
@@ -65,7 +65,7 @@ class RogueCards {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     if (phase == INTRO) {
       line(d, 0, "ROGUE CARDS"); line(d, 13, "Stick: choose card");
@@ -258,12 +258,12 @@ class RogueCards {
     // The first three spells are strong but affordable; the last three are advanced.
     return a <= MEND ? 2 : 3;
   }
-  void describeCard(Adafruit_SSD1306 &d, int c) const {
+  void describeCard(ArcadeDisplay &d, int c) const {
     if (c == STRIKE) { d.print(5 + passives[MIGHT]); d.print(F(" damage / 1 energy")); }
     else if (c == SHIELD) { d.print(5 + 2 * passives[GUARD]); d.print(F(" block / 1 energy")); }
     else { d.print(3 + passives[HERBS]); d.print(F(" heal / 1 energy")); }
   }
-  void describeActive(Adafruit_SSD1306 &d, int a, bool upgrading) const {
+  void describeActive(ArcadeDisplay &d, int a, bool upgrading) const {
     int boost = 2 * max(0, int(actives[a]) - (upgrading ? 0 : 1));
     switch (a) {
       case FIREBALL: d.print(12 + boost + passives[MIGHT]); d.print(F(" dmg / ")); break;
@@ -275,8 +275,8 @@ class RogueCards {
     }
     d.print(activeCost(a)); d.print(F("E, once/fight"));
   }
-  static void line(Adafruit_SSD1306 &d, int y, const char *text) { d.setCursor(0, y); d.print(text); }
-  static void highlight(Adafruit_SSD1306 &d, int y, bool on) {
+  static void line(ArcadeDisplay &d, int y, const char *text) { d.setCursor(0, y); d.print(text); }
+  static void highlight(ArcadeDisplay &d, int y, bool on) {
     if (on) d.fillRect(0, y - 1, 128, 10, SSD1306_WHITE);
     d.setTextColor(on ? SSD1306_BLACK : SSD1306_WHITE);
   }

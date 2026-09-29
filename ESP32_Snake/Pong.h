@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 
 class Pong {
  public:
@@ -82,7 +82,7 @@ class Pong {
     }
   }
 
-  void draw(Adafruit_SSD1306 &d) {
+  void draw(ArcadeDisplay &d) {
     d.clearDisplay();
     d.setTextColor(SSD1306_WHITE);
     d.setTextSize(1);

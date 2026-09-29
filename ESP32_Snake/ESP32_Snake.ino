@@ -1,7 +1,6 @@
-#include <Wire.h>
 #include <Preferences.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include "ArcadeDisplay.h"
 #include "Invaders.h"
 #include "Buttons.h"
 #include "Pong.h"
@@ -28,9 +27,7 @@
 #include "DonkeyKong.h"
 
 // ---------- Hardware ----------
-constexpr uint8_t OLED_SDA_PIN = 21;
-constexpr uint8_t OLED_SCL_PIN = 22;
-constexpr uint8_t OLED_ADDRESS = 0x3C;  // Try 0x3D if the display stays blank.
+// TFT SPI wiring and orientation are configured in DisplayConfig.h.
 
 constexpr uint8_t JOY_X_PIN = 34;
 constexpr uint8_t JOY_Y_PIN = 35;
@@ -54,7 +51,7 @@ constexpr int GRID_WIDTH = SCREEN_WIDTH / CELL_SIZE;                  // 32
 constexpr int GRID_HEIGHT = (SCREEN_HEIGHT - HEADER_HEIGHT) / CELL_SIZE; // 14
 constexpr int MAX_SNAKE_LENGTH = GRID_WIDTH * GRID_HEIGHT;
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+ArcadeDisplay display;
 Preferences preferences;
 Invaders invaders;
 Pong pong;
@@ -578,9 +575,8 @@ void setup() {
     preferences.end();
   }
 
-  Wire.begin(OLED_SDA_PIN, OLED_SCL_PIN);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
-    Serial.println(F("OLED not found. Check wiring/address (0x3C or 0x3D)."));
+  if (!display.begin()) {
+    Serial.println(F("Display canvas allocation failed."));
     while (true) delay(1000);
   }
 
