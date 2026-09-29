@@ -120,7 +120,7 @@ class TopdownRPG {
     int cameraY = constrain(int(y) - 31, 0, WORLD_HEIGHT - PLAY_HEIGHT);
     for (int wx = cameraX; wx < cameraX + 128; wx += 8) {
       for (int wy = cameraY; wy < cameraY + PLAY_HEIGHT; wy += 8) {
-        if (((wx / 8) + (wy / 8)) % 2 == 0) d.drawPixel(wx - cameraX + 2, wy - cameraY + 11, SSD1306_WHITE);
+        if (((wx / 8) + (wy / 8)) % 2 == 0) d.drawPixel(wx - cameraX + 2, wy - cameraY + 11, Ink::Green);
       }
     }
     drawTrees(d, cameraX, cameraY);
@@ -130,7 +130,7 @@ class TopdownRPG {
     for (auto &a : arrows) if (a.active) drawArrow(d, int(a.x) - cameraX, int(a.y) - cameraY + 10, a.vx, a.vy);
     for (auto &e : enemies) if (e.alive) {
       int ex = int(e.x) - cameraX, ey = int(e.y) - cameraY + 10;
-      d.fillRect(ex + 1, ey + 1, 6, 6, SSD1306_WHITE);
+      d.fillRect(ex + 1, ey + 1, 6, 6, Ink::Red);
       d.drawPixel(ex + 2, ey + 2, SSD1306_BLACK);
       d.drawPixel(ex + 5, ey + 2, SSD1306_BLACK);
       if (e.reward == REWARD_SWORD && !swordUnlocked) { d.setCursor(ex - 1, ey - 9); d.print('S'); }
@@ -140,19 +140,19 @@ class TopdownRPG {
 
     if (!immune || immune % 8 < 4) {
       int px = int(x) - cameraX, py = int(y) - cameraY + 10;
-      d.fillRect(px + 1, py + 1, 5, 5, SSD1306_WHITE);
-      d.drawPixel(px + (facingX > 0 ? 6 : facingX < 0 ? 0 : 3), py + 3, SSD1306_WHITE);
+      d.fillRect(px + 1, py + 1, 5, 5, Ink::Cyan);
+      d.drawPixel(px + (facingX > 0 ? 6 : facingX < 0 ? 0 : 3), py + 3, Ink::Cyan);
       d.drawPixel(px + 2, py + 2, SSD1306_BLACK);
       d.drawPixel(px + 4, py + 2, SSD1306_BLACK);
     }
     if (attackTicks) {
       int sx = int(x) - cameraX, sy = int(y) - cameraY + 10;
       if (swordUnlocked) {
-        if (facingX) d.drawLine(sx + (facingX > 0 ? 7 : -1), sy + 2, sx + (facingX > 0 ? 20 : -14), sy + 8, SSD1306_WHITE);
-        else d.drawLine(sx + 2, sy + (facingY > 0 ? 7 : -1), sx + 8, sy + (facingY > 0 ? 20 : -14), SSD1306_WHITE);
+        if (facingX) d.drawLine(sx + (facingX > 0 ? 7 : -1), sy + 2, sx + (facingX > 0 ? 20 : -14), sy + 8, Ink::Gold);
+        else d.drawLine(sx + 2, sy + (facingY > 0 ? 7 : -1), sx + 8, sy + (facingY > 0 ? 20 : -14), Ink::Gold);
       } else {
-        if (facingX) d.drawFastHLine(sx + (facingX > 0 ? 7 : -12), sy + 4, 12, SSD1306_WHITE);
-        else d.drawFastVLine(sx + 4, sy + (facingY > 0 ? 7 : -12), 12, SSD1306_WHITE);
+        if (facingX) d.drawFastHLine(sx + (facingX > 0 ? 7 : -12), sy + 4, 12, Ink::Gold);
+        else d.drawFastVLine(sx + 4, sy + (facingY > 0 ? 7 : -12), 12, Ink::Gold);
       }
     }
     d.fillRect(0, 0, 128, 9, SSD1306_BLACK);
@@ -164,7 +164,7 @@ class TopdownRPG {
     else if (holdingRock) d.print(F("ROCK"));
     else d.print(F("PUNCH"));
     d.setCursor(116, 0); d.print(hard ? 'H' : 'E');
-    d.drawFastHLine(0, 9, 128, SSD1306_WHITE);
+    d.drawFastHLine(0, 9, 128, Ink::Wall);
     if (message && millis() - messageAt < 1000) {
       d.fillRect(6, 12, 116, 10, SSD1306_BLACK);
       d.setCursor(8, 13);
@@ -350,15 +350,15 @@ class TopdownRPG {
   }
 
   static void drawRock(ArcadeDisplay &d, int px, int py) {
-    d.drawLine(px + 3, py, px + 7, py + 3, SSD1306_WHITE);
-    d.drawLine(px + 7, py + 3, px + 3, py + 7, SSD1306_WHITE);
-    d.drawLine(px + 3, py + 7, px, py + 3, SSD1306_WHITE);
-    d.drawLine(px, py + 3, px + 3, py, SSD1306_WHITE);
+    d.drawLine(px + 3, py, px + 7, py + 3, Ink::Muted);
+    d.drawLine(px + 7, py + 3, px + 3, py + 7, Ink::Muted);
+    d.drawLine(px + 3, py + 7, px, py + 3, Ink::Muted);
+    d.drawLine(px, py + 3, px + 3, py, Ink::Muted);
   }
 
   static void drawArrow(ArcadeDisplay &d, int px, int py, float vx, float vy) {
-    if (abs(vx) >= abs(vy)) d.drawFastHLine(px - 3, py, 7, SSD1306_WHITE);
-    else d.drawFastVLine(px, py - 3, 7, SSD1306_WHITE);
+    if (abs(vx) >= abs(vy)) d.drawFastHLine(px - 3, py, 7, Ink::Gold);
+    else d.drawFastVLine(px, py - 3, 7, Ink::Gold);
   }
 
   static void drawTrees(ArcadeDisplay &d, int cameraX, int cameraY) {
@@ -366,8 +366,8 @@ class TopdownRPG {
     for (auto &tree : trees) {
       int tx = tree[0] - cameraX, ty = tree[1] - cameraY + 10;
       if (tx < -8 || tx > 128 || ty < 4 || ty > 64) continue;
-      d.fillRect(tx + 3, ty + 5, 3, 7, SSD1306_WHITE);
-      d.drawCircle(tx + 4, ty + 3, 5, SSD1306_WHITE);
+      d.fillRect(tx + 3, ty + 5, 3, 7, Ink::Brown);
+      d.drawCircle(tx + 4, ty + 3, 5, Ink::Green);
     }
   }
 

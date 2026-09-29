@@ -1,6 +1,7 @@
 #include <Preferences.h>
 #include <Adafruit_GFX.h>
 #include "ArcadeDisplay.h"
+#include "ColorScreens.h"
 #include "Invaders.h"
 #include "Buttons.h"
 #include "Pong.h"
@@ -409,6 +410,7 @@ void moveSnake() {
 }
 
 void drawTitle() {
+  display.setGame(-1);
   if (display.colorMenu(selectedGame, GAME_COUNT, GAME_NAMES)) return;
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
@@ -433,6 +435,10 @@ void drawTitle() {
 }
 
 void drawDifficulty() {
+  display.setGame(-1);
+  if(display.colorFrame([&](Adafruit_GFX &d) {
+    ColorScreens::difficulty(d,selectedGame,GAME_NAMES[selectedGame],selectedDifficulty,bestScores[selectedGame]);
+  }))return;
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
@@ -462,6 +468,7 @@ void showDifficulty() {
 }
 
 void drawGame() {
+  display.setGame(selectedGame,GAME_NAMES[selectedGame],selectedDifficulty==1);
   if (selectedGame == 22) { donkeyKong.draw(display); return; }
   if (selectedGame == 21) { skullDepths.draw(display); return; }
   if (selectedGame == 20) { skyPatrol.draw(display); return; }
@@ -497,21 +504,43 @@ void drawGame() {
 
   int foodPixelX = foodX * CELL_SIZE;
   int foodPixelY = HEADER_HEIGHT + foodY * CELL_SIZE;
-  display.drawRect(foodPixelX, foodPixelY, CELL_SIZE, CELL_SIZE, SSD1306_WHITE);
+  display.fillRect(foodPixelX, foodPixelY+1, CELL_SIZE, CELL_SIZE-1, Ink::Red);
+  display.drawPixel(foodPixelX+2,foodPixelY,Ink::Green);
 
   for (int i = snakeLength - 1; i >= 0; --i) {
     int px = snakeX[i] * CELL_SIZE;
     int py = HEADER_HEIGHT + snakeY[i] * CELL_SIZE;
     if (i == 0) {
-      display.fillRect(px, py, CELL_SIZE, CELL_SIZE, SSD1306_WHITE);
+      display.fillRect(px, py, CELL_SIZE, CELL_SIZE, Ink::Green);
+      int ex=direction==LEFT?0:direction==RIGHT?3:1;
+      int ey=direction==UP?0:direction==DOWN?3:1;
+      display.drawPixel(px+ex,py+ey,SSD1306_BLACK);
     } else {
-      display.fillRect(px, py, CELL_SIZE - 1, CELL_SIZE - 1, SSD1306_WHITE);
+      display.fillRect(px, py, CELL_SIZE - 1, CELL_SIZE - 1, i%2?Ink::Cyan:Ink::Green);
     }
   }
   display.display();
 }
 
 void drawGameOver() {
+  display.setGame(-1);
+  bool won=(selectedGame==0 && snakeLength==MAX_SNAKE_LENGTH) ||
+    (selectedGame==2 && pong.playerScore>=7) || (selectedGame==4 && castle.won) ||
+    (selectedGame==9 && rogueCards.won) || (selectedGame==10 && templeQuest.won) ||
+    (selectedGame==12 && fourInRow.won) || (selectedGame==13 && ticTacToe.won) ||
+    (selectedGame==14 && minesweeper.won) || (selectedGame==15 && pinball.won) ||
+    (selectedGame==16 && topdownRPG.won) || (selectedGame==17 && battleTanks.won) ||
+    (selectedGame==21 && skullDepths.won);
+  const char *title=won?"YOU WIN!":selectedGame==7?"FINISHED":
+    ((selectedGame==12 && fourInRow.score==100) || (selectedGame==13 && ticTacToe.score==100))?"DRAW":
+    selectedGame==2?"CPU WINS":"GAME OVER";
+  char detail[40]={};
+  if(selectedGame==2)snprintf(detail,sizeof(detail),"YOU %d  -  %d CPU",pong.playerScore,pong.cpuScore);
+  if(display.colorFrame([&](Adafruit_GFX &d) {
+    ColorScreens::result(d,selectedGame,GAME_NAMES[selectedGame],selectedDifficulty==1,title,
+      selectedGame==11?slotMachine.cash:int32_t(currentScore()),bestScores[selectedGame][selectedDifficulty],
+      selectedGame==11?"CASH":selectedGame==2?"RALLY":"SCORE",detail);
+  }))return;
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(2);

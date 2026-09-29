@@ -64,6 +64,7 @@ class Asteroids {
 
   void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
+    for(int i=0;i<19;++i)d.drawPixel((i*47+9)%128,11+(i*23)%52,Ink::Wall);
     if (!started) {
       line(d, 0, "ASTEROIDS"); line(d, 12, "L/R turn, UP thrust");
       line(d, 23, "13 shoot (hold)"); line(d, 34, "14 hyperspace");
@@ -80,10 +81,10 @@ class Asteroids {
           int j = (i + 1) % 8;
           float a = i * PI_VALUE / 4, b = j * PI_VALUE / 4;
           d.drawLine(int(cx + cosf(a) * rad * shape[i]), int(cy + sinf(a) * rad * shape[i]) + 10,
-                     int(cx + cosf(b) * rad * shape[j]), int(cy + sinf(b) * rad * shape[j]) + 10, SSD1306_WHITE);
+                     int(cx + cosf(b) * rad * shape[j]), int(cy + sinf(b) * rad * shape[j]) + 10, Ink::Muted);
         }
       }
-    for (auto &s : shots) if (s.life) d.drawPixel(int(s.x), int(s.y) + 10, SSD1306_WHITE);
+    for (auto &s : shots) if (s.life) d.drawPixel(int(s.x), int(s.y) + 10, Ink::Gold);
     if (!immune || frames % 10 < 5) for (int ox = -128; ox <= 128; ox += 128)
       for (int oy = -54; oy <= 54; oy += 54) {
         float cx = x + ox, cy = y + oy;
@@ -91,12 +92,12 @@ class Asteroids {
         int nx = int(cx + cosf(angle) * 6), ny = int(cy + sinf(angle) * 6) + 10;
         int lx = int(cx + cosf(angle + 2.5f) * 5), ly = int(cy + sinf(angle + 2.5f) * 5) + 10;
         int rx = int(cx + cosf(angle - 2.5f) * 5), ry = int(cy + sinf(angle - 2.5f) * 5) + 10;
-        d.drawLine(nx, ny, lx, ly, SSD1306_WHITE); d.drawLine(nx, ny, rx, ry, SSD1306_WHITE);
-        d.drawLine(lx, ly, int(cx), int(cy) + 10, SSD1306_WHITE);
-        d.drawLine(rx, ry, int(cx), int(cy) + 10, SSD1306_WHITE);
+        d.drawLine(nx, ny, lx, ly, Ink::Cyan); d.drawLine(nx, ny, rx, ry, Ink::Cyan);
+        d.drawLine(lx, ly, int(cx), int(cy) + 10, Ink::Cyan);
+        d.drawLine(rx, ry, int(cx), int(cy) + 10, Ink::Cyan);
         if (thrusting && frames % 4 < 2)
           d.drawLine(int(cx - cosf(angle) * 3), int(cy - sinf(angle) * 3) + 10,
-                     int(cx - cosf(angle) * 8), int(cy - sinf(angle) * 8) + 10, SSD1306_WHITE);
+                     int(cx - cosf(angle) * 8), int(cy - sinf(angle) * 8) + 10, Ink::Orange);
       }
     d.fillRect(0, 0, 128, 10, SSD1306_BLACK);
     d.setCursor(0, 0); d.print(score);
@@ -104,7 +105,7 @@ class Asteroids {
     d.setCursor(58, 0); d.print(F("W")); d.print(wave);
     d.setCursor(89, 0); d.print(F("H")); d.print((hyperCooldown + 49) / 50);
     d.setCursor(116, 0); d.print(hard ? 'H' : 'E');
-    d.drawFastHLine(0, 9, 128, SSD1306_WHITE); d.display();
+    d.drawFastHLine(0, 9, 128, Ink::Wall); d.display();
   }
 
  private:

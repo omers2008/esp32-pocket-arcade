@@ -36,24 +36,27 @@ class Minesweeper {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
     d.setCursor(0, 0); d.print(F("MINES ")); d.print(hard ? 'H' : 'E');
     d.setCursor(51, 0); d.print(F("M:")); d.print(mineTotal - flags);
-    d.setCursor(91, 0); d.print(F("13D 14F"));
+    d.setCursor(91, 0); d.print(F("13D14F"));
     int cell = 8, x0 = (128 - width * cell) / 2, y0 = 12;
     for (int y = 0; y < height; ++y) for (int x = 0; x < width; ++x) {
       int px = x0 + x * cell, py = y0 + y * cell;
       if (!revealed[y][x]) {
-        d.drawRect(px + 1, py + 1, 6, 6, SSD1306_WHITE);
+        d.fillRect(px+1,py+1,6,6,Ink::Wall);
+        d.drawRect(px + 1, py + 1, 6, 6, Ink::Muted);
         if (flagged[y][x]) {
-          d.drawLine(px + 2, py + 5, px + 5, py + 2, SSD1306_WHITE);
-          d.drawFastVLine(px + 2, py + 2, 5, SSD1306_WHITE);
+          d.drawLine(px + 2, py + 5, px + 5, py + 2, Ink::Red);
+          d.drawFastVLine(px + 2, py + 2, 5, Ink::Red);
         }
       } else if (mine[y][x]) {
-        d.fillCircle(px + 4, py + 4, 3, SSD1306_WHITE);
+        d.fillCircle(px + 4, py + 4, 3, Ink::Red);
       } else if (adjacent[y][x]) {
+        const uint16_t colors[]={Ink::White,Ink::Blue,Ink::Green,Ink::Red,Ink::Purple,Ink::Orange,Ink::Cyan,Ink::Pink,Ink::Gold};
+        d.setTextColor(colors[adjacent[y][x]]);
         d.setCursor(px + 2, py + 1); d.print(adjacent[y][x]);
       }
     }
     int cx = x0 + cursorX * cell, cy = y0 + cursorY * cell;
-    d.drawRect(cx, cy, cell, cell, SSD1306_WHITE);
+    d.drawRect(cx, cy, cell, cell, Ink::Gold);
     d.display();
   }
 

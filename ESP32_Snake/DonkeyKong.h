@@ -47,39 +47,39 @@ class DonkeyKong {
     }
     for (int level = 0; level < 5; ++level) {
       int y1 = int(floorY(level, 3)), y2 = int(floorY(level, 124));
-      d.drawLine(3, y1, 124, y2, SSD1306_WHITE);
-      for (int px = 7; px < 123; px += 10) d.drawPixel(px, int(floorY(level, px)) + 1, SSD1306_WHITE);
+      d.drawLine(3, y1, 124, y2, Ink::Pink);
+      for (int px = 7; px < 123; px += 10) d.drawPixel(px, int(floorY(level, px)) + 1, Ink::Pink);
     }
     for (int level = 0; level < 4; ++level) for (int n = 0; n < 2; ++n) {
       int lx = ladderX(level, n), bottom = int(floorY(level, lx)), top = int(floorY(level+1, lx));
-      d.drawFastVLine(lx-2, top, bottom-top, SSD1306_WHITE);
-      d.drawFastVLine(lx+2, top, bottom-top, SSD1306_WHITE);
-      for (int py = top+2; py < bottom; py += 3) d.drawFastHLine(lx-1, py, 3, SSD1306_WHITE);
+      d.drawFastVLine(lx-2, top, bottom-top, Ink::Cyan);
+      d.drawFastVLine(lx+2, top, bottom-top, Ink::Cyan);
+      for (int py = top+2; py < bottom; py += 3) d.drawFastHLine(lx-1, py, 3, Ink::Cyan);
     }
     gorilla(d);
     // Rescue character and a small heart on the upper girder.
     int ry = int(floorY(4, 114));
-    d.fillRect(113, ry-7, 3, 2, SSD1306_WHITE);
-    d.drawLine(114, ry-5, 111, ry-1, SSD1306_WHITE); d.drawLine(114, ry-5, 117, ry-1, SSD1306_WHITE);
-    d.drawPixel(121, ry-7, SSD1306_WHITE); d.drawPixel(123, ry-7, SSD1306_WHITE); d.drawPixel(122, ry-6, SSD1306_WHITE);
+    d.fillRect(113, ry-7, 3, 2, Ink::Pink);
+    d.drawLine(114, ry-5, 111, ry-1, Ink::Pink); d.drawLine(114, ry-5, 117, ry-1, Ink::Pink);
+    d.drawPixel(121, ry-7, Ink::Red); d.drawPixel(123, ry-7, Ink::Red); d.drawPixel(122, ry-6, Ink::Red);
     for (int i = 0; i < 2; ++i) if (hammers[i]) drawHammer(d, hammerX(i), int(floorY(hammerLevel(i), hammerX(i)))-5);
     for (const auto &b : barrels) if (b.active) {
-      d.drawCircle(int(b.x), int(b.y)-2, 2, SSD1306_WHITE);
-      d.drawLine(int(b.x)-1, int(b.y)-3+(frames/4)%2, int(b.x)+1, int(b.y)-2, SSD1306_WHITE);
+      d.drawCircle(int(b.x), int(b.y)-2, 2, Ink::Orange);
+      d.drawLine(int(b.x)-1, int(b.y)-3+(frames/4)%2, int(b.x)+1, int(b.y)-2, Ink::Orange);
     }
     int oilY = int(floorY(0, 7));
-    d.drawRect(4, oilY-5, 7, 5, SSD1306_WHITE);
-    d.drawLine(5, oilY-6, 6, oilY-8, SSD1306_WHITE); d.drawLine(6, oilY-8, 8, oilY-6, SSD1306_WHITE);
+    d.drawRect(4, oilY-5, 7, 5, Ink::Blue);
+    d.drawLine(5, oilY-6, 6, oilY-8, Ink::Gold); d.drawLine(6, oilY-8, 8, oilY-6, Ink::Gold);
     int fireY = int(floorY(0, fireX));
-    d.drawLine(int(fireX)-2, fireY-1, int(fireX), fireY-5, SSD1306_WHITE);
-    d.drawLine(int(fireX), fireY-5, int(fireX)+2, fireY-1, SSD1306_WHITE);
+    d.drawLine(int(fireX)-2, fireY-1, int(fireX), fireY-5, Ink::Gold);
+    d.drawLine(int(fireX), fireY-5, int(fireX)+2, fireY-1, Ink::Gold);
     if (!immune || frames%8 < 4) {
       int px = int(x), py = int(y);
-      d.drawFastHLine(px-2, py-6, 5, SSD1306_WHITE); // Cap.
-      d.drawFastHLine(px-1, py-5, 3, SSD1306_WHITE);
-      d.drawFastVLine(px, py-4, 3, SSD1306_WHITE);
-      d.drawLine(px-2, py-3, px+2, py-3, SSD1306_WHITE);
-      d.drawPixel(px-1, py-1, SSD1306_WHITE); d.drawPixel(px+1, py-1, SSD1306_WHITE);
+      d.drawFastHLine(px-2, py-6, 5, Ink::Red); // Cap.
+      d.drawFastHLine(px-1, py-5, 3, Ink::Skin);
+      d.drawFastVLine(px, py-4, 3, Ink::Blue);
+      d.drawLine(px-2, py-3, px+2, py-3, Ink::Blue);
+      d.drawPixel(px-1, py-1, Ink::Blue); d.drawPixel(px+1, py-1, Ink::Blue);
       if (hammer) drawHammer(d, px + facing * 5, py - (frames%16 < 8 ? 6 : 3));
     }
     d.fillRect(0, 0, 128, 9, SSD1306_BLACK);
@@ -203,15 +203,15 @@ class DonkeyKong {
   }
   static void line(ArcadeDisplay &d,int y,const char *s) { d.setCursor(0,y); d.print(s); }
   static void drawHammer(ArcadeDisplay &d,int x,int y) {
-    d.drawFastVLine(x,y,5,SSD1306_WHITE); d.fillRect(x-2,y,5,2,SSD1306_WHITE);
+    d.drawFastVLine(x,y,5,Ink::Gold); d.fillRect(x-2,y,5,2,Ink::Gold);
   }
   void gorilla(ArcadeDisplay &d) const {
     int gy = int(floorY(4,13));
-    d.fillRect(8,gy-6,9,5,SSD1306_WHITE); d.fillRect(10,gy-9,6,4,SSD1306_WHITE);
+    d.fillRect(8,gy-6,9,5,Ink::Brown); d.fillRect(10,gy-9,6,4,Ink::Brown);
     d.drawPixel(11,gy-8,SSD1306_BLACK); d.drawPixel(14,gy-8,SSD1306_BLACK);
     d.drawFastHLine(11,gy-6,4,SSD1306_BLACK);
     int lift = spawnTimer < 20 ? 3 : 0;
-    d.drawLine(8,gy-6,5,gy-1-lift,SSD1306_WHITE); d.drawLine(17,gy-6,21,gy-1-lift,SSD1306_WHITE);
-    d.drawFastHLine(8,gy-1,4,SSD1306_WHITE); d.drawFastHLine(15,gy-1,4,SSD1306_WHITE);
+    d.drawLine(8,gy-6,5,gy-1-lift,Ink::Brown); d.drawLine(17,gy-6,21,gy-1-lift,Ink::Brown);
+    d.drawFastHLine(8,gy-1,4,Ink::Brown); d.drawFastHLine(15,gy-1,4,Ink::Brown);
   }
 };

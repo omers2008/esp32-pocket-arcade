@@ -8,6 +8,8 @@ struct TFTTrace {
   int clears=0, transactions=0;
   bool inverted=false,writing=false;
   std::vector<uint16_t> sent;
+  std::vector<uint16_t> screen=std::vector<uint16_t>(320*240);
+  int offset=0;
 };
 inline TFTTrace tftTrace;
 class Adafruit_ST7789 {
@@ -17,11 +19,21 @@ class Adafruit_ST7789 {
   void setRotation(int r) { tftTrace.rotation=r; }
   void setSPISpeed(uint32_t hz) { tftTrace.hz=hz; }
   void invertDisplay(bool b) { tftTrace.inverted=b; }
-  void fillScreen(uint16_t) {++tftTrace.clears;}
+  void fillScreen(uint16_t color) {++tftTrace.clears;std::fill(tftTrace.screen.begin(),tftTrace.screen.end(),color);}
   int width() const { return 320; }
   int height() const { return 240; }
   void startWrite() { assert(!tftTrace.writing);tftTrace.writing=true;tftTrace.sent.clear();++tftTrace.transactions; }
-  void setAddrWindow(int x,int y,int w,int h) { tftTrace.left=x;tftTrace.top=y;tftTrace.w=w;tftTrace.h=h; }
-  void writePixels(uint16_t *pixels,int count,bool block) { assert(block && tftTrace.writing);tftTrace.sent.insert(tftTrace.sent.end(),pixels,pixels+count); }
+  void setAddrWindow(int x,int y,int w,int h) {
+    assert(x>=0 && y>=0 && w>0 && h>0 && x+w<=320 && y+h<=240);
+    tftTrace.left=x;tftTrace.top=y;tftTrace.w=w;tftTrace.h=h;tftTrace.offset=0;
+  }
+  void writePixels(uint16_t *pixels,int count,bool block) {
+    assert(block && tftTrace.writing && tftTrace.offset+count<=tftTrace.w*tftTrace.h);
+    tftTrace.sent.insert(tftTrace.sent.end(),pixels,pixels+count);
+    for(int i=0;i<count;++i) {
+      int n=tftTrace.offset++;
+      tftTrace.screen[(tftTrace.top+n/tftTrace.w)*320+tftTrace.left+n%tftTrace.w]=pixels[i];
+    }
+  }
   void endWrite() { assert(tftTrace.writing);tftTrace.writing=false; }
 };

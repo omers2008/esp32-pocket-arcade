@@ -75,7 +75,7 @@
   advances the round and increases speed, capped after 10 speed increases.
   Lose all lives to end the run. The HUD shows score, round, lives, ammo (`A`),
   and birds remaining/total (`B`).
-  This is original monochrome target-shooting code, not the original NES game.
+  This is original target-shooting code with color sprites, not the original NES game.
 - Pac-Man: steer with the joystick. Movement continues after releasing the stick;
   a requested turn is queued until the next opening, and walls stop movement.
   Eat all pellets to clear the original 21x11 maze and start a faster round.
@@ -168,10 +168,10 @@
   Pull the joystick down to pull
   the lever and spin the three animated reels. A pair pays 2x; triples pay more
   based on the symbol, and three 7s are the jackpot at 50x. The lever, spinning,
-  hit, and jackpot states are animated on the OLED. Cash can reach zero; only a
+  hit, and jackpot states are animated on the TFT. Cash can reach zero; only a
   spin that leaves cash below zero ends the run. GPIO12 returns to the menu.
-- 4 In A Row: move the column selector left/right and press GPIO13 to drop a filled
-  piece. The CPU drops an outline piece after every turn. Make four connected pieces
+- 4 In A Row: move the column selector left/right and press GPIO13 to drop a red
+  piece. The CPU drops a gold piece after every turn. Make four connected pieces
   horizontally, vertically, or diagonally before the CPU does. Easy picks legal
   columns randomly; Hard takes winning moves, blocks you, and prefers the center.
 - Tic-Tac-Toe: move the 3x3 cursor with the joystick and press GPIO13 to place X.

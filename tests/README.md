@@ -10,13 +10,25 @@ with `/Itests\tft /Itests` on MSVC, or `-Itests/tft -Itests` on other compilers.
 The existing `test.cpp` covers Tetris physics and input behavior.
 
 The game headers use `ArcadeDisplay`, which maps to the existing no-op display
-stub on host builds. On ESP32 it uses a GFXcanvas1 and the ST7789 driver.
+stub on host builds. On ESP32 it retains the GFXcanvas1 compatibility API and
+adds a 128x64 RGB565 canvas plus a previous-frame cache and the ST7789 driver.
 `display_test.cpp` exercises the real adapter against SPI/GFX/TFT test doubles:
 pin mapping, panel initialization, 2x scaling, output bounds, bit boundaries,
 inversion of logical pixels, clearing and allocation failure. It also checks
 the native color menu's six strip transfers and that returning to monochrome
 screens clears the entire panel once. Compile this test
 with `-Itests/tft -Itests` (or `/Itests\tft /Itests` on MSVC).
+
+The adapter tests also check full-width 2.5x color scaling, clipping at the
+edges, pixel erasure, zero pixel transfers on an unchanged frame, changed spans,
+and complete redraws after a native menu. The TFT double reconstructs the panel
+image and checks every transfer stays within its address window.
+
+`preview/render.cpp` renders game samples and the difficulty/result screens to
+BMP files under `build/` for visual inspection. Compile with the same TFT include
+paths plus the installed Adafruit GFX library directory (for `glcdfont.c`). Its
+host rasterizer approximates shapes and uses the actual classic font; this is
+a layout preview, not a physical-panel or performance test.
 
 `dkong_test.cpp` checks jump height/arming, every ladder in both directions,
 sloped floors, barrel rolling and drops, collision and jump awards, hammer

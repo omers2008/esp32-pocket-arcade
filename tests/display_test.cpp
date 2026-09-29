@@ -31,6 +31,23 @@ int main() {
     d.display();assert(tftTrace.clears==clears+1);
   }
   failCanvas=true;int tx=tftTrace.transactions;assert(!d.colorMenu(0,6,names));assert(tftTrace.transactions==tx);
+  failCanvas=false;
+  d.setGame(0,"Snake",false);d.clearDisplay();
+  d.drawPixel(0,0,Ink::Red);d.drawPixel(127,63,Ink::Green);
+  d.drawFastHLine(-2,10,5,Ink::Gold);d.fillRect(126,61,10,2,Ink::Cyan);
+  d.display();assert(tftTrace.sent.size()==320*160);
+  assert(tftTrace.screen[44*320]==Ink::Red);
+  assert(tftTrace.screen[203*320+319]==Ink::Green);
+  assert(tftTrace.screen[69*320]==Ink::Gold);
+  assert(tftTrace.screen[197*320+319]==Ink::Cyan);
+  auto original=tftTrace.screen;
+  d.display();assert(tftTrace.sent.empty());assert(tftTrace.screen==original);
+  d.drawPixel(127,63,SSD1306_BLACK);d.drawPixel(126,62,Ink::Pink);d.display();
+  assert(tftTrace.sent.size()==13); // 3x3 colored cell + 2x2 erased cell.
+  assert(tftTrace.screen[203*320+319]==0);
+  assert(tftTrace.screen[199*320+315]==Ink::Pink);
+  assert(d.colorMenu(0,6,names));d.display();assert(tftTrace.sent.size()==320*160);
+  d.setGame(-1);d.clearDisplay();d.display();
   failCanvas=true; ArcadeDisplay failed; assert(!failed.begin());
   std::cout<<"PASS: TFT wiring, initialization, canvas scaling, bit boundaries, colors, clear and allocation failure.\n";
 }

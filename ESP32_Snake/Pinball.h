@@ -36,10 +36,11 @@ class Pinball {
 
   void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
+    d.fillRect(2,2,52,60,0x1087);
     // A narrow, tall table leaves the right side for readable status information,
     // like the compact Tetris layout.
-    d.drawFastVLine(56, 0, 64, SSD1306_WHITE);
-    d.drawRect(1, 1, 54, 62, SSD1306_WHITE);
+    d.drawFastVLine(56, 0, 64, Ink::Blue);
+    d.drawRect(1, 1, 54, 62, Ink::Blue);
     // Small, widely spaced bumpers, like a real tabletop's upper playfield.
     drawBumper(d, 13, 15); drawBumper(d, 27, 9); drawBumper(d, 41, 15);
     drawBumper(d, 18, 25); drawBumper(d, 36, 25);
@@ -48,13 +49,13 @@ class Pinball {
     drawPost(d, 37, 33, 42); drawPost(d, 44, 31, 39);
     drawTarget(d, 22, 32); drawTarget(d, 27, 32); drawTarget(d, 32, 32);
     // Angled guides funnel the ball toward the flippers.
-    d.drawLine(7, 45, 15, 49, SSD1306_WHITE);
-    d.drawLine(47, 45, 39, 49, SSD1306_WHITE);
+    d.drawLine(7, 45, 15, 49, Ink::Green);
+    d.drawLine(47, 45, 39, 49, Ink::Green);
     // Two flippers: button-held positions lift toward the center.
-    if (leftHeld) d.drawLine(9, 58, 23, 52, SSD1306_WHITE);
-    else d.drawLine(9, 58, 22, 60, SSD1306_WHITE);
-    if (rightHeld) d.drawLine(45, 58, 31, 52, SSD1306_WHITE);
-    else d.drawLine(45, 58, 32, 60, SSD1306_WHITE);
+    if (leftHeld) d.drawLine(9, 58, 23, 52, Ink::Cyan);
+    else d.drawLine(9, 58, 22, 60, Ink::Cyan);
+    if (rightHeld) d.drawLine(45, 58, 31, 52, Ink::Pink);
+    else d.drawLine(45, 58, 32, 60, Ink::Pink);
     if (!waiting) d.fillCircle(int(ballX), int(ballY), 1, SSD1306_WHITE);
     else {
       d.drawCircle(27, 47, 3, SSD1306_WHITE);
@@ -66,7 +67,7 @@ class Pinball {
     d.setCursor(60, 31); d.print(F("BALLS"));
     d.setCursor(60, 40); d.print(lives);
     d.setCursor(60, 49); d.print(hard ? F("HARD") : F("EASY"));
-    d.setCursor(60, 58); d.print(F("13=L 14=R"));
+    d.setCursor(60, 56); d.print(F("13=L 14=R"));
     d.display();
   }
 
@@ -80,19 +81,19 @@ class Pinball {
   }
 
   static void drawBumper(ArcadeDisplay &d, int x, int y) {
-    d.drawCircle(x, y, 2, SSD1306_WHITE);
-    d.fillCircle(x, y, 1, SSD1306_WHITE);
+    d.drawCircle(x, y, 2, Ink::Purple);
+    d.fillCircle(x, y, 1, Ink::Gold);
   }
 
   static void drawPost(ArcadeDisplay &d, int x, int y1, int y2) {
-    d.drawFastVLine(x, y1, y2 - y1 + 1, SSD1306_WHITE);
-    d.drawPixel(x, y1 - 1, SSD1306_WHITE);
-    d.drawPixel(x, y2 + 1, SSD1306_WHITE);
+    d.drawFastVLine(x, y1, y2 - y1 + 1, Ink::Orange);
+    d.drawPixel(x, y1 - 1, Ink::Orange);
+    d.drawPixel(x, y2 + 1, Ink::Orange);
   }
 
   static void drawTarget(ArcadeDisplay &d, int x, int y) {
-    d.drawRect(x, y, 3, 2, SSD1306_WHITE);
-    d.drawPixel(x + 1, y, SSD1306_WHITE);
+    d.drawRect(x, y, 3, 2, Ink::Green);
+    d.drawPixel(x + 1, y, Ink::Green);
   }
 
   void hitBumper(int x, int y) {

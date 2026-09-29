@@ -70,6 +70,8 @@ class SkyPatrol {
 
   void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
+    d.fillRect(0,10,128,54,0x114C);
+    d.fillRect(0,WATER,128,64-WATER,0x10A9);
     if (!started) {
       line(d, 0, "SKY PATROL"); line(d, 12, "Point stick to steer");
       line(d, 23, "14 fire / 13 boost"); line(d, 34, "Shoot enemy aircraft");
@@ -78,34 +80,34 @@ class SkyPatrol {
     }
     for (int i = 0; i < 3; ++i) {
       int cx = int(wrapPhase(i * 64 - scenery * 0.5f, 192)) - 20;
-      d.drawFastHLine(cx, 18 + (i % 2) * 9, 19, SSD1306_WHITE);
-      d.drawFastHLine(cx + 4, 15 + (i % 2) * 9, 10, SSD1306_WHITE);
-      d.drawPixel(cx + 3, 17 + (i % 2) * 9, SSD1306_WHITE);
-      d.drawPixel(cx + 15, 17 + (i % 2) * 9, SSD1306_WHITE);
+      d.drawFastHLine(cx, 18 + (i % 2) * 9, 19, Ink::Muted);
+      d.drawFastHLine(cx + 4, 15 + (i % 2) * 9, 10, Ink::Muted);
+      d.drawPixel(cx + 3, 17 + (i % 2) * 9, Ink::Muted);
+      d.drawPixel(cx + 15, 17 + (i % 2) * 9, Ink::Muted);
     }
     for (int px = -int(scenery) % 12 - 12; px < 128; px += 12) {
-      d.drawLine(px, WATER + 1, px + 3, WATER, SSD1306_WHITE);
-      d.drawLine(px + 3, WATER, px + 6, WATER + 1, SSD1306_WHITE);
-      d.drawFastHLine(px + 6, WATER + 1, 6, SSD1306_WHITE);
-      d.drawFastHLine(px + (frames / 8) % 4, 61, 5, SSD1306_WHITE);
+      d.drawLine(px, WATER + 1, px + 3, WATER, Ink::Blue);
+      d.drawLine(px + 3, WATER, px + 6, WATER + 1, Ink::Blue);
+      d.drawFastHLine(px + 6, WATER + 1, 6, Ink::Blue);
+      d.drawFastHLine(px + (frames / 8) % 4, 61, 5, Ink::Blue);
     }
     for (auto &e : enemies) if (e.hp) plane(d, e.x, e.y, e.angle, false);
     if (!immune || frames % 10 < 5) {
       plane(d, PLAYER_X, y, angle, true);
       if (boosting) d.drawLine(int(PLAYER_X - cosf(angle) * 6), int(y - sinf(angle) * 6),
         int(PLAYER_X - cosf(angle) * (frames % 4 < 2 ? 12 : 9)),
-        int(y - sinf(angle) * (frames % 4 < 2 ? 12 : 9)), SSD1306_WHITE);
+        int(y - sinf(angle) * (frames % 4 < 2 ? 12 : 9)), Ink::Orange);
     }
     for (auto &s : shots) if (s.life) {
-      if (s.friendly) d.drawLine(int(s.x), int(s.y), int(s.x - s.vx), int(s.y - s.vy), SSD1306_WHITE);
-      else d.drawCircle(int(s.x), int(s.y), 1, SSD1306_WHITE);
+      if (s.friendly) d.drawLine(int(s.x), int(s.y), int(s.x - s.vx), int(s.y - s.vy), Ink::Gold);
+      else d.drawCircle(int(s.x), int(s.y), 1, Ink::Red);
     }
     d.fillRect(0, 0, 128, 10, SSD1306_BLACK);
     d.setCursor(0, 0); d.print(score);
     d.setCursor(43, 0); d.print(F("L")); d.print(lives);
     d.setCursor(62, 0); d.print(F("W")); d.print(wave());
     d.setCursor(96, 0); d.print(boosting ? F("BOOST") : hard ? F("HARD") : F("EASY"));
-    d.drawFastHLine(0, 9, 128, SSD1306_WHITE); d.display();
+    d.drawFastHLine(0, 9, 128, Ink::Wall); d.display();
   }
 
  private:
@@ -190,15 +192,15 @@ class SkyPatrol {
   }
   static void plane(ArcadeDisplay &d, float x, float y, float a, bool player) {
     float cs = cosf(a), sn = sinf(a);
-    d.drawLine(int(x - cs * 5), int(y - sn * 5), int(x + cs * 7), int(y + sn * 7), SSD1306_WHITE);
+    d.drawLine(int(x - cs * 5), int(y - sn * 5), int(x + cs * 7), int(y + sn * 7), (player ? Ink::Cyan : Ink::Red));
     d.drawLine(int(x - cs * 2 - sn * 5), int(y - sn * 2 + cs * 5),
-               int(x + cs * 3), int(y + sn * 3), SSD1306_WHITE);
+               int(x + cs * 3), int(y + sn * 3), (player ? Ink::Cyan : Ink::Red));
     d.drawLine(int(x - cs * 2 + sn * 5), int(y - sn * 2 - cs * 5),
-               int(x + cs * 3), int(y + sn * 3), SSD1306_WHITE);
+               int(x + cs * 3), int(y + sn * 3), (player ? Ink::Cyan : Ink::Red));
     d.drawLine(int(x - cs * 5 - sn * 2), int(y - sn * 5 + cs * 2),
-               int(x - cs * 5 + sn * 2), int(y - sn * 5 - cs * 2), SSD1306_WHITE);
-    if (player) d.fillCircle(int(x), int(y), 1, SSD1306_WHITE);
-    else d.drawCircle(int(x), int(y), 2, SSD1306_WHITE);
+               int(x - cs * 5 + sn * 2), int(y - sn * 5 - cs * 2), (player ? Ink::Cyan : Ink::Red));
+    if (player) d.fillCircle(int(x), int(y), 1, (player ? Ink::Cyan : Ink::Red));
+    else d.drawCircle(int(x), int(y), 2, (player ? Ink::Cyan : Ink::Red));
   }
   static void line(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
 };

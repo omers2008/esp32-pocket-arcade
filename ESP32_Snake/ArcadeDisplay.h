@@ -1,4 +1,5 @@
 #pragma once
+#include "GameColors.h"
 
 // Existing host gameplay tests keep their lightweight drawing stub. The actual
 // TFT adapter is exercised separately by display_test.cpp.
@@ -52,6 +53,28 @@ class ArcadeDisplay : public GFXcanvas1 {
   }
 
   void clearDisplay() { fillScreen(SSD1306_BLACK); }
+  void setGame(int game,const char *name=nullptr,bool hard=false) {
+    gameId=game;gameName=name;hardMode=hard;
+    if(game<0)chromeGame=-1;
+  }
+  void drawPixel(int16_t x,int16_t y,uint16_t color) override {
+    if(x<0 || x>=128 || y<0 || y>=64)return;
+    if(color==SSD1306_INVERSE) pixels[y*128+x]^=0xFFFF;
+    else pixels[y*128+x]=color==SSD1306_WHITE?Ink::White:color;
+    GFXcanvas1::drawPixel(x,y,color>2?SSD1306_WHITE:color);
+  }
+  void fillScreen(uint16_t color) {
+    GFXcanvas1::fillScreen(color>2?SSD1306_WHITE:color);
+    uint16_t rgb=color==SSD1306_WHITE?Ink::White:color;
+    for(auto &pixel:pixels)pixel=rgb;
+  }
+  void fillRect(int16_t x,int16_t y,int16_t w,int16_t h,uint16_t color) override {
+    int right=min(128,int(x)+w),bottom=min(64,int(y)+h);
+    for(int yy=max(0,int(y));yy<bottom;++yy)
+      for(int xx=max(0,int(x));xx<right;++xx)drawPixel(xx,yy,color);
+  }
+  void drawFastHLine(int16_t x,int16_t y,int16_t w,uint16_t c) override {fillRect(x,y,w,1,c);}
+  void drawFastVLine(int16_t x,int16_t y,int16_t h,uint16_t c) override {fillRect(x,y,1,h,c);}
   bool colorMenu(int selected,int count,const char *const *names) {
     return colorFrame([&](Adafruit_GFX &viewport) { ColorMenu::draw(viewport,selected,count,names); });
   }
@@ -70,6 +93,39 @@ class ArcadeDisplay : public GFXcanvas1 {
   }
   void display() {
     if (!ready) return;
+    if(gameId>=0) {
+      bool repaint=nativeMenu || chromeGame!=gameId || chromeHard!=hardMode;
+      if(repaint) {
+        if(!colorFrame([&](Adafruit_GFX &d) {
+          d.fillScreen(ColorMenu::BG);d.setTextWrap(false);
+          ColorMenu::label(d,10,10,gameName,ColorMenu::accent(gameId),2);
+          ColorMenu::label(d,10,30,hardMode?"HARD":"EASY",ColorMenu::MUTED);
+          d.drawFastHLine(0,42,320,ColorMenu::accent(gameId));
+          d.drawFastHLine(0,205,320,ColorMenu::accent(gameId));
+          ColorMenu::label(d,10,215,controls(gameId),ColorMenu::WHITE);
+          ColorMenu::label(d,10,229,"12  GAME MENU",ColorMenu::MUTED);
+        }))return;
+        chromeGame=gameId;chromeHard=hardMode;nativeMenu=false;
+      }
+      // Uniform 2.5x scaling preserves geometry. Only changed row spans are
+      // transferred, keeping moving sprites responsive at the existing SPI rate.
+      panel.startWrite();
+      for(int y=0;y<64;++y) {
+        int first=0,last=127;
+        if(!repaint) {
+          while(first<128 && pixels[y*128+first]==previous[y*128+first])++first;
+          while(last>=first && pixels[y*128+last]==previous[y*128+last])--last;
+        }
+        if(last<first)continue;
+        int left=(first*5+1)/2,right=((last+1)*5+1)/2;
+        int top=(y*5+1)/2,bottom=((y+1)*5+1)/2;
+        for(int x=left;x<right;++x)row[x-left]=pixels[y*128+x*2/5];
+        panel.setAddrWindow(left,44+top,right-left,bottom-top);
+        for(int repeat=top;repeat<bottom;++repeat)panel.writePixels(row,right-left,true);
+        for(int x=first;x<=last;++x)previous[y*128+x]=pixels[y*128+x];
+      }
+      panel.endWrite();return;
+    }
     if(nativeMenu) { panel.fillScreen(ArcadeScreen::BACKGROUND);nativeMenu=false; }
     constexpr int scaledW = ArcadeScreen::WIDTH * ArcadeScreen::SCALE;
     constexpr int scaledH = ArcadeScreen::HEIGHT * ArcadeScreen::SCALE;
@@ -90,8 +146,28 @@ class ArcadeDisplay : public GFXcanvas1 {
   }
 
  private:
+  static const char *controls(int game) {
+    static const char *const hints[]={
+      "STICK  MOVE", "STICK  MOVE   13  FIRE", "STICK  PADDLE   13  SERVE",
+      "13  ROTATE   14  HOLD", "STICK  MOVE   13  ATTACK   14  JUMP",
+      "STICK  AIM   13  SHOOT", "STICK  MOVE", "13  HIT   14  STAND",
+      "STICK  MOVE/JUMP   13  PUNCH   14  KICK", "13  PLAY   14  END TURN",
+      "STICK  MOVE/CLIMB   13  THROW   14  JUMP", "13  BET+   14  BET-   DOWN  SPIN",
+      "STICK  COLUMN   13  DROP", "STICK  SQUARE   13  PLACE",
+      "STICK  MOVE   13  DIG   14  FLAG", "13  LEFT FLIPPER   14  RIGHT FLIPPER",
+      "STICK  MOVE   13  ATTACK   14  ITEM", "STICK  DRIVE   13  FIRE   14  RICOCHET",
+      "13/UP  JUMP   14/DOWN  DUCK", "STICK  STEER/THRUST   13  FIRE   14  WARP",
+      "STICK  FLY   13  BOOST   14  FIRE", "STICK  MOVE   13  SWORD   14  DASH",
+      "STICK  MOVE/CLIMB   13  JUMP"};
+    return hints[game%23];
+  }
   Adafruit_ST7789 panel;
-  uint16_t row[ArcadeScreen::WIDTH * ArcadeScreen::SCALE] = {};
+  uint16_t row[320] = {};
+  uint16_t pixels[128*64] = {};
+  uint16_t previous[128*64] = {};
+  int gameId=-1,chromeGame=-1;
+  const char *gameName=nullptr;
+  bool hardMode=false,chromeHard=false;
   bool ready = false;
   bool nativeMenu = false;
 };

@@ -114,35 +114,36 @@ class Invaders {
 
   void draw(ArcadeDisplay &d) {
     d.clearDisplay();
+    for(int i=0;i<17;++i)d.drawPixel((i*47+9)%128,10+(i*23)%45,Ink::Wall);
     d.setTextSize(1);
     d.setTextColor(SSD1306_WHITE);
     d.setCursor(0, 0); d.print(score);
     d.setCursor(55, 0); d.print(F("W")); d.print(wave);
     d.setCursor(85, 0); d.print(hard ? F("H") : F("E"));
     d.setCursor(98, 0); d.print(F("HP")); d.print(lives);
-    d.drawFastHLine(0, 8, 128, SSD1306_WHITE);
+    d.drawFastHLine(0, 8, 128, Ink::Wall);
     for (int r = 0; r < 3; ++r) {
       for (int c = 0; c < 6; ++c) {
         if (!alive[r][c]) continue;
         int x = originX + c * 16, y = originY + r * 10;
-        d.fillRect(x + 2, y + 1, 6, 4, SSD1306_WHITE);
-        d.drawFastHLine(x, y + 3, 10, SSD1306_WHITE);
+        d.fillRect(x + 2, y + 1, 6, 4, Ink::ghost(r));
+        d.drawFastHLine(x, y + 3, 10, Ink::ghost(r));
         d.drawPixel(x + 3, y + 2, SSD1306_BLACK);
         d.drawPixel(x + 6, y + 2, SSD1306_BLACK);
-        d.drawPixel(x + 2, y, SSD1306_WHITE);
-        d.drawPixel(x + 7, y, SSD1306_WHITE);
-        d.drawPixel(x + (animation ? 1 : 3), y + 5, SSD1306_WHITE);
-        d.drawPixel(x + (animation ? 8 : 6), y + 5, SSD1306_WHITE);
+        d.drawPixel(x + 2, y, Ink::ghost(r));
+        d.drawPixel(x + 7, y, Ink::ghost(r));
+        d.drawPixel(x + (animation ? 1 : 3), y + 5, Ink::ghost(r));
+        d.drawPixel(x + (animation ? 8 : 6), y + 5, Ink::ghost(r));
       }
     }
     uint32_t now = millis();
     if (int32_t(now - immuneUntil) >= 0 || (now / 100) % 2 == 0) {
-      d.fillRect(playerX, 59, 9, 3, SSD1306_WHITE);
-      d.fillRect(playerX + 2, 57, 5, 3, SSD1306_WHITE);
-      d.drawFastVLine(playerX + 4, 55, 3, SSD1306_WHITE);
+      d.fillRect(playerX, 59, 9, 3, Ink::Cyan);
+      d.fillRect(playerX + 2, 57, 5, 3, Ink::Cyan);
+      d.drawFastVLine(playerX + 4, 55, 3, Ink::Cyan);
     }
-    for (auto &b : shots) if (b.active) d.drawFastVLine(b.x, b.y, 3, SSD1306_WHITE);
-    for (auto &b : bombs) if (b.active) d.drawFastVLine(b.x, b.y, 3, SSD1306_WHITE);
+    for (auto &b : shots) if (b.active) d.drawFastVLine(b.x, b.y, 3, Ink::Gold);
+    for (auto &b : bombs) if (b.active) d.drawFastVLine(b.x, b.y, 3, Ink::Red);
     d.display();
   }
 

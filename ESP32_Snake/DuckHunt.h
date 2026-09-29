@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include "ArcadeDisplay.h"
 
-// Original monochrome target-shooting game; no original Duck Hunt assets.
+// Original target-shooting game; no original Duck Hunt assets.
 class DuckHunt {
  public:
   uint32_t score = 0, round = 1;
@@ -67,31 +67,34 @@ class DuckHunt {
   void draw(ArcadeDisplay &d) {
     uint32_t now = millis();
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
+    d.fillRect(0,10,128,44,0x114C);
+    d.fillCircle(111,20,5,Ink::Gold);
+    d.fillRect(0,50,128,4,0x1244);
     d.setCursor(0, 0); d.print(score);
     d.setCursor(66, 0); d.print(F("R")); d.print(round);
     d.setCursor(104, 0); d.print(F("L")); d.print(lives);
     if (phase == FLYING) {
       uint32_t age = min(now - spawnedAt, timeLimit());
-      d.drawFastHLine(0, 9, int((timeLimit() - age) * 128 / timeLimit()), SSD1306_WHITE);
+      d.drawFastHLine(0, 9, int((timeLimit() - age) * 128 / timeLimit()), Ink::Gold);
     }
     // Low grass, leaving a clean sky for aiming and a separate ammo footer.
-    d.drawFastHLine(0, 53, 128, SSD1306_WHITE);
+    d.drawFastHLine(0, 53, 128, Ink::Green);
     for (int x = 1; x < 128; x += 9) {
-      d.drawLine(x, 53, x + 2, 50, SSD1306_WHITE);
-      d.drawLine(x + 3, 53, x + 5, 51, SSD1306_WHITE);
+      d.drawLine(x, 53, x + 2, 50, Ink::Green);
+      d.drawLine(x + 3, 53, x + 5, 51, Ink::Green);
     }
     for (int i = 0; i < birdCount; ++i) {
       const Bird &b = birds[i];
       if ((b.alive && phase == ESCAPED) || (!b.alive && now - b.hitAt >= 650)) continue;
       int dx = int(b.x), dy = int(b.y), facing = b.vx > 0 ? 1 : -1;
       if (!b.alive) dy = min(49, dy + int((now - b.hitAt) / 35));
-      d.fillRect(dx - 4, dy - 1, 8, 4, SSD1306_WHITE);
-      d.fillRect(dx + (facing > 0 ? 2 : -5), dy - 4, 4, 4, SSD1306_WHITE);
+      d.fillRect(dx - 4, dy - 1, 8, 4, Ink::Brown);
+      d.fillRect(dx + (facing > 0 ? 2 : -5), dy - 4, 4, 4, Ink::Green);
       d.drawPixel(dx + facing * 4, dy - 3, SSD1306_BLACK);
-      d.drawPixel(dx + facing * 6, dy - 2, SSD1306_WHITE);
+      d.drawPixel(dx + facing * 6, dy - 2, Ink::Orange);
       int flap = (now / 110) % 2 ? -4 : 4;
-      d.drawLine(dx, dy, dx - facing * 4, dy + flap, SSD1306_WHITE);
-      d.drawPixel(dx - facing * 5, dy + 2, SSD1306_WHITE);
+      d.drawLine(dx, dy, dx - facing * 4, dy + flap, Ink::Skin);
+      d.drawPixel(dx - facing * 5, dy + 2, Ink::Skin);
     }
     if (phase == FLYING) {
       int ax = int(aimX), ay = int(aimY);
@@ -103,7 +106,7 @@ class DuckHunt {
       d.drawLine(ax, ay + 2, ax, ay + 5, SSD1306_WHITE);
       d.drawPixel(ax, ay, SSD1306_WHITE);
       if (shotShown && now - shotAt < 100) {
-        d.drawRect(int(shotX) - 6, int(shotY) - 6, 13, 13, SSD1306_WHITE);
+        d.drawRect(int(shotX) - 6, int(shotY) - 6, 13, 13, Ink::Gold);
       }
     } else {
       d.fillRect(23, 22, 83, 12, SSD1306_BLACK);

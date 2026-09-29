@@ -73,13 +73,15 @@ class RogueCards {
       line(d, 46, "9 fights / 3 bosses"); line(d, 56, "13: begin");
     } else if (phase == COMBAT || phase == ENEMY) {
       d.setCursor(0, 0); d.print(F("HP")); d.print(hp); d.print('/'); d.print(maxHp);
-      d.setCursor(54, 0); d.print(F("E")); d.print(energy);
-      d.setCursor(78, 0); d.print(F("B")); d.print(block);
+      d.setTextColor(Ink::Gold);d.setCursor(54, 0); d.print(F("E")); d.print(energy);
+      d.setTextColor(Ink::Cyan);d.setCursor(78, 0); d.print(F("B")); d.print(block);
+      d.setTextColor(Ink::White);
       d.setCursor(108, 0); d.print(F("F")); d.print(battle);
       d.setCursor(0, 11); d.print(boss() ? "Boss " : enemyNames()[enemyType]);
       if (!boss()) d.print(' ');
       d.print(enemyHp);
-      d.setCursor(78, 11); d.print(F("ATK ")); d.print(intent());
+      d.setTextColor(Ink::Red);d.setCursor(78, 11); d.print(F("ATK ")); d.print(intent());
+      d.setTextColor(Ink::White);
       if (phase == ENEMY) { line(d, 33, "Enemy turn..."); }
       else {
         int count = actionCount(), first = max(0, selected - 2);
@@ -275,9 +277,11 @@ class RogueCards {
     }
     d.print(activeCost(a)); d.print(F("E, once/fight"));
   }
-  static void line(ArcadeDisplay &d, int y, const char *text) { d.setCursor(0, y); d.print(text); }
+  static void line(ArcadeDisplay &d, int y, const char *text) {
+    d.setTextColor(y==0?Ink::Gold:y>=55?Ink::Cyan:Ink::White);d.setCursor(0,y);d.print(text);
+  }
   static void highlight(ArcadeDisplay &d, int y, bool on) {
-    if (on) d.fillRect(0, y - 1, 128, 10, SSD1306_WHITE);
+    if (on) d.fillRect(0, y - 1, 128, 10, Ink::Purple);
     d.setTextColor(on ? SSD1306_BLACK : SSD1306_WHITE);
   }
 };

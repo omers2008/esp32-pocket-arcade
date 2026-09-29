@@ -94,19 +94,19 @@ class StreetFighter {
     d.setCursor(54, 0); d.print(F("W")); d.print(wave);
     d.setCursor(90, 0); d.print(F("HP")); d.print(hp);
     d.setCursor(121, 0); d.print(hard ? F("H") : F("E"));
-    d.drawFastHLine(0, 9, 128, SSD1306_WHITE);
+    d.drawFastHLine(0, 9, 128, Ink::Wall);
     d.setCursor(0, 12); d.print(F("FOES ")); d.print(toSpawn + liveEnemies());
     // Sparse skyline leaves the fighters readable against a mostly black arena.
-    d.drawRect(5, 26, 18, 34, SSD1306_WHITE);
-    d.drawRect(105, 23, 17, 37, SSD1306_WHITE);
+    d.drawRect(5, 26, 18, 34, Ink::Wall);
+    d.drawRect(105, 23, 17, 37, Ink::Wall);
     for (int wy = 29; wy < 48; wy += 9) {
-      d.drawRect(10, wy, 4, 4, SSD1306_WHITE); d.drawRect(110, wy, 4, 4, SSD1306_WHITE);
+      d.drawRect(10, wy, 4, 4, Ink::Gold); d.drawRect(110, wy, 4, 4, Ink::Gold);
     }
-    d.drawFastHLine(0, 60, 128, SSD1306_WHITE);
+    d.drawFastHLine(0, 60, 128, Ink::Muted);
     for (int i = 0; i < enemyLimit(); ++i) {
       Enemy &e = enemies[i]; if (!e.active) continue;
       fighter(d, int(e.x), 46, e.facing, false, e.strike > 0, false);
-      d.drawFastHLine(int(e.x), 42, e.hp * 2, SSD1306_WHITE);
+      d.drawFastHLine(int(e.x), 42, e.hp * 2, Ink::Red);
       if (e.windup) { d.setCursor(int(e.x) + 2, 33); d.print(F("!")); }
     }
     if (!immune || immune % 8 < 4) fighter(d, int(x), int(y), facing, true, attackTicks > 0, kicking);
@@ -165,14 +165,14 @@ class StreetFighter {
     ++spawned; --toSpawn;
   }
   static void fighter(ArcadeDisplay &d, int px, int py, int facing, bool player, bool attack, bool kick) {
-    d.fillRect(px + 2, py, 4, 4, SSD1306_WHITE);
+    d.fillRect(px + 2, py, 4, 4, Ink::Skin);
     d.drawPixel(px + (facing > 0 ? 5 : 2), py + 1, SSD1306_BLACK);
-    if (player) d.fillRect(px + 1, py + 4, 6, 6, SSD1306_WHITE);
-    else d.drawRect(px + 1, py + 4, 6, 6, SSD1306_WHITE);
+    if (player) d.fillRect(px + 1, py + 4, 6, 6, Ink::Cyan);
+    else d.drawRect(px + 1, py + 4, 6, 6, Ink::Red);
     int handX = px + (facing > 0 ? 7 : 0);
-    d.drawLine(px + 4, py + 5, attack && !kick ? handX + facing * 8 : handX, py + 6, SSD1306_WHITE);
-    d.drawLine(px + 2, py + 9, px, py + 13, SSD1306_WHITE);
+    d.drawLine(px + 4, py + 5, attack && !kick ? handX + facing * 8 : handX, py + 6, Ink::Skin);
+    d.drawLine(px + 2, py + 9, px, py + 13, Ink::Blue);
     d.drawLine(px + 5, py + 9, attack && kick ? handX + facing * 13 : px + 7,
-               attack && kick ? py + 10 : py + 13, SSD1306_WHITE);
+               attack && kick ? py + 10 : py + 13, Ink::Blue);
   }
 };

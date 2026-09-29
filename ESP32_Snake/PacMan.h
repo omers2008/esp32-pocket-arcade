@@ -71,29 +71,29 @@ class PacMan {
     d.setCursor(61, 0); d.print(F("W")); d.print(level);
     d.setCursor(97, 0); d.print(F("L")); d.print(lives);
     d.setCursor(121, 0); d.print(hard ? F("H") : F("E"));
-    if (powered) d.drawFastHLine(0, 8, int((powerDuration() - min(now - powerAt, powerDuration())) * 128 / powerDuration()), SSD1306_WHITE);
+    if (powered) d.drawFastHLine(0, 8, int((powerDuration() - min(now - powerAt, powerDuration())) * 128 / powerDuration()), Ink::Cyan);
     for (int y = 0; y < H; ++y) for (int x = 0; x < W; ++x) {
       int sx = 11 + x * 5, sy = 9 + y * 5;
-      if (!walkable(x, y)) d.fillRect(sx, sy, 5, 5, SSD1306_WHITE);
-      else if (pellets[y][x] == 1) d.drawPixel(sx + 2, sy + 2, SSD1306_WHITE);
-      else if (pellets[y][x] == 2) d.drawRect(sx + 1, sy + 1, 3, 3, SSD1306_WHITE);
+      if (!walkable(x, y)) d.fillRect(sx, sy, 5, 5, Ink::Blue);
+      else if (pellets[y][x] == 1) d.drawPixel(sx + 2, sy + 2, Ink::Gold);
+      else if (pellets[y][x] == 2) d.drawRect(sx + 1, sy + 1, 3, 3, Ink::Gold);
     }
     for (int i = 0; i < ghostCount(); ++i) {
       Ghost &g = ghosts[i]; if (!g.active) continue;
       int sx = 11 + g.x * 5, sy = 9 + g.y * 5;
       if (powered && (now - powerAt < powerDuration() - 1000 || (now / 120) % 2 == 0)) {
-        d.drawRect(sx, sy, 5, 5, SSD1306_WHITE);
+        d.drawRect(sx, sy, 5, 5, Ink::Blue);
       } else {
-        d.fillRect(sx, sy + 1, 5, 3, SSD1306_WHITE);
-        d.drawFastHLine(sx + 1, sy, 3, SSD1306_WHITE);
+        d.fillRect(sx, sy + 1, 5, 3, Ink::ghost(i));
+        d.drawFastHLine(sx + 1, sy, 3, Ink::ghost(i));
         d.drawPixel(sx + 1, sy + 2, SSD1306_BLACK); d.drawPixel(sx + 3, sy + 2, SSD1306_BLACK);
-        d.drawPixel(sx, sy + 4, SSD1306_WHITE); d.drawPixel(sx + 4, sy + 4, SSD1306_WHITE);
+        d.drawPixel(sx, sy + 4, Ink::ghost(i)); d.drawPixel(sx + 4, sy + 4, Ink::ghost(i));
       }
     }
     if (now - readyAt >= 1800 || (now / 100) % 2 == 0) {
       int sx = 11 + px * 5, sy = 9 + py * 5;
-      d.fillRect(sx + 1, sy, 3, 5, SSD1306_WHITE);
-      d.fillRect(sx, sy + 1, 5, 3, SSD1306_WHITE);
+      d.fillRect(sx + 1, sy, 3, 5, Ink::Gold);
+      d.fillRect(sx, sy + 1, 5, 3, Ink::Gold);
       if ((now / 100) % 2 == 0 && direction >= 0)
         d.drawLine(sx + 2, sy + 2, sx + 2 + 2 * dx(direction), sy + 2 + 2 * dy(direction), SSD1306_BLACK);
     }

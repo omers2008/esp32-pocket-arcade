@@ -31,18 +31,20 @@ class FourInRow {
     d.setCursor(52, 0); d.print(hard ? 'H' : 'E');
     d.setCursor(68, 0); d.print(F("13"));
     const int x0 = 70, y0 = 14, cell = 8;
-    d.drawRect(x0 - 1, y0 - 1, COLS * cell + 2, ROWS * cell + 2, SSD1306_WHITE);
+    d.fillRect(x0 - 1, y0 - 1, COLS * cell + 2, ROWS * cell + 2, Ink::Blue);
     int markerX = x0 + selectedCol * cell + 3;
-    d.drawFastVLine(markerX, 10, 3, SSD1306_WHITE);
+    d.drawFastVLine(markerX, 10, 3, Ink::Gold);
     for (int y = 0; y < ROWS; ++y) for (int x = 0; x < COLS; ++x) {
       int cx = x0 + x * cell + 4, cy = y0 + y * cell + 4;
-      if (board[y][x] == 1) d.fillCircle(cx, cy, 3, SSD1306_WHITE);
-      else if (board[y][x] == 2) d.drawCircle(cx, cy, 3, SSD1306_WHITE);
+      if (board[y][x] == 1) d.fillCircle(cx, cy, 3, Ink::Red);
+      else if (board[y][x] == 2) d.fillCircle(cx, cy, 3, Ink::Gold);
+      else d.fillCircle(cx,cy,3,SSD1306_BLACK);
     }
-    d.setCursor(0, 22); d.print(F("FILLED=YOU"));
-    d.setCursor(0, 34); d.print(F("RING=CPU"));
+    d.setTextColor(Ink::Red);d.setCursor(0, 22); d.print(F("RED=YOU"));
+    d.setTextColor(Ink::Gold);d.setCursor(0, 34); d.print(F("GOLD=CPU"));
+    d.setTextColor(Ink::White);
     d.setCursor(0, 49); d.print(F("LEFT/RIGHT"));
-    d.setCursor(0, 59); d.print(F("13 DROP"));
+    d.setCursor(0, 56); d.print(F("13 DROP"));
     d.display();
   }
 

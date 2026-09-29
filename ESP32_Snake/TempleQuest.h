@@ -133,19 +133,19 @@ class TempleQuest {
     d.setCursor(68, 0); d.print(F("L")); d.print(lives);
     d.setCursor(88, 0); d.print(F("G")); d.print(gems);
     d.setCursor(110, 0); d.print(F("D")); d.print(knives);
-    d.drawFastHLine(0, 9, 128, SSD1306_WHITE);
-    for (int px = 0; px < 128; ++px) if (floorAt(room, px)) d.fillRect(px, 58, 1, 6, SSD1306_WHITE);
-    d.fillRect(platformX(room), 34, 44, 2, SSD1306_WHITE);
+    d.drawFastHLine(0, 9, 128, Ink::Wall);
+    for (int px = 0; px < 128; ++px) if (floorAt(room, px)) d.fillRect(px, 58, 1, 6, Ink::Brown);
+    d.fillRect(platformX(room), 34, 44, 2, Ink::Brown);
     int ladder = ladderX(room), top = lowerShaft() ? 10 : 34;
-    d.drawFastVLine(ladder - 3, top, 58 - top, SSD1306_WHITE);
-    d.drawFastVLine(ladder + 3, top, 58 - top, SSD1306_WHITE);
-    for (int ly = top + 3; ly < 58; ly += 5) d.drawFastHLine(ladder - 3, ly, 7, SSD1306_WHITE);
+    d.drawFastVLine(ladder - 3, top, 58 - top, Ink::Gold);
+    d.drawFastVLine(ladder + 3, top, 58 - top, Ink::Gold);
+    for (int ly = top + 3; ly < 58; ly += 5) d.drawFastHLine(ladder - 3, ly, 7, Ink::Gold);
     if (room == 0 || room == 2) {
       d.fillRect(ladder - 3, 58, 7, 6, SSD1306_BLACK);
-      d.drawFastVLine(ladder - 3, 58, 6, SSD1306_WHITE); d.drawFastVLine(ladder + 3, 58, 6, SSD1306_WHITE);
+      d.drawFastVLine(ladder - 3, 58, 6, Ink::Gold); d.drawFastVLine(ladder + 3, 58, 6, Ink::Gold);
     }
-    if (room % 3 > 0) d.drawRect(0, 45, 4, 13, SSD1306_WHITE);
-    if (room % 3 < 2) d.drawRect(124, 45, 4, 13, SSD1306_WHITE);
+    if (room % 3 > 0) d.drawRect(0, 45, 4, 13, Ink::Cyan);
+    if (room % 3 < 2) d.drawRect(124, 45, 4, 13, Ink::Cyan);
     if ((room == 0 || room == 1) && !(unlocked & 1)) {
       d.setCursor(room == 0 ? 118 : 3, 46); d.print('A');
     }
@@ -153,41 +153,41 @@ class TempleQuest {
       d.setCursor(room == 4 ? 118 : ladder - 2, 46); d.print('B');
     }
     if (room == 2 || room == 5) for (int sx = 58; sx < 67; sx += 3) {
-      d.drawLine(sx, 58, sx + 1, 54, SSD1306_WHITE); d.drawLine(sx + 1, 54, sx + 2, 58, SSD1306_WHITE);
+      d.drawLine(sx, 58, sx + 1, 54, Ink::Red); d.drawLine(sx + 1, 54, sx + 2, 58, Ink::Red);
     }
     if (!gemTaken[room]) {
       int gx = gemX(room);
-      d.drawLine(gx + 2, 26, gx, 29, SSD1306_WHITE); d.drawLine(gx, 29, gx + 2, 32, SSD1306_WHITE);
-      d.drawLine(gx + 2, 26, gx + 4, 29, SSD1306_WHITE); d.drawLine(gx + 4, 29, gx + 2, 32, SSD1306_WHITE);
+      d.drawLine(gx + 2, 26, gx, 29, Ink::Green); d.drawLine(gx, 29, gx + 2, 32, Ink::Green);
+      d.drawLine(gx + 2, 26, gx + 4, 29, Ink::Green); d.drawLine(gx + 4, 29, gx + 2, 32, Ink::Green);
     }
     int key = room == 3 ? 0 : room == 1 ? 1 : -1;
     if (key >= 0 && !(takenKeys & (1 << key))) {
       int ky = key == 0 ? 50 : 26;
-      d.drawRect(106, ky, 3, 3, SSD1306_WHITE); d.drawFastHLine(108, ky + 2, 5, SSD1306_WHITE);
-      d.drawPixel(112, ky + 3, SSD1306_WHITE);
+      d.drawRect(106, ky, 3, 3, Ink::Gold); d.drawFastHLine(108, ky + 2, 5, Ink::Gold);
+      d.drawPixel(112, ky + 3, Ink::Gold);
     }
     for (auto &e : enemies[room]) if (e.alive) {
       int ex = int(e.x), ey = int(e.y);
-      d.fillRect(ex + 1, ey + 1, 5, 4, SSD1306_WHITE);
+      d.fillRect(ex + 1, ey + 1, 5, 4, Ink::Purple);
       d.drawPixel(ex + 2, ey + 2, SSD1306_BLACK); d.drawPixel(ex + 4, ey + 2, SSD1306_BLACK);
       if (e.bat) {
         int wing = e.phase % 20 < 10 ? 0 : 5;
-        d.drawLine(ex - 2, ey + wing, ex + 3, ey + 2, SSD1306_WHITE);
-        d.drawLine(ex + 8, ey + wing, ex + 3, ey + 2, SSD1306_WHITE);
+        d.drawLine(ex - 2, ey + wing, ex + 3, ey + 2, Ink::Purple);
+        d.drawLine(ex + 8, ey + wing, ex + 3, ey + 2, Ink::Purple);
       }
     }
     if (room == 5) {
-      d.drawRect(112, 46, 10, 12, SSD1306_WHITE);
-      d.drawRect(115, 48, 4, 5, SSD1306_WHITE); d.drawFastHLine(114, 55, 6, SSD1306_WHITE);
+      d.drawRect(112, 46, 10, 12, Ink::Gold);
+      d.drawRect(115, 48, 4, 5, Ink::Gold); d.drawFastHLine(114, 55, 6, Ink::Gold);
     }
     if (!immune || immune % 10 < 5) {
       int px = int(x), py = int(y);
-      d.drawFastHLine(px, py, 7, SSD1306_WHITE); d.fillRect(px + 1, py + 1, 4, 3, SSD1306_WHITE);
-      d.fillRect(px + 1, py + 4, 4, 3, SSD1306_WHITE);
-      d.drawLine(px + 2, py + 6, px, py + 9, SSD1306_WHITE);
-      d.drawLine(px + 3, py + 6, px + 5, py + 9, SSD1306_WHITE);
+      d.drawFastHLine(px, py, 7, Ink::Skin); d.fillRect(px + 1, py + 1, 4, 3, Ink::Skin);
+      d.fillRect(px + 1, py + 4, 4, 3, Ink::Cyan);
+      d.drawLine(px + 2, py + 6, px, py + 9, Ink::Cyan);
+      d.drawLine(px + 3, py + 6, px + 5, py + 9, Ink::Cyan);
     }
-    for (auto &knife : daggers) if (knife.active) d.drawFastHLine(int(knife.x) - 2, int(knife.y), 5, SSD1306_WHITE);
+    for (auto &knife : daggers) if (knife.active) d.drawFastHLine(int(knife.x) - 2, int(knife.y), 5, Ink::White);
     if (message && millis() - messageAt < 800) {
       d.fillRect(8, 11, 112, 10, SSD1306_BLACK);
       d.setCursor(10, 12); d.print(message == 1 ? "NEED KEY A" : message == 2 ? "NEED KEY B" : "FIND ALL 6 GEMS");

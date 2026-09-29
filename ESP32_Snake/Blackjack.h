@@ -48,6 +48,7 @@ class Blackjack {
 
   void draw(ArcadeDisplay &d) {
     d.clearDisplay(); d.setTextSize(1); d.setTextColor(SSD1306_WHITE);
+    d.fillRect(0,9,128,46,0x1244);
     d.setCursor(0, 0); d.print(F("BJ ")); d.print(handNumber); d.print(F("/10"));
     d.setCursor(64, 0); d.print(F("S")); d.print(score);
     d.setCursor(121, 0); d.print(hard ? F("H") : F("E"));
@@ -135,9 +136,12 @@ class Blackjack {
     const char ranks[] = "A23456789TJQK";
     for (int i = 0; i < hand.count; ++i) {
       int x = 2 + i * 10;
-      d.drawRect(x, y, 9, 11, SSD1306_WHITE);
+      bool hidden=hideHole && i==1;
+      d.fillRect(x,y,9,11,hidden?Ink::Blue:Ink::White);
+      d.setTextColor(hidden?Ink::White:(hand.cards[i]/13)%2?Ink::Red:Ink::Dark);
       d.setCursor(x + 2, y + 2);
       d.print(hideHole && i == 1 ? '?' : ranks[hand.cards[i] % 13]);
     }
+    d.setTextColor(Ink::White);
   }
 };

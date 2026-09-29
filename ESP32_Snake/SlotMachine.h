@@ -94,21 +94,20 @@ class SlotMachine {
     d.setTextSize(1);
     d.setCursor(0, 0); d.print(F("C$")); d.print(cash);
     d.setCursor(78, 0); d.print(F("B$")); d.print(wager);
-    d.drawFastHLine(0, 9, 128, SSD1306_WHITE);
+    d.drawFastHLine(0, 9, 128, Ink::Wall);
 
     for (int i = 0; i < 3; ++i) {
       int x = 5 + i * 36;
-      d.drawRoundRect(x, 17, 32, 28, 3, SSD1306_WHITE);
-      d.setTextSize(1);
-      d.setCursor(x + symbolOffset(reels[i]), 28);
-      d.print(symbolText(reels[i]));
+      bool flash=phase==RESULT && resultKind>0 && (millis()/150)%2;
+      d.drawRoundRect(x, 17, 32, 28, 3, flash?Ink::Pink:Ink::Gold);
+      drawSymbol(d,reels[i],x+16,30);
     }
 
     // Animated lever: it drops during the pull and rises after the result.
     int leverY = leverDown ? 45 : 27;
-    d.drawLine(116, 20, 116, leverY, SSD1306_WHITE);
-    d.fillCircle(116, leverY, 4, SSD1306_WHITE);
-    d.drawCircle(116, 20, 2, SSD1306_WHITE);
+    d.drawLine(116, 20, 116, leverY, Ink::Muted);
+    d.fillCircle(116, leverY, 4, Ink::Red);
+    d.drawCircle(116, 20, 2, Ink::Gold);
 
     d.setTextSize(1);
     if (phase == IDLE) {
@@ -117,6 +116,7 @@ class SlotMachine {
     } else if (phase == LEVER || phase == SPIN) {
       d.setCursor(39, 53); d.print(phase == LEVER ? F("PULL!") : F("SPINNING..."));
     } else {
+      d.setTextColor(resultKind>0?Ink::Gold:Ink::Muted);
       if (resultKind == 2) { d.setCursor(31, 53); d.print(F("JACKPOT!")); }
       else if (resultKind == 3) { d.setCursor(31, 53); d.print(F("TRIPLE HIT!")); }
       else if (resultKind == 1) { d.setCursor(43, 53); d.print(F("PAIR HIT!")); }
@@ -126,6 +126,31 @@ class SlotMachine {
   }
 
  private:
+  static void drawSymbol(ArcadeDisplay &d,int symbol,int x,int y) {
+    if(symbol==0) {
+      d.drawLine(x-5,y,x,y-9,Ink::Green);d.drawLine(x+5,y,x,y-9,Ink::Green);
+      d.fillCircle(x-5,y+3,4,Ink::Red);d.fillCircle(x+5,y+3,4,Ink::Red);
+      d.drawPixel(x-6,y+1,Ink::White);d.drawPixel(x+4,y+1,Ink::White);
+    } else if(symbol==1) {
+      d.fillRect(x-12,y-6,24,13,Ink::White);
+      d.setTextColor(Ink::Dark);d.setTextSize(1);d.setCursor(x-9,y-3);d.print(F("BAR"));
+    } else if(symbol==2) {
+      d.fillCircle(x,y-5,4,Ink::Gold);d.fillRect(x-5,y-5,11,10,Ink::Gold);
+      d.drawFastHLine(x-7,y+5,15,Ink::Gold);d.fillCircle(x,y+7,2,Ink::Orange);
+      d.drawFastVLine(x-3,y-5,7,Ink::White);
+    } else if(symbol==3) {
+      d.fillCircle(x-3,y,5,Ink::Gold);d.fillCircle(x+3,y,5,Ink::Gold);
+      d.drawPixel(x-9,y,Ink::Gold);d.drawPixel(x+9,y,Ink::Gold);
+      d.drawFastHLine(x-3,y-3,5,Ink::White);
+    } else if(symbol==4) {
+      d.fillCircle(x,y+1,7,Ink::Purple);d.drawFastVLine(x,y-9,4,Ink::Brown);
+      d.drawLine(x,y-7,x+5,y-9,Ink::Green);d.drawFastVLine(x-3,y-2,4,Ink::Pink);
+    } else {
+      d.setTextSize(2);d.setTextColor(Ink::Red);d.setCursor(x-5,y-7);d.print('7');
+      d.drawPixel(x-10,y-6,Ink::Gold);d.drawPixel(x+10,y+6,Ink::Gold);
+    }
+    d.setTextSize(1);d.setTextColor(Ink::White);
+  }
   enum Phase { IDLE, LEVER, SPIN, RESULT };
   Phase phase = IDLE;
   int reels[3] = {0, 1, 2};

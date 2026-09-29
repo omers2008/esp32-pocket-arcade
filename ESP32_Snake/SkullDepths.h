@@ -63,33 +63,37 @@ class SkullDepths {
     } else if (phase == SHOP) {
       d.setCursor(0, 0); d.print(F("SHOP G")); d.print(gold); d.print(F(" H")); d.print(hp); d.print('/'); d.print(maxHp);
       static const char *const items[] = {"Heal 4       20G", "Max HP +2    35G", "Sword +1     40G", "Enter boss arena"};
-      for (int i = 0; i < 4; ++i) { d.setCursor(0, 12 + i * 10); d.print(i == selection ? '>' : ' '); d.print(items[i]); }
+      for (int i = 0; i < 4; ++i) {
+        if(i==selection)d.fillRect(0,11+i*10,128,10,Ink::Purple);
+        d.setTextColor(i==selection?Ink::Dark:Ink::White);
+        d.setCursor(0, 12 + i * 10); d.print(i == selection ? '>' : ' '); d.print(items[i]);
+      }
       text(d, 56, shopNotice ? "Can't buy this" : "Stick / 13 confirm");
     } else {
-      d.drawRect(1, 10, 126, 45, SSD1306_WHITE);
-      for (int i = 0; i < 2; ++i) { Block b = block(i); d.drawRect(b.x, b.y, b.w, b.h, SSD1306_WHITE); }
+      d.drawRect(1, 10, 126, 45, Ink::Wall);
+      for (int i = 0; i < 2; ++i) { Block b = block(i); d.drawRect(b.x, b.y, b.w, b.h, Ink::Wall); }
       for (const auto &e : enemies) if (e.hp > 0) {
         skull(d, e);
         if (e.windup) {
           if (!e.archer && (!e.boss || e.pattern % 2 == 0))
-            d.drawCircle(int(e.tx), int(e.ty), e.boss ? 10 : 7, SSD1306_WHITE);
-          else d.drawLine(int(e.x), int(e.y), int(e.x + e.ax * 8), int(e.y + e.ay * 8), SSD1306_WHITE);
+            d.drawCircle(int(e.tx), int(e.ty), e.boss ? 10 : 7, Ink::Red);
+          else d.drawLine(int(e.x), int(e.y), int(e.x + e.ax * 8), int(e.y + e.ay * 8), Ink::Red);
         }
       }
       for (const auto &s : shots) if (s.life) {
-        d.drawLine(int(s.x), int(s.y), int(s.x - s.vx * 1.5f), int(s.y - s.vy * 1.5f), SSD1306_WHITE);
-        if (!s.friendly) d.drawPixel(int(s.x + 1), int(s.y), SSD1306_WHITE);
+        d.drawLine(int(s.x), int(s.y), int(s.x - s.vx * 1.5f), int(s.y - s.vy * 1.5f), s.friendly?Ink::Gold:Ink::Red);
+        if (!s.friendly) d.drawPixel(int(s.x + 1), int(s.y), Ink::Red);
       }
       if (!immune || frames % 6 < 3) {
-        if (stealth) d.drawRect(int(x) - 2, int(y) - 2, 5, 5, SSD1306_WHITE);
-        else d.fillRect(int(x) - 2, int(y) - 2, 5, 5, SSD1306_WHITE);
-        d.drawPixel(int(x + fx * 4), int(y + fy * 4), SSD1306_WHITE);
+        if (stealth) d.drawRect(int(x) - 2, int(y) - 2, 5, 5, Ink::Purple);
+        else d.fillRect(int(x) - 2, int(y) - 2, 5, 5, Ink::Cyan);
+        d.drawPixel(int(x + fx * 4), int(y + fy * 4), Ink::Cyan);
       }
-      if (dashTicks) d.drawLine(int(x), int(y), int(x - dx * 6), int(y - dy * 6), SSD1306_WHITE);
+      if (dashTicks) d.drawLine(int(x), int(y), int(x - dx * 6), int(y - dy * 6), Ink::Blue);
       if (slash) {
         float r = reach();
         d.drawLine(int(x + fx * r - fy * 5), int(y + fy * r + fx * 5),
-                   int(x + fx * r + fy * 5), int(y + fy * r - fx * 5), SSD1306_WHITE);
+                   int(x + fx * r + fy * 5), int(y + fy * r - fx * 5), Ink::Gold);
       }
       // Reserve full bands for HUD so attack effects never overlap text.
       d.fillRect(0, 0, 128, 10, SSD1306_BLACK);
@@ -320,16 +324,18 @@ class SkullDepths {
     static const char *const next[] = {"each sec; +1 damage", "Each refills in 2s", "First sword hit: x2", "Stacks up to 3", "Stacks twice", "Stacks up to 3", "Also heal 2", "Stacks up to 3", "for 2 seconds", "Stacks up to 3", "heal 1 health"};
     return second ? next[p] : first[p];
   }
-  static void text(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
+  static void text(ArcadeDisplay &d, int y, const char *s) {
+    d.setTextColor(y==0?Ink::Gold:y>=55?Ink::Cyan:Ink::White);d.setCursor(0,y);d.print(s);
+  }
   static void skull(ArcadeDisplay &d, const Enemy &e) {
     int ex = int(e.x), ey = int(e.y), r = e.boss ? 5 : 3;
-    d.fillRect(ex-r, ey-r, r*2+1, r*2, SSD1306_WHITE);
-    d.fillRect(ex-r+1, ey, r*2-1, r+2, SSD1306_WHITE);
+    d.fillRect(ex-r, ey-r, r*2+1, r*2, Ink::Skin);
+    d.fillRect(ex-r+1, ey, r*2-1, r+2, Ink::Skin);
     d.drawPixel(ex-1, ey-1, SSD1306_BLACK); d.drawPixel(ex+1, ey-1, SSD1306_BLACK);
     d.drawPixel(ex, ey+1, SSD1306_BLACK);
     d.drawPixel(ex-1, ey+r, SSD1306_BLACK); d.drawPixel(ex+1, ey+r, SSD1306_BLACK);
-    if (e.archer) { d.drawFastHLine(ex-5, ey-4, 11, SSD1306_WHITE); d.fillRect(ex-2, ey-6, 5, 2, SSD1306_WHITE); }
-    if (e.boss) { d.drawFastHLine(ex-5, ey-7, 11, SSD1306_WHITE); d.drawFastHLine(ex-5, ey+7, max(1, e.hp*11/e.maxHp), SSD1306_WHITE); }
-    if (e.windup) { d.drawFastVLine(ex+6, ey-4, 3, SSD1306_WHITE); d.drawPixel(ex+6, ey, SSD1306_WHITE); }
+    if (e.archer) { d.drawFastHLine(ex-5, ey-4, 11, Ink::Green); d.fillRect(ex-2, ey-6, 5, 2, Ink::Green); }
+    if (e.boss) { d.drawFastHLine(ex-5, ey-7, 11, Ink::Red); d.drawFastHLine(ex-5, ey+7, max(1, e.hp*11/e.maxHp), Ink::Red); }
+    if (e.windup) { d.drawFastVLine(ex+6, ey-4, 3, Ink::Orange); d.drawPixel(ex+6, ey, Ink::Orange); }
   }
 };

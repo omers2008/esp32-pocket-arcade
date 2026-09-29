@@ -89,16 +89,16 @@ class Pong {
     d.setCursor(0, 0); d.print(F("YOU ")); d.print(playerScore);
     d.setCursor(61, 0); d.print(hard ? F("H") : F("E"));
     d.setCursor(94, 0); d.print(F("CPU ")); d.print(cpuScore);
-    d.drawFastHLine(0, 9, 128, SSD1306_WHITE);
-    for (int y = 12; y < 64; y += 6) d.drawFastVLine(64, y, 3, SSD1306_WHITE);
-    d.fillRect(4, int(playerY) - 7, 3, 14, SSD1306_WHITE);
-    d.fillRect(122, int(cpuY) - 7, 3, 14, SSD1306_WHITE);
+    d.drawFastHLine(0, 9, 128, Ink::Wall);
+    for (int y = 12; y < 64; y += 6) d.drawFastVLine(64, y, 3, Ink::Wall);
+    d.fillRect(4, int(playerY) - 7, 3, 14, Ink::Cyan);
+    d.fillRect(122, int(cpuY) - 7, 3, 14, Ink::Pink);
     if (waiting) {
       d.fillRect(24, 27, 81, 20, SSD1306_BLACK);
       d.setCursor(37, 28); d.print(F("13: SERVE"));
       d.setCursor(34, 40); d.print(F("First to 7"));
     } else {
-      d.fillRect(int(ballX) - 1, int(ballY) - 1, 3, 3, SSD1306_WHITE);
+      d.fillRect(int(ballX) - 1, int(ballY) - 1, 3, 3, Ink::Gold);
     }
     d.display();
   }

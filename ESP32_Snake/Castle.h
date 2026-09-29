@@ -117,54 +117,54 @@ class CastleGame {
     for (int tower = 0; tower < 640; tower += 64) {
       int sx = tower - camera;
       if (sx < -24 || sx > 127) continue;
-      d.drawRect(sx, 19, 22, 41, SSD1306_WHITE);
-      d.drawRect(sx + 7, 25, 7, 10, SSD1306_WHITE);
-      for (int b = 0; b < 3; ++b) d.fillRect(sx + b * 9, 15, 4, 5, SSD1306_WHITE);
+      d.drawRect(sx, 19, 22, 41, Ink::Wall);
+      d.drawRect(sx + 7, 25, 7, 10, Ink::Wall);
+      for (int b = 0; b < 3; ++b) d.fillRect(sx + b * 9, 15, 4, 5, Ink::Wall);
     }
     for (int sx = 0; sx < 128; ++sx) if (floorAt(camera + sx))
-      d.fillRect(sx, 60, 1, 4, SSD1306_WHITE);
-    for (auto &p : platforms) d.fillRect(p.x - camera, p.y, p.w, 2, SSD1306_WHITE);
+      d.fillRect(sx, 60, 1, 4, Ink::Brown);
+    for (auto &p : platforms) d.fillRect(p.x - camera, p.y, p.w, 2, Ink::Brown);
     for (auto &c : candles) if (c.alive) {
       int sx = c.x - camera;
-      d.fillRect(sx, c.y + 3, 3, 5, SSD1306_WHITE);
-      d.drawPixel(sx + 1, c.y, SSD1306_WHITE);
-      d.drawPixel(sx, c.y + 1, SSD1306_WHITE);
+      d.fillRect(sx, c.y + 3, 3, 5, Ink::Skin);
+      d.drawPixel(sx + 1, c.y, Ink::Gold);
+      d.drawPixel(sx, c.y + 1, Ink::Gold);
     }
     for (auto &e : enemies) if (e.alive) {
       int sx = int(e.x) - camera, sy = int(e.y);
-      d.fillRect(sx + 2, sy + 1, 4, e.bat ? 3 : 7, SSD1306_WHITE);
+      d.fillRect(sx + 2, sy + 1, 4, e.bat ? 3 : 7, Ink::Purple);
       if (e.bat) {
         int wing = e.phase % 20 < 10 ? -2 : 3;
-        d.drawLine(sx - 2, sy + wing, sx + 3, sy + 3, SSD1306_WHITE);
-        d.drawLine(sx + 9, sy + wing, sx + 4, sy + 3, SSD1306_WHITE);
+        d.drawLine(sx - 2, sy + wing, sx + 3, sy + 3, Ink::Purple);
+        d.drawLine(sx + 9, sy + wing, sx + 4, sy + 3, Ink::Purple);
       } else {
-        d.drawLine(sx, sy + 4, sx + 7, sy + 4, SSD1306_WHITE);
-        d.drawPixel(sx + 2, sy + 8, SSD1306_WHITE); d.drawPixel(sx + 5, sy + 8, SSD1306_WHITE);
+        d.drawLine(sx, sy + 4, sx + 7, sy + 4, Ink::Purple);
+        d.drawPixel(sx + 2, sy + 8, Ink::Purple); d.drawPixel(sx + 5, sy + 8, Ink::Purple);
       }
     }
     if (bossHp > 0) {
       int sx = int(bossX) - camera;
-      d.fillRect(sx + 3, 44, 5, 5, SSD1306_WHITE);
-      d.drawLine(sx + 3, 48, sx, 59, SSD1306_WHITE);
-      d.drawLine(sx + 7, 48, sx + 11, 59, SSD1306_WHITE);
-      d.drawLine(sx, 59, sx + 11, 59, SSD1306_WHITE);
+      d.fillRect(sx + 3, 44, 5, 5, Ink::Red);
+      d.drawLine(sx + 3, 48, sx, 59, Ink::Red);
+      d.drawLine(sx + 7, 48, sx + 11, 59, Ink::Red);
+      d.drawLine(sx, 59, sx + 11, 59, Ink::Red);
       if (x > 470) { d.setCursor(73, 11); d.print(F("BOSS ")); d.print(bossHp); }
     }
-    d.drawRect(627 - camera, 42, 11, 18, SSD1306_WHITE);
-    if (bossHp > 0) d.drawLine(627 - camera, 42, 637 - camera, 59, SSD1306_WHITE);
-    for (auto &b : bolts) if (b.active) d.fillRect(int(b.x) - camera, int(b.y), 3, 3, SSD1306_WHITE);
+    d.drawRect(627 - camera, 42, 11, 18, Ink::Gold);
+    if (bossHp > 0) d.drawLine(627 - camera, 42, 637 - camera, 59, Ink::Gold);
+    for (auto &b : bolts) if (b.active) d.fillRect(int(b.x) - camera, int(b.y), 3, 3, Ink::Orange);
     if (!immune || immune % 10 < 5) {
       int sx = int(x) - camera, sy = int(y);
-      d.fillRect(sx + 2, sy, 4, 3, SSD1306_WHITE);
-      d.fillRect(sx + 1, sy + 3, 5, 5, SSD1306_WHITE);
+      d.fillRect(sx + 2, sy, 4, 3, Ink::Skin);
+      d.fillRect(sx + 1, sy + 3, 5, 5, Ink::Cyan);
       int stride = grounded && (millis() / 100) % 2 ? 1 : 0;
-      d.drawLine(sx + 2, sy + 7, sx + stride, sy + 10, SSD1306_WHITE);
-      d.drawLine(sx + 4, sy + 7, sx + 6 - stride, sy + 10, SSD1306_WHITE);
+      d.drawLine(sx + 2, sy + 7, sx + stride, sy + 10, Ink::Cyan);
+      d.drawLine(sx + 4, sy + 7, sx + 6 - stride, sy + 10, Ink::Cyan);
     }
     if (attackTicks) {
       int wx = int(facing > 0 ? x + 7 : x - 20) - camera;
-      d.drawLine(wx, int(y) + 5, wx + 19, int(y) + 5, SSD1306_WHITE);
-      d.fillRect(facing > 0 ? wx + 18 : wx, int(y) + 4, 2, 3, SSD1306_WHITE);
+      d.drawLine(wx, int(y) + 5, wx + 19, int(y) + 5, Ink::Gold);
+      d.fillRect(facing > 0 ? wx + 18 : wx, int(y) + 4, 2, 3, Ink::Gold);
     }
     d.fillRect(0, 0, 128, 9, SSD1306_BLACK);
     d.setCursor(0, 0); d.print(F("HP")); d.print(hp);

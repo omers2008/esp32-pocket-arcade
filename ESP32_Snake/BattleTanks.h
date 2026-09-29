@@ -59,17 +59,17 @@ class BattleTanks {
       line(d, 44, "returning shots!"); line(d, 55, "13 start / 5 waves");
       d.display(); return;
     }
-    d.drawRect(0, 10, 128, 54, SSD1306_WHITE);
+    d.drawRect(0, 10, 128, 54, Ink::Wall);
     for (int i = 0; i < 2; ++i) {
       Wall w = wall(i);
-      d.drawRect(w.x, w.y, w.w, w.h, SSD1306_WHITE);
-      d.drawLine(w.x, w.y, w.x + w.w - 1, w.y + w.h - 1, SSD1306_WHITE);
+      d.drawRect(w.x, w.y, w.w, w.h, Ink::Wall);
+      d.drawLine(w.x, w.y, w.x + w.w - 1, w.y + w.h - 1, Ink::Wall);
     }
     for (auto &c : cpus) if (c.hp > 0) drawTank(d, c, false);
     if (!immune || immune % 10 < 5) drawTank(d, player, true);
     for (auto &s : shells) if (s.active) {
-      if (s.bouncy) d.drawCircle(int(s.x), int(s.y), 1, SSD1306_WHITE);
-      else d.fillRect(int(s.x), int(s.y), 2, 2, SSD1306_WHITE);
+      if (s.bouncy) d.drawCircle(int(s.x), int(s.y), 1, Ink::Purple);
+      else d.fillRect(int(s.x), int(s.y), 2, 2, Ink::Gold);
     }
     d.setCursor(0, 0); d.print(F("HP")); d.print(hp);
     d.setCursor(28, 0); d.print(F("W")); d.print(wave); d.print(F("/5"));
@@ -207,10 +207,10 @@ class BattleTanks {
       px[i] = int(t.x + cs * forward[i] - sn * side[i]);
       py[i] = int(t.y + sn * forward[i] + cs * side[i]);
     }
-    for (int i = 0; i < 4; ++i) d.drawLine(px[i], py[i], px[(i + 1) % 4], py[(i + 1) % 4], SSD1306_WHITE);
-    if (filled) d.fillCircle(int(t.x), int(t.y), 2, SSD1306_WHITE);
-    else d.drawCircle(int(t.x), int(t.y), 1, SSD1306_WHITE);
-    d.drawLine(int(t.x), int(t.y), int(t.x + cs * 7), int(t.y + sn * 7), SSD1306_WHITE);
+    for (int i = 0; i < 4; ++i) d.drawLine(px[i], py[i], px[(i + 1) % 4], py[(i + 1) % 4], (filled ? Ink::Green : Ink::Red));
+    if (filled) d.fillCircle(int(t.x), int(t.y), 2, (filled ? Ink::Green : Ink::Red));
+    else d.drawCircle(int(t.x), int(t.y), 1, (filled ? Ink::Green : Ink::Red));
+    d.drawLine(int(t.x), int(t.y), int(t.x + cs * 7), int(t.y + sn * 7), (filled ? Ink::Green : Ink::Red));
   }
   static void line(ArcadeDisplay &d, int y, const char *s) { d.setCursor(0, y); d.print(s); }
 };

@@ -33,21 +33,21 @@ class TicTacToe {
     d.setCursor(74, 0); d.print(F("13"));
     const int x0 = 72, y0 = 11, cell = 17;
     for (int i = 1; i < 3; ++i) {
-      d.drawFastVLine(x0 + i * cell, y0, 51, SSD1306_WHITE);
-      d.drawFastHLine(x0, y0 + i * cell, 51, SSD1306_WHITE);
+      d.drawFastVLine(x0 + i * cell, y0, 51, Ink::Wall);
+      d.drawFastHLine(x0, y0 + i * cell, 51, Ink::Wall);
     }
-    d.drawRect(x0 + cursorX * cell + 1, y0 + cursorY * cell + 1, cell - 2, cell - 2, SSD1306_WHITE);
+    d.drawRect(x0 + cursorX * cell + 1, y0 + cursorY * cell + 1, cell - 2, cell - 2, Ink::Gold);
     for (int y = 0; y < 3; ++y) for (int x = 0; x < 3; ++x) {
       int cx = x0 + x * cell + 8, cy = y0 + y * cell + 8;
       if (board[y * 3 + x] == 1) {
-        d.drawLine(cx - 5, cy - 5, cx + 5, cy + 5, SSD1306_WHITE);
-        d.drawLine(cx + 5, cy - 5, cx - 5, cy + 5, SSD1306_WHITE);
-      } else if (board[y * 3 + x] == 2) d.drawCircle(cx, cy, 5, SSD1306_WHITE);
+        d.drawLine(cx - 5, cy - 5, cx + 5, cy + 5, Ink::Cyan);
+        d.drawLine(cx + 5, cy - 5, cx - 5, cy + 5, Ink::Cyan);
+      } else if (board[y * 3 + x] == 2) d.drawCircle(cx, cy, 5, Ink::Pink);
     }
     d.setCursor(0, 22); d.print(F("X=YOU"));
     d.setCursor(0, 34); d.print(F("O=CPU"));
     d.setCursor(0, 49); d.print(F("MOVE STICK"));
-    d.setCursor(0, 59); d.print(F("13 PLACE"));
+    d.setCursor(0, 56); d.print(F("13 PLACE"));
     d.display();
   }
 

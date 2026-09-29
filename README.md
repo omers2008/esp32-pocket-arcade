@@ -45,7 +45,7 @@ power pellets to turn the tables. Clear a maze to start a faster round.
 Blackjack is points-only: play 10 hands against the dealer, with automatically
 valued aces and a freshly shuffled 52-card deck each hand. No betting or money.
 Street Fighter is an original tiny arena brawler, not a Street Fighter II port:
-fight enemy waves using punches, kicks, and jumps with original monochrome sprites.
+fight enemy waves using punches, kicks, and jumps with original pixel sprites.
 Rogue Cards is a nine-fight turn-based roguelike: start with five cards and draw
 three each turn. Easy uses two Strikes, two Guards, and one Heal; Hard rolls
 five cards from that pool once per run, with at least one Strike. Choose one
@@ -100,7 +100,7 @@ gradually increases speed to a cap. Hard starts faster and has tighter obstacle
 spacing. A collision ends the run; GPIO13 retries through difficulty selection,
 and GPIO12 returns to the arcade. High scores persist separately for Easy/Hard.
 
-Asteroids is an original monochrome space shooter. Rotate with left/right, thrust
+Asteroids is an original pixel space shooter. Rotate with left/right, thrust
 with up, and coast when you release the stick. The ship, rocks, and shots wrap at
 all screen edges. Hold GPIO13 to shoot: large asteroids split into two medium ones,
 then into small fragments. Hits award 20/50/100 points for large/medium/small rocks;
@@ -210,16 +210,23 @@ to keep memory use low. Tetris also uses a native color layout: a 10x20 board
 with 10-pixel cells, seven shaded piece colors retained in the stack, colored
 ghost outlines, HOLD/NEXT previews, score/lines/level panels and a line-clear
 highlight. Controls are unchanged: 13 rotates, 14 holds, joystick-down soft drops.
-Difficulty screens and other games remain monochrome.
+The difficulty screen has large Easy/Hard selection cards, game-specific mode
+descriptions and both saved records. Results use a matching full-screen layout.
 
-The other games retain their 128x64 logical canvas and monochrome graphics. The new
-display presents them as crisp 256x128 images centered on its 320x240 landscape
-panel, preserving game dimensions and physics. It does not stretch them. The
-TFT supports color; the main menu and Tetris now use it.
-Wiring, rotation (1 or 3), inversion, colors, and SPI speed are in
-[DisplayConfig.h](ESP32_Snake/DisplayConfig.h). The adapter uses a small scanline
-buffer instead of allocating a full RGB frame. Existing high-score namespaces
-and control pins are unchanged.
+All other games now use RGB565 color sprites and scenery on their 128x64 logical
+canvas, enlarged uniformly to 320x160. A native title, difficulty indicator and
+button guide surround the playfield. Ghosts, players, enemies, hazards, pickups,
+card ranks, board pieces and mine numbers have distinct colors. Slots draw fruit,
+bells, BARs and red sevens, with flashing winning reel borders. Tetris retains
+its dedicated native layout. Movement, collisions and saved scores are unchanged.
+
+The renderer stores the logical color frame and the previous frame (32 KB total)
+and transfers only changed row spans through a 320-pixel scanline buffer. Native
+menus use 40-pixel strips; no full 320x240 RGB framebuffer is required.
+Wiring, rotation (1 or 3), inversion and SPI speed are in
+[DisplayConfig.h](ESP32_Snake/DisplayConfig.h); sprite colors are in
+[GameColors.h](ESP32_Snake/GameColors.h). High-score namespaces and control pins
+are unchanged.
 
 1. Install **esp32 by Espressif Systems** in Arduino IDE Boards Manager.
 2. Install **Adafruit ST7735 and ST7789 Library** and **Adafruit GFX Library**, including dependencies.
