@@ -53,12 +53,15 @@ class ArcadeDisplay : public GFXcanvas1 {
 
   void clearDisplay() { fillScreen(SSD1306_BLACK); }
   bool colorMenu(int selected,int count,const char *const *names) {
+    return colorFrame([&](Adafruit_GFX &viewport) { ColorMenu::draw(viewport,selected,count,names); });
+  }
+  template<class Painter> bool colorFrame(Painter paint) {
     if(!ready)return false;
     GFXcanvas16 strip(320,40);
     if(!strip.getBuffer())return false;
     for(int top=0;top<240;top+=40) {
       MenuStripe viewport(strip,top);
-      ColorMenu::draw(viewport,selected,count,names);
+      paint(viewport);
       panel.startWrite();panel.setAddrWindow(0,top,320,40);
       panel.writePixels(strip.getBuffer(),320*40,true);panel.endWrite();
     }

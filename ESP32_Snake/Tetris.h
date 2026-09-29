@@ -12,6 +12,8 @@ class Tetris {
     score = lines = 0;
     over = false;
     for (auto &row : board) row = 0;
+    for (auto &row : cellTypes) for (auto &cell : row) cell = 0;
+    lastClearCount = 0;
     bagIndex = 7;
     heldPiece = -1;
     holdUsed = false;
@@ -69,6 +71,9 @@ class Tetris {
   }
 
   void draw(ArcadeDisplay &d) {
+#if defined(ARDUINO) || defined(ARCADE_TEST_TFT)
+    if (d.colorFrame([&](Adafruit_GFX &canvas) { drawColor(canvas); })) return;
+#endif
     d.clearDisplay();
     d.setTextSize(1);
     d.setTextColor(SSD1306_WHITE);
@@ -104,6 +109,9 @@ class Tetris {
 
  private:
   uint16_t board[20] = {};
+  uint8_t cellTypes[20][10] = {}; // Piece ID + 1; preserve colors after locking.
+  int lastClearCount = 0;
+  uint32_t lastClearAt = 0;
   uint8_t bag[7] = {}, bagIndex = 7;
   int piece = 0, nextPiece = 0, heldPiece = -1;
   int rotation = 0, pieceX = 3, pieceY = -1, horizontal = 0;
@@ -187,20 +195,28 @@ class Tetris {
     }
     for (int y = 0; y < 4; ++y) {
       for (int x = 0; x < 4; ++x) {
-        if (block(piece, rotation, x, y)) board[pieceY + y] |= 1u << (pieceX + x);
+        if (block(piece, rotation, x, y)) {
+          board[pieceY + y] |= 1u << (pieceX + x);
+          cellTypes[pieceY + y][pieceX + x] = piece + 1;
+        }
       }
     }
     int cleared = 0;
     for (int y = 19; y >= 0;) {
       if (board[y] == 0x3FF) {
-        for (int row = y; row > 0; --row) board[row] = board[row - 1];
+        for (int row = y; row > 0; --row) {
+          board[row] = board[row - 1];
+          for (int col = 0; col < 10; ++col) cellTypes[row][col] = cellTypes[row - 1][col];
+        }
         board[0] = 0;
+        for (auto &cell : cellTypes[0]) cell = 0;
         ++cleared;
       } else --y;
     }
     static const uint16_t rewards[] = {0, 100, 300, 500, 800};
     score += rewards[cleared] * (lines / 10 + 1);
     lines += cleared;
+    if (cleared) { lastClearCount = cleared; lastClearAt = millis(); }
     holdUsed = false; // Only locking a piece allows hold on the next turn.
     introduceNext();
   }
@@ -218,4 +234,59 @@ class Tetris {
       }
     }
   }
+
+#if defined(ARDUINO) || defined(ARCADE_TEST_TFT)
+  static uint16_t pieceColor(int type) {
+    static const uint16_t colors[] = {0x2E9F,0xFFE6,0xB2FF,0x5F54,0xF9C7,0x3B7F,0xFD28};
+    return type >= 0 && type < 7 ? colors[type] : 0x8CB3;
+  }
+  static void tile(Adafruit_GFX &d,int x,int y,int type,int size,bool ghost=false) {
+    uint16_t c=pieceColor(type);
+    if(ghost) { d.drawRect(x+1,y+1,size-2,size-2,c);return; }
+    d.fillRect(x+1,y+1,size-1,size-1,c);
+    d.drawFastHLine(x+2,y+2,size-3,0xFFFF);
+    d.drawFastVLine(x+2,y+3,size-4,0xCE79);
+    d.drawFastHLine(x+2,y+size-1,size-2,0x2945);
+  }
+  static void colorPreview(Adafruit_GFX &d,int type,int top) {
+    if(type<0) { ColorMenu::label(d,34,top+22,"EMPTY",ColorMenu::MUTED);return; }
+    int minX=4,maxX=0,minY=4,maxY=0;
+    for(int y=0;y<4;++y)for(int x=0;x<4;++x)if(block(type,0,x,y)) {
+      minX=min(minX,x);maxX=max(maxX,x);minY=min(minY,y);maxY=max(maxY,y);
+    }
+    int startX=10+(86-(maxX-minX+1)*12)/2,startY=top+(48-(maxY-minY+1)*12)/2;
+    for(int y=0;y<4;++y)for(int x=0;x<4;++x)if(block(type,0,x,y))
+      tile(d,startX+(x-minX)*12,startY+(y-minY)*12,type,12);
+  }
+  void drawColor(Adafruit_GFX &d) {
+    using namespace ColorMenu;
+    d.fillScreen(BG);d.setTextWrap(false);
+    label(d,10,12,"TETRIS",CYAN,2);
+    label(d,12,40,"HOLD",holdUsed?MUTED:CYAN);
+    d.fillRoundRect(10,51,86,48,5,CARD);colorPreview(d,heldPiece,51);
+    label(d,15,105,holdUsed?"USED THIS TURN":"14: SWAP",holdUsed?MUTED:WHITE);
+    label(d,12,125,"NEXT",CYAN);
+    d.fillRoundRect(10,136,86,48,5,CARD);colorPreview(d,nextPiece,136);
+    label(d,12,199,"13 ROTATE",WHITE);label(d,12,213,"DOWN: FASTER",MUTED);label(d,12,227,"12 MENU",MUTED);
+    label(d,224,20,"SCORE",CYAN);d.setTextSize(score<10000000?2:1);d.setTextColor(WHITE);d.setCursor(224,36);d.print(score);
+    label(d,224,72,"LINES",CYAN);d.setTextSize(2);d.setTextColor(WHITE);d.setCursor(224,87);d.print(min(lines,uint32_t(9999999)));
+    label(d,224,119,"LEVEL",CYAN);d.setTextSize(2);d.setTextColor(WHITE);d.setCursor(224,134);d.print(lines/10+1);
+    label(d,224,167,hard?"HARD":"EASY",hard?0xFD28:0x5F54,2);
+    bool clearFlash=lastClearCount && uint32_t(millis()-lastClearAt)<700;
+    if(clearFlash)label(d,224,198,lastClearCount==4?"TETRIS!":"LINE CLEAR",GOLD);
+    d.fillRect(109,19,102,202,0x0000);
+    d.drawRect(108,18,104,204,clearFlash?GOLD:0x3A50);
+    for(int gy=0;gy<20;++gy)for(int gx=0;gx<10;++gx) {
+      d.drawPixel(110+gx*10,20+gy*10,0x18C3);
+      if(board[gy]&(1u<<gx))tile(d,110+gx*10,20+gy*10,int(cellTypes[gy][gx])-1,10);
+    }
+    int ghostY=pieceY;while(fits(piece,rotation,pieceX,ghostY+1))++ghostY;
+    for(int gy=0;gy<4;++gy)for(int gx=0;gx<4;++gx)if(block(piece,rotation,gx,gy)) {
+      if(ghostY+gy>=0 && ghostY+gy<20)tile(d,110+(pieceX+gx)*10,20+(ghostY+gy)*10,piece,10,true);
+    }
+    for(int gy=0;gy<4;++gy)for(int gx=0;gx<4;++gx)if(block(piece,rotation,gx,gy) && pieceY+gy>=0 && pieceY+gy<20)
+      tile(d,110+(pieceX+gx)*10,20+(pieceY+gy)*10,piece,10);
+    label(d,125,229,"POCKET BLOCKS",MUTED);
+  }
+#endif
 };

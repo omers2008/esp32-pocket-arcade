@@ -35,9 +35,9 @@ class GFXcanvas16 : public Adafruit_GFX {
  private:
   int w,h;std::vector<uint16_t> pixels;
 };
-class GFXcanvas1 {
+class GFXcanvas1 : public Adafruit_GFX {
  public:
-  GFXcanvas1(int,int) {}
+  GFXcanvas1(int w,int h) : Adafruit_GFX(w,h) {}
   uint8_t *getBuffer() { return failCanvas ? nullptr : bits; }
   void fillScreen(uint16_t color) { std::memset(bits, color ? 255 : 0, sizeof(bits)); }
   bool getPixel(int x,int y) const { return bits[y*16+x/8] & (0x80>>(x%8)); }

@@ -4,6 +4,11 @@ These tests compile the actual game headers, using `Arduino.h` for a controlled
 clock/random generator and `Adafruit_SSD1306.h` for no-op drawing calls.
 Keep assertions enabled (do not define `NDEBUG`). No external libraries needed.
 
+`tetris_color_test.cpp` verifies that locked piece colors follow cleared rows,
+reset between games, and render through the native color frame path. Compile
+with `/Itests\tft /Itests` on MSVC, or `-Itests/tft -Itests` on other compilers.
+The existing `test.cpp` covers Tetris physics and input behavior.
+
 The game headers use `ArcadeDisplay`, which maps to the existing no-op display
 stub on host builds. On ESP32 it uses a GFXcanvas1 and the ST7789 driver.
 `display_test.cpp` exercises the real adapter against SPI/GFX/TFT test doubles:

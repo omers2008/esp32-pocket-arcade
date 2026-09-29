@@ -206,12 +206,16 @@ not reliable connections. Power down before changing wires.
 The main menu uses the native 320x240 screen with a navy background, colored
 game icons, five large rows, a selection highlight and a scrollbar. Joystick
 navigation and GPIO13 selection work as before. It renders in 40-pixel strips
-to keep memory use low. Difficulty screens and gameplay remain monochrome.
+to keep memory use low. Tetris also uses a native color layout: a 10x20 board
+with 10-pixel cells, seven shaded piece colors retained in the stack, colored
+ghost outlines, HOLD/NEXT previews, score/lines/level panels and a line-clear
+highlight. Controls are unchanged: 13 rotates, 14 holds, joystick-down soft drops.
+Difficulty screens and other games remain monochrome.
 
-The games retain their 128x64 logical canvas and monochrome graphics. The new
+The other games retain their 128x64 logical canvas and monochrome graphics. The new
 display presents them as crisp 256x128 images centered on its 320x240 landscape
 panel, preserving game dimensions and physics. It does not stretch them. The
-TFT supports color, but individual game artwork has not been recolored.
+TFT supports color; the main menu and Tetris now use it.
 Wiring, rotation (1 or 3), inversion, colors, and SPI speed are in
 [DisplayConfig.h](ESP32_Snake/DisplayConfig.h). The adapter uses a small scanline
 buffer instead of allocating a full RGB frame. Existing high-score namespaces
