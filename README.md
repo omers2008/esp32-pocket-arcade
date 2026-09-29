@@ -203,6 +203,11 @@ unused joystick B wire from GPIO27, which is now the screen's CS pin. Solder
 the screen's eight-pin header or wires; loose wires in unsoldered holes are
 not reliable connections. Power down before changing wires.
 
+The main menu uses the native 320x240 screen with a navy background, colored
+game icons, five large rows, a selection highlight and a scrollbar. Joystick
+navigation and GPIO13 selection work as before. It renders in 40-pixel strips
+to keep memory use low. Difficulty screens and gameplay remain monochrome.
+
 The games retain their 128x64 logical canvas and monochrome graphics. The new
 display presents them as crisp 256x128 images centered on its 320x240 landscape
 panel, preserving game dimensions and physics. It does not stretch them. The

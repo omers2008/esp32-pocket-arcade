@@ -409,6 +409,7 @@ void moveSnake() {
 }
 
 void drawTitle() {
+  if (display.colorMenu(selectedGame, GAME_COUNT, GAME_NAMES)) return;
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);

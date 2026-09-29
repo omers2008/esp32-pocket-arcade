@@ -8,7 +8,9 @@ The game headers use `ArcadeDisplay`, which maps to the existing no-op display
 stub on host builds. On ESP32 it uses a GFXcanvas1 and the ST7789 driver.
 `display_test.cpp` exercises the real adapter against SPI/GFX/TFT test doubles:
 pin mapping, panel initialization, 2x scaling, output bounds, bit boundaries,
-inversion of logical pixels, clearing and allocation failure. Compile this test
+inversion of logical pixels, clearing and allocation failure. It also checks
+the native color menu's six strip transfers and that returning to monochrome
+screens clears the entire panel once. Compile this test
 with `-Itests/tft -Itests` (or `/Itests\tft /Itests` on MSVC).
 
 `dkong_test.cpp` checks jump height/arming, every ladder in both directions,

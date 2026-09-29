@@ -21,6 +21,16 @@ int main() {
     assert(tftTrace.sent[y*256+x]==(on?0xFFFF:0));
   }
   d.clearDisplay(); d.display(); for(auto p:tftTrace.sent) assert(p==0);
+  const char *const names[]={"Snake","Pong","Tetris","Space Invaders","Skull Depths","Donkey Kong"};
+  for(int selected=0;selected<6;++selected) {
+    int before=tftTrace.transactions,clears=tftTrace.clears;
+    assert(d.colorMenu(selected,6,names));
+    assert(tftTrace.transactions==before+6 && tftTrace.top==200 && tftTrace.w==320 && tftTrace.h==40);
+    assert(tftTrace.sent.size()==320*40 && tftTrace.clears==clears);
+    d.display();assert(tftTrace.clears==clears+1);
+    d.display();assert(tftTrace.clears==clears+1);
+  }
+  failCanvas=true;int tx=tftTrace.transactions;assert(!d.colorMenu(0,6,names));assert(tftTrace.transactions==tx);
   failCanvas=true; ArcadeDisplay failed; assert(!failed.begin());
   std::cout<<"PASS: TFT wiring, initialization, canvas scaling, bit boundaries, colors, clear and allocation failure.\n";
 }
