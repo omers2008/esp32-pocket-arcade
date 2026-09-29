@@ -40,6 +40,10 @@ pickup/expiry, fire, timeout, rescue progression, and difficulty. Build with
 aimed arrows, dash invulnerability/recharge, queued button taps, cover collision,
 five-second stealth and double damage, automatic arrows, passive upgrades, shop
 prices, all three areas and bosses, menu confirmation arming, and movement bounds.
+It also covers combo damage/reset, stagger and boss resistance, knockback,
+melee cover, arrow reflection, the taller arena and fixed-step catch-up timing.
+`skull_color_test.cpp` checks native intro/combat/reward/shop rendering does not
+advance the simulation; build it with the TFT test include paths.
 Build with `g++ -std=c++17 -Itests tests/skull_test.cpp -o build/skull_test`, or
 `cl /nologo /EHsc /std:c++17 /Itests tests\skull_test.cpp /Fobuild\skull_test.obj /Febuild\skull_test.exe`.
 

@@ -42,13 +42,20 @@ class SkullDepths {
     }
     attackQueued |= attackHeld; dashQueued |= dashPress;
     uint32_t now = millis();
-    if (now - lastFrame < 20) return;
-    lastFrame = now;
-    tick(sx, sy, attackQueued, dashQueued);
-    attackQueued = dashQueued = false;
+    // Rendering can span several ticks. Keep combat at 50 Hz, with a bounded
+    // catch-up after stalls; a queued dash is consumed only once.
+    if (now - lastFrame > 100) lastFrame = now - 100;
+    while (now - lastFrame >= 20 && phase == FIGHT && !over) {
+      lastFrame += 20;
+      tick(sx, sy, attackQueued || attackHeld, dashQueued);
+      attackQueued = dashQueued = false;
+    }
   }
 
   void draw(ArcadeDisplay &d) {
+#if defined(ARDUINO) || defined(ARCADE_TEST_TFT)
+    if(d.colorFrame([&](Adafruit_GFX &canvas){drawColor(canvas);}))return;
+#endif
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
     if (phase == INTRO) {
       text(d, 0, "SKULL DEPTHS"); text(d, 11, "Stick: move / aim");
@@ -112,7 +119,7 @@ class SkullDepths {
  private:
   enum Phase { INTRO, FIGHT, REWARD, SHOP };
   enum Perk { ARROW, DASH, SHADOW, MIGHT, REACH, HASTE, HEART, MEND, FROST, GOLD, LEECH, PERK_COUNT };
-  struct Enemy { float x, y, tx, ty, ax, ay; int hp, maxHp, cooldown, windup, pattern; bool archer, boss; };
+  struct Enemy { float x, y, tx, ty, ax, ay; int hp, maxHp, cooldown, windup, pattern; bool archer, boss; int stagger=0, flash=0; };
   struct Shot { float x, y, vx, vy; int life, damage; bool friendly; };
   struct Block { int x, y, w, h; };
   Enemy enemies[7] = {};
@@ -124,6 +131,8 @@ class SkullDepths {
   int stage = 1, room = 1, hp = 8, maxHp = 8, gold = 0, selection = 0;
   int charges = 1, recharge = 0, dashTicks = 0, immune = 0, stealth = 0;
   int attackCooldown = 0, slash = 0, autoTimer = 50, slow = 0, meleeKills = 0;
+  int combo=0,comboTimer=0,parryFlash=0,damageFlash=0;
+  bool heavySlash=false;
   float x = 12, y = 32, fx = 1, fy = 0, dx = 1, dy = 0;
   uint32_t lastFrame = 0, frames = 0;
 
@@ -134,12 +143,12 @@ class SkullDepths {
   static float dist2(float ax, float ay, float bx, float by) { float u = ax - bx, v = ay - by; return u*u + v*v; }
   static void unit(float &u, float &v) { float n = sqrtf(u*u + v*v); if (n > 0.001f) { u /= n; v /= n; } else { u = 1; v = 0; } }
   Block block(int i) const {
-    if (stage == 1) return {48 + i * 32, 22 + (room % 2) * 5, 5, 10};
-    if (stage == 2) return {40 + i * 48, 19 + i * 20, 12, 5};
-    return {45 + i * 32, 16 + ((i + room) % 2) * 23, 7, 10};
+    if (stage == 1) return {48 + i * 32, 24 + i * 23 + (room % 2) * 5, 5, 10};
+    if (stage == 2) return {40 + i * 48, 20 + i * 30, 12, 5};
+    return {45 + i * 32, 20 + ((i + room) % 2) * 34, 7, 10};
   }
   bool solid(float px, float py, float radius) const {
-    if (px < 3 + radius || px > 125 - radius || py < 12 + radius || py > 53 - radius) return true;
+    if (px < 3 + radius || px > 125 - radius || py < 12 + radius || py > 77 - radius) return true;
     for (int i = 0; i < 2; ++i) {
       Block b = block(i);
       if (px + radius >= b.x && px - radius <= b.x + b.w - 1 && py + radius >= b.y && py - radius <= b.y + b.h - 1) return true;
@@ -153,9 +162,15 @@ class SkullDepths {
       if (!solid(px, py + vy / 4, radius)) py += vy / 4;
     }
   }
+  bool coverBetween(float ax,float ay,float bx,float by) const {
+    int steps=max(1,int(ceilf(sqrtf(dist2(ax,ay,bx,by)))));
+    for(int n=1;n<steps;++n)if(solid(ax+(bx-ax)*n/steps,ay+(by-ay)*n/steps,0))return true;
+    return false;
+  }
   void resetArena() {
     phase = FIGHT; x = 12; y = 32; fx = dx = 1; fy = dy = 0;
     charges = maxCharges(); recharge = dashTicks = stealth = slow = attackCooldown = slash = 0;
+    combo=comboTimer=parryFlash=damageFlash=0;heavySlash=false;
     immune = 40; autoTimer = 50; frames = 0; lastFrame = millis();
     attackQueued = dashQueued = false;
     for (auto &s : shots) s = {};
@@ -166,9 +181,9 @@ class SkullDepths {
       e.boss = room == 4; e.archer = !e.boss && (i % 3 == 1 || (stage == 3 && i == 3));
       e.hp = e.maxHp = e.boss ? 20 + stage * 8 + (hard ? 10 : 0) : 3 + stage + int(hard);
       // Fixed separated spawn slots on the far side, falling back around cover.
-      e.x = float(70 + (i % 3) * 19); e.y = float(18 + (i / 3) * 15);
+      e.x = float(70 + (i % 3) * 19); e.y = float(20 + (i / 3) * 22);
       for (int tries = 0; solid(e.x, e.y, e.boss ? 5 : 3) && tries < 80; ++tries) {
-        e.x = float(random(63, 119)); e.y = float(random(17, 48));
+        e.x = float(random(63, 119)); e.y = float(random(18, 71));
       }
       if (solid(e.x, e.y, e.boss ? 5 : 3)) { e.x = 116; e.y = 32; }
       e.cooldown = 35 + i * 12;
@@ -177,11 +192,13 @@ class SkullDepths {
   void hurt(int amount) {
     if (immune || dashTicks || over) return;
     hp = max(0, hp - amount); immune = 45;
+    damageFlash=10;combo=comboTimer=0;
     if (!hp) over = true;
   }
   void hit(Enemy &e, int amount, bool melee) {
     if (e.hp <= 0) return;
     e.hp = max(0, e.hp - amount);
+    e.flash=7;
     if (!e.hp) {
       score += e.boss ? 500 : 50;
       gold += (e.boss ? 30 : 6) + perks[GOLD] * 5;
@@ -189,12 +206,19 @@ class SkullDepths {
     }
   }
   void swing() {
-    attackCooldown = max(8, 22 - perks[HASTE] * 4); slash = 7;
+    combo=comboTimer?combo%3+1:1;comboTimer=50;
+    heavySlash=combo==3;
+    attackCooldown = max(8, 22 - perks[HASTE] * 4)+(heavySlash?6:0); slash = heavySlash?10:7;
     bool empowered = stealth > 0, connected = false;
     for (auto &e : enemies) if (e.hp > 0) {
       float vx = e.x - x, vy = e.y - y;
-      if (vx*vx + vy*vy <= reach()*reach() && vx*fx + vy*fy >= -2) {
-        hit(e, damage() * (empowered ? 2 : 1), true); connected = true;
+      float range=reach()+(heavySlash?3:0);
+      if (vx*vx + vy*vy <= range*range && vx*fx + vy*fy >= -2 && !coverBetween(x,y,e.x,e.y)) {
+        hit(e, (damage()+(heavySlash?2:0)) * (empowered ? 2 : 1), true); connected = true;
+        // Only the finisher interrupts a normal skull's committed attack.
+        // Bosses resist stagger, so their warnings remain dangerous.
+        if(heavySlash && !e.boss) {e.stagger=18;e.windup=0;e.cooldown=max(e.cooldown,25);}
+        if(heavySlash) {unit(vx,vy);move(e.x,e.y,vx*5,vy*5,e.boss?5:3);}
       }
     }
     if (connected) stealth = 0; // Whiffs preserve the first-hit bonus.
@@ -217,6 +241,8 @@ class SkullDepths {
   }
   void enemyTick(Enemy &e) {
     if (!e.hp) return;
+    if(e.flash)--e.flash;
+    if(e.stagger){--e.stagger;return;}
     if (e.cooldown) --e.cooldown;
     if (e.windup) {
       if (--e.windup == 0) {
@@ -225,7 +251,7 @@ class SkullDepths {
           // Later bosses shoot more spokes, all announced by the windup.
           int spokes = 4 + stage * 2;
           for (int i = 0; i < spokes; ++i) { float a = i * 6.2831853f / spokes; shoot(e.x, e.y, cosf(a), sinf(a), false, 1); }
-        } else if (dist2(x, y, e.tx, e.ty) <= (e.boss ? 100.0f : 49.0f)) hurt(e.boss ? 2 : 1);
+        } else if (dist2(x, y, e.tx, e.ty) <= (e.boss ? 100.0f : 49.0f) && !coverBetween(e.x,e.y,x,y)) hurt(e.boss ? 2 : 1);
         ++e.pattern; e.cooldown = e.boss ? 40 : (hard ? 45 : 65);
       }
       return;
@@ -254,12 +280,25 @@ class SkullDepths {
           for (auto &e : enemies) if (e.hp && dist2(s.x, s.y, e.x, e.y) < (e.boss ? 36 : 16)) {
             hit(e, s.damage, false); s.life = 0; break;
           }
-        } else if (dist2(s.x, s.y, x, y) < 12) { hurt(s.damage); s.life = 0; }
+        } else if (dist2(s.x, s.y, x, y) < (dashTicks?36:12)) {
+          if(dashTicks) {
+            // A dash catches a nearby arrow and sends it back at the nearest foe.
+            Enemy *target=nullptr;float best=100000;
+            for(auto &e:enemies)if(e.hp>0){float ds=dist2(x,y,e.x,e.y);if(ds<best){best=ds;target=&e;}}
+            float vx=target?target->x-s.x:-s.vx,vy=target?target->y-s.y:-s.vy;unit(vx,vy);
+            s.friendly=true;s.vx=vx*2.2f;s.vy=vy*2.2f;s.damage=damage();s.life=100;parryFlash=20;
+            break;
+          }
+          hurt(s.damage); s.life = 0;
+        }
       }
     }
   }
   void tick(int sx, int sy, bool attack, bool dash) {
     ++frames;
+    if(comboTimer && !--comboTimer)combo=0;
+    if(parryFlash)--parryFlash;
+    if(damageFlash)--damageFlash;
     if (immune) --immune;
     if (stealth) --stealth;
     if (slow) --slow;
@@ -338,4 +377,153 @@ class SkullDepths {
     if (e.boss) { d.drawFastHLine(ex-5, ey-7, 11, Ink::Red); d.drawFastHLine(ex-5, ey+7, max(1, e.hp*11/e.maxHp), Ink::Red); }
     if (e.windup) { d.drawFastVLine(ex+6, ey-4, 3, Ink::Orange); d.drawPixel(ex+6, ey, Ink::Orange); }
   }
+#if defined(ARDUINO) || defined(ARCADE_TEST_TFT)
+  static int screenX(float x) {return int(x*2.5f);}
+  static int screenY(float y) {return 49+int((y-12)*2.5f);}
+  static void label(Adafruit_GFX &d,int x,int y,const char *s,uint16_t c,int size=1) {
+    ColorMenu::label(d,x,y,s,c,size);
+  }
+  static void bar(Adafruit_GFX &d,int x,int y,int w,int value,int maximum,uint16_t c) {
+    d.fillRect(x,y,w,5,Ink::Wall);
+    d.fillRect(x,y,w*max(0,min(value,maximum))/max(1,maximum),5,c);
+  }
+  void drawColor(Adafruit_GFX &d) {
+    d.fillScreen(ColorMenu::BG);d.setTextWrap(false);
+    if(phase!=FIGHT) {drawMenuColor(d);return;}
+    d.setTextColor(Ink::White);d.setTextSize(1);d.setCursor(10,8);
+    d.print("HP ");d.print(hp);d.print('/');d.print(maxHp);
+    bar(d,10,21,105,hp,maxHp,damageFlash?Ink::Red:Ink::Green);
+    label(d,130,8,areaName(),Ink::Gold);
+    d.setCursor(178,8);d.print(stage);d.print(room==4?" BOSS":" ROOM ");if(room!=4)d.print(room);
+    d.setTextColor(Ink::Gold);d.setCursor(258,8);d.print(gold);d.print('G');
+    if(room==4) {
+      for(const auto &e:enemies)if(e.boss)bar(d,137,21,171,e.hp,e.maxHp,Ink::Red);
+    } else {
+      int alive=0;for(const auto &e:enemies)alive+=e.hp>0;
+      d.setCursor(137,21);d.setTextColor(Ink::Muted);d.print("SKULLS ");d.print(alive);
+      d.setCursor(246,21);d.print(hard?"HARD":"EASY");
+    }
+    label(d,10,35,parryFlash?"ARROW REFLECTED!":stealth?"STEALTH: NEXT HIT x2":heavySlash && slash?"HEAVY FINISHER":
+      comboTimer?"CHAIN YOUR NEXT SWING":"HOLD 13: THREE-HIT COMBO",parryFlash?Ink::Cyan:Ink::Gold);
+    for(int n=0;n<3;++n)d.fillRect(274+n*12,34,8,7,combo>n?Ink::Gold:Ink::Wall);
+    // The larger arena uses 65 logical rows instead of the old 41.
+    d.drawRect(7,48,307,165,damageFlash?Ink::Red:Ink::Wall);
+    Adafruit_GFX &screen=d;
+    {
+    class Arena : public Adafruit_GFX {
+     public:
+      explicit Arena(Adafruit_GFX &out):Adafruit_GFX(320,240),out(out){}
+      void drawPixel(int16_t x,int16_t y,uint16_t c) override {
+        if(x>=8 && x<313 && y>=49 && y<212)out.drawPixel(x,y,c);
+      }
+      void fillRect(int16_t x,int16_t y,int16_t w,int16_t h,uint16_t c) override {
+        int left=max(8,int(x)),top=max(49,int(y)),right=min(313,int(x)+w),bottom=min(212,int(y)+h);
+        if(right>left && bottom>top)out.fillRect(left,top,right-left,bottom-top,c);
+      }
+      void drawFastHLine(int16_t x,int16_t y,int16_t w,uint16_t c) override {fillRect(x,y,w,1,c);}
+      void drawFastVLine(int16_t x,int16_t y,int16_t h,uint16_t c) override {fillRect(x,y,1,h,c);}
+     private:Adafruit_GFX &out;
+    } d(screen);
+    uint16_t floor=stage==1?0x1085:stage==2?0x1126:0x2084;
+    d.fillRect(8,49,305,163,floor);
+    for(int yy=53;yy<212;yy+=20)for(int xx=12;xx<312;xx+=20)d.drawPixel(xx,yy,Ink::Wall);
+    for(int i=0;i<2;++i){Block b=block(i);int bx=screenX(b.x),by=screenY(b.y);
+      d.fillRect(bx,by,int(b.w*2.5f),int(b.h*2.5f),Ink::Wall);
+      d.drawFastHLine(bx,by,int(b.w*2.5f),Ink::Muted);
+    }
+    // Warnings are drawn under actors and show exactly where the attack resolves.
+    for(const auto &e:enemies)if(e.hp>0 && e.windup) {
+      int ex=screenX(e.x),ey=screenY(e.y);
+      if(e.archer){
+        float px=e.x,py=e.y;
+        for(int n=0;n<100;++n){px+=e.ax;py+=e.ay;if(solid(px,py,0))break;
+          if(n%3==0)d.fillRect(screenX(px),screenY(py),2,2,Ink::Red);}
+      } else if(e.boss && e.pattern%2) {
+        int spokes=4+stage*2;
+        for(int n=0;n<spokes;++n){float a=n*6.2831853f/spokes;
+          d.drawLine(ex+int(cosf(a)*17),ey+int(sinf(a)*17),ex+int(cosf(a)*29),ey+int(sinf(a)*29),Ink::Orange);}
+      } else {
+        int tx=screenX(e.tx),ty=screenY(e.ty),r=e.boss?25:17;
+        // Clip telegraphs to the arena by using the same world bounds as attacks.
+        for(int n=0;n<48;++n){float a=n*6.2831853f/48;int px=tx+int(cosf(a)*r),py=ty+int(sinf(a)*r);
+          if(px>=8 && px<313 && py>=49 && py<212)d.drawPixel(px,py,Ink::Red);}
+        d.drawLine(tx-3,ty,tx+3,ty,Ink::Red);d.drawLine(tx,ty-3,tx,ty+3,Ink::Red);
+      }
+      bar(d,ex-10,ey-20,20,e.windup,e.boss?35:hard?22:30,Ink::Orange);
+    }
+    for(const auto &e:enemies)if(e.hp>0) {
+      int ex=screenX(e.x),ey=screenY(e.y),r=e.boss?10:6;
+      uint16_t color=e.flash?Ink::White:e.boss?Ink::Pink:Ink::Skin;
+      d.fillRoundRect(ex-r,ey-r,r*2+1,r*2,3,color);
+      d.fillRect(ex-r+2,ey+3,r*2-3,r-1,color);
+      d.fillRect(ex-4,ey-3,3,4,Ink::Dark);d.fillRect(ex+2,ey-3,3,4,Ink::Dark);
+      d.drawFastVLine(ex-2,ey+r-3,3,Ink::Dark);d.drawFastVLine(ex+2,ey+r-3,3,Ink::Dark);
+      if(e.archer){d.fillRect(ex-8,ey-8,17,3,Ink::Green);d.fillRect(ex-4,ey-12,9,5,Ink::Green);}
+      if(e.boss){d.fillRect(ex-10,ey-14,21,3,Ink::Gold);for(int i=-1;i<2;++i)d.fillRect(ex+i*8-1,ey-18,3,5,Ink::Gold);}
+      if(e.stagger)label(d,ex-8,ey-21,"***",Ink::Gold);
+      if(!e.boss && e.hp<e.maxHp)bar(d,ex-8,ey+10,17,e.hp,e.maxHp,Ink::Red);
+    }
+    for(const auto &s:shots)if(s.life){
+      int sx=screenX(s.x),sy=screenY(s.y);
+      d.drawLine(sx,sy,screenX(s.x-s.vx*2),screenY(s.y-s.vy*2),s.friendly?Ink::Cyan:Ink::Red);
+      d.fillRect(sx-1,sy-1,3,3,s.friendly?Ink::White:Ink::Orange);
+    }
+    int px=screenX(x),py=screenY(y);
+    if(dashTicks){for(int n=1;n<=3;++n)d.drawCircle(screenX(x-dx*n*2),screenY(y-dy*n*2),5,Ink::Blue);}
+    if(!immune || frames%6<3) {
+      d.fillRoundRect(px-5,py-5,11,12,2,stealth?Ink::Purple:Ink::Cyan);
+      d.fillRect(px-3,py-7,7,5,Ink::Skin);
+      d.fillRect(px-3,py+6,3,3,Ink::Blue);d.fillRect(px+2,py+6,3,3,Ink::Blue);
+      d.drawLine(px+int(fx*6),py+int(fy*6),px+int(fx*11),py+int(fy*11),Ink::White);
+    }
+    if(slash){float angle=atan2f(fy,fx),range=(reach()+(heavySlash?3:0))*2.5f;
+      for(int n=-6;n<6;++n){float a=angle+n*0.16f,b=angle+(n+1)*0.16f;
+        int ax=px+int(cosf(a)*range),ay=py+int(sinf(a)*range),bx=px+int(cosf(b)*range),by=py+int(sinf(b)*range);
+        if(ax>=8 && ax<313 && bx>=8 && bx<313 && ay>=49 && ay<212 && by>=49 && by<212)
+          d.drawLine(ax,ay,bx,by,heavySlash?Ink::Gold:Ink::White);}
+    }
+    }
+    // Repaint outer HUD bands over effects that reach the arena edge.
+    d.fillRect(0,214,320,26,ColorMenu::BG);
+    label(d,10,220,"DASH",Ink::Cyan);
+    for(int n=0;n<maxCharges();++n)d.fillRect(42+n*12,219,9,8,n<charges?Ink::Cyan:Ink::Wall);
+    if(charges<maxCharges())bar(d,42,231,33,recharge,100,Ink::Cyan);
+    label(d,94,220,"13 SWORD / 14 DASH",Ink::White);label(d,94,232,"12 MENU",Ink::Muted);
+  }
+  void drawMenuColor(Adafruit_GFX &d) {
+    label(d,12,12,"SKULL DEPTHS",Ink::Cyan,2);
+    if(phase==INTRO) {
+      label(d,12,40,"SWORD. DASH. SURVIVE.",Ink::Gold);
+      const char *lines[]={"13  Hold for a three-hit combo", "Third swing staggers normal skulls", "14  Dash through danger", "Dash into arrows to reflect them", "Red warnings show enemy attacks", "Clear rooms, pick perks, shop, boss"};
+      for(int i=0;i<6;++i)label(d,14,66+i*21,lines[i],i%2?Ink::Muted:Ink::White);
+      label(d,14,209,"13  ENTER DUNGEON",Ink::Green,2);return;
+    }
+    if(phase==REWARD){
+      label(d,12,39,"ROOM CLEAR - CHOOSE ONE UPGRADE",Ink::Gold);
+      for(int i=0;i<3;++i){int yy=58+i*43,p=choices[i];
+        d.fillRoundRect(10,yy,300,37,5,selection==i?ColorMenu::ACTIVE:ColorMenu::CARD);
+        if(selection==i)d.drawRoundRect(10,yy,300,37,5,Ink::Cyan);
+        label(d,20,yy+6,perkName(p),selection==i?Ink::Cyan:Ink::White,2);
+        d.setTextSize(1);d.setTextColor(Ink::Muted);d.setCursor(21,yy+25);d.print("RANK ");d.print(perks[p]);d.print(" -> ");d.print(perks[p]+1);
+      }
+      label(d,14,190,perkLine(choices[selection],false),Ink::Gold);
+      label(d,14,204,perkLine(choices[selection],true),Ink::White);
+      label(d,14,227,"STICK CHOOSE   13 TAKE   12 MENU",Ink::Muted);return;
+    }
+    d.setTextSize(1);d.setTextColor(Ink::Gold);d.setCursor(12,39);d.print("SHOP  GOLD ");d.print(gold);d.print("   HP ");d.print(hp);d.print('/');d.print(maxHp);
+    const char *names[]={"Heal 4 HP", "Max health +2", "Sword damage +1", "Enter boss arena"};
+    const int prices[]={20,35,40,0};
+    for(int i=0;i<4;++i){int yy=58+i*34;
+      bool sold=(i==0 && hp==maxHp)||(i==1 && maxHp>=20)||(i==2 && perks[MIGHT]>=cap(MIGHT));
+      bool affordable=gold>=prices[i] && !sold;
+      d.fillRoundRect(10,yy,300,29,5,i==selection?ColorMenu::ACTIVE:ColorMenu::CARD);
+      if(i==selection)d.drawRoundRect(10,yy,300,29,5,Ink::Cyan);
+      label(d,20,yy+10,names[i],affordable?Ink::White:Ink::Muted);
+      d.setCursor(251,yy+10);d.setTextColor(Ink::Gold);
+      if(sold)d.print("FULL");else if(prices[i]){d.print(prices[i]);d.print('G');}else d.print(">>");
+    }
+    label(d,14,202,shopNotice?"Unavailable or not enough gold":"Prepare for the stage boss",shopNotice?Ink::Red:Ink::Gold);
+    label(d,14,226,"STICK CHOOSE   13 BUY/GO   12 MENU",Ink::Muted);
+  }
+#endif
 };

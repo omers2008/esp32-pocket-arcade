@@ -65,6 +65,11 @@ int main(){
   {DinoRunner g;g.start(false);g.started=true;d.setGame(18,"DinoRunner",false);g.draw(d);save("DinoRunner");}
   {Asteroids g;g.start(false);g.started=true;d.setGame(19,"Asteroids",false);g.draw(d);save("Asteroids");}
   {SkyPatrol g;g.start(false);g.started=true;d.setGame(20,"SkyPatrol",false);g.draw(d);save("SkyPatrol");}
-  {SkullDepths g;g.start(false);g.phase=SkullDepths::FIGHT;d.setGame(21,"SkullDepths",false);g.draw(d);save("SkullDepths");}
+  {SkullDepths g;g.start(false);d.setGame(21,"SkullDepths",false);g.draw(d);save("SkullIntro");
+    g.phase=SkullDepths::FIGHT;g.x=37;g.y=49;g.immune=0;g.combo=3;g.comboTimer=30;g.slash=7;g.heavySlash=true;
+    g.enemies[0].x=60;g.enemies[0].y=46;g.enemies[0].windup=20;g.enemies[0].tx=g.x;g.enemies[0].ty=g.y;
+    g.enemies[1].windup=15;g.enemies[1].ax=-1;g.enemies[1].ay=0.6f;
+    g.draw(d);save("SkullDepths");g.phase=SkullDepths::REWARD;g.choices[0]=0;g.choices[1]=2;g.choices[2]=4;
+    g.selection=1;g.draw(d);save("SkullReward");g.phase=SkullDepths::SHOP;g.gold=30;g.hp=4;g.draw(d);save("SkullShop");}
   {DonkeyKong g;g.start(false);g.started=true;d.setGame(22,"Donkey Kong",false);g.draw(d);save("DonkeyKong");}
 }

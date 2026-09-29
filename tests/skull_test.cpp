@@ -72,9 +72,38 @@ int main() {
   begin(g); g.stealth = 250; g.swing(); assert(g.stealth == 250);
   e.x = g.x + 8; e.y = g.y; e.hp = 20;
   g.swing(); assert(e.hp == 16 && !g.stealth);
-  g.swing(); assert(e.hp == 14);
-  e.x = g.x - 8; g.swing(); assert(e.hp == 14); // Directional arc.
-  g.grant(Game::MIGHT); e.x = g.x + 8; g.swing(); assert(e.hp == 11);
+  g.swing(); assert(e.hp == 12 && g.heavySlash); // Third swing adds two damage.
+  e.x = g.x - 8; g.swing(); assert(e.hp == 12); // Directional arc.
+  g.grant(Game::MIGHT); e.x = g.x + 8; g.swing(); assert(e.hp == 9);
+
+  // Finishers interrupt normal windups, knock back, and respect boss resistance.
+  begin(g); e.x=g.x+9;e.y=g.y;e.hp=30;e.windup=20;
+  g.swing();g.swing();assert(e.windup==20 && e.hp==26);
+  float oldX=e.x;g.swing();assert(e.hp==22 && e.stagger==18 && !e.windup && e.x>oldX);
+  e.boss=true;e.x=g.x+9;e.windup=20;e.stagger=0;g.combo=2;g.comboTimer=50;
+  g.swing();assert(e.windup==20 && !e.stagger);
+  g.comboTimer=1;tick(g);assert(g.combo==0);
+  g.combo=2;g.comboTimer=50;g.immune=0;g.hurt(1);assert(!g.combo && !g.comboTimer);
+  // Sword attacks cannot hit through solid pillars.
+  begin(g);g.x=43;g.y=33;e.x=55;e.y=33;e.hp=30;
+  g.swing();assert(e.hp==30);
+  e.windup=1;e.tx=g.x;e.ty=g.y;g.enemyTick(e);assert(g.hp==8);
+  // A nearby hostile arrow is reflected once, aimed toward a live skull.
+  begin(g);e.x=30;e.y=g.y;g.dashTicks=5;
+  g.shoot(g.x,g.y,-1,0,false,1);g.shotTick();
+  assert(g.shots[0].friendly && g.shots[0].vx>0 && g.shots[0].damage==g.damage());
+  assert(g.parryFlash==20 && g.hp==8);
+  for(int i=0;i<20;++i)g.shotTick();assert(e.hp==1000-g.damage());
+  // The expanded arena has usable lower space; cover still blocks motion.
+  begin(g);g.y=65;for(int i=0;i<30;++i)tick(g,0,-1000);
+  assert(g.y>70 && g.y<=75 && !g.solid(g.x,g.y,2));
+  // Five batched ticks equal five individual ticks; long stalls are bounded.
+  begin(g);Game batched=g;
+  for(int i=0;i<5;++i)tick(g,1000);
+  batched.update(1000,0,false,false);
+  assert(abs(g.x-batched.x)<0.001f && g.frames==batched.frames);
+  uint32_t beforeFrames=batched.frames;testClock+=2000;batched.update(0,0,false,false);
+  assert(batched.frames==beforeFrames+5);
 
   // Auto-arrow locks the nearest enemy and fires exactly once every second.
   begin(g); g.grant(Game::ARROW); e.x = 100; e.y = 45;

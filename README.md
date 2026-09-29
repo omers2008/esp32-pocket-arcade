@@ -159,6 +159,20 @@ does not consume the stealth damage bonus. Auto-arrows do not consume it either.
 The shop sells healing (20 gold), maximum health (35), and sword damage (40).
 Select `Enter boss arena` when ready. Defeat the third boss to win.
 
+Skull Depths now uses a dedicated native 320x240 layout and a taller arena with
+more room to dodge. Hold 13 to chain three sword swings: the third adds 2 damage,
+extra reach and knockback, and interrupts regular skulls for 0.36 seconds.
+Bosses resist stagger. The chain resets after one second without a swing or
+when taking damage. Pillars block both player and enemy melee attacks.
+
+Dash into a hostile arrow to reflect it toward the nearest enemy, dealing your
+normal sword damage. Dash invulnerability, stealth and passive upgrades still
+apply. Enemy health bars, dotted archer aim lines, ground attack circles, boss
+burst warnings, combo markers and dash recharge bars make combat readable.
+Rewards show all three upgrade cards; the shop shows prices and unavailable
+purchases. Combat uses fixed 20 ms ticks, including bounded catch-up when a TFT
+frame takes longer, so visual rendering does not set movement speed.
+
 ## Donkey Kong
 
 A compact OLED adaptation of the classic barrel stage, with five sloped girders,

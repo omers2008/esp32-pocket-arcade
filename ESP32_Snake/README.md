@@ -283,6 +283,16 @@ Skull enemies wind up before attacking; touching them does no damage. Hat-wearin
 skulls are archers. Clear three rooms, buy supplies in the shop, then defeat the
 area boss. Repeat through Crypt, Ruins, and Keep to win.
 
+Keep holding 13 for a three-hit combo. The third swing adds 2 damage and reach,
+knocks enemies back, and interrupts ordinary skulls (bosses resist stagger).
+Missing for a second between swings or taking damage resets the chain. Dash
+into an arrow to reflect it toward the nearest enemy with your sword damage.
+Pillars stop melee attacks from either side as well as projectiles.
+
+The native TFT arena is taller, with health bars, red attack circles, dotted
+archer aiming lines, boss burst warnings, combo markers and dash recharge bars.
+All three reward choices appear together; shop items show cost and availability.
+
 After each battle, choose one of three passive upgrades with the joystick and
 GPIO13. These include auto-arrows, extra dashes, stealth with double damage on the
 first sword hit, sword strength/reach/speed, health, room healing, frost dashes,
