@@ -1,9 +1,21 @@
 # ESP32 Pocket Arcade
 
-The **MAC Address** entry at the end of the menu shows this ESP32's Wi-Fi
-station (STA) MAC address, read directly from the device. Press 13 to open it
-and 12 to return. It skips difficulty selection, has no score, and does not
-start Wi-Fi or connect to a network.
+The **Servo Control** entry replaces the MAC Address screen at the end of the
+menu. It sends a one-byte `L`, `R`, or `S` command using unencrypted ESP-NOW to
+the receiver's station MAC **1C:69:20:30:73:1C**, on Wi-Fi channel **1**.
+Center the joystick after opening to arm control, then tilt left/right to rotate
+and center to stop. Button **13** stops and requires recentering; **12** sends
+Stop and returns to the menu. Commands repeat every 100 ms while open. Stop is
+retried for 350 ms after leaving before turning this ESP32's radio off.
+Servo Control alone uses a wider deadzone: rotation starts beyond +/-1000 from
+the calibrated center and stops within +/-750. Other games are unchanged.
+
+The receiver must use the same channel and retain its one-second command
+timeout. The supplied receiver maps L/S/R to servo writes 0/90/180; on a
+continuous-rotation servo these mean direction/neutral/direction, not angles.
+Neutral may need calibration on the receiver. Its local GPIO27 button overrides
+wireless commands, including Stop. The screen's radio delivery status does not
+confirm servo movement or override state. This mode has no difficulty or score.
 
 A twenty-three-game handheld arcade for an ESP32, a 2-inch ST7789 SPI TFT,
 an analog joystick, and three buttons. Includes Easy/Hard selection and

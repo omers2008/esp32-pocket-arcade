@@ -1,5 +1,5 @@
 #include <Preferences.h>
-#include <esp_mac.h>
+#include "ServoControl.h"
 #include <Adafruit_GFX.h>
 #include "ArcadeDisplay.h"
 #include "ColorScreens.h"
@@ -79,9 +79,10 @@ MenuScroll menuScroll;
 SkullDepths skullDepths;
 DonkeyKong donkeyKong;
 constexpr uint8_t SCORED_GAME_COUNT = 23;
-constexpr uint8_t MAC_ADDRESS_ENTRY = SCORED_GAME_COUNT;
+ServoControl servoControl;
+constexpr uint8_t SERVO_CONTROL_ENTRY = SCORED_GAME_COUNT;
 constexpr uint8_t GAME_COUNT = SCORED_GAME_COUNT + 1;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids", "Sky Patrol", "Skull Depths", "Donkey Kong", "MAC Address"};
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids", "Sky Patrol", "Skull Depths", "Donkey Kong", "Servo Control"};
 const char *const SCORE_NAMESPACES[SCORED_GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks", "dino", "asteroids", "sky", "skulldepths", "dkong"};
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
@@ -95,7 +96,7 @@ bool actionArmed = false;
 uint32_t lastArcadeDraw = 0;
 
 enum Direction : uint8_t { UP, DOWN, LEFT, RIGHT };
-enum GameState : uint8_t { TITLE, DIFFICULTY, PLAYING, GAME_OVER, DEVICE_INFO };
+enum GameState : uint8_t { TITLE, DIFFICULTY, PLAYING, GAME_OVER, SERVO_CONTROL };
 
 uint8_t snakeX[MAX_SNAKE_LENGTH];
 uint8_t snakeY[MAX_SNAKE_LENGTH];
@@ -463,31 +464,11 @@ void drawDifficulty() {
   display.display();
 }
 
-void showMacAddress() {
-  gameState = DEVICE_INFO;
+void showServoControl() {
+  gameState = SERVO_CONTROL;
   actionArmed = false;
-  display.setGame(-1);
-  uint8_t mac[6] = {};
-  char address[18] = {};
-  // Read the station interface's factory-derived address without starting Wi-Fi.
-  bool available = esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK;
-  if (available) snprintf(address, sizeof(address), "%02X:%02X:%02X:%02X:%02X:%02X",
-    mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-  if (display.colorFrame([&](Adafruit_GFX &d) {
-    using namespace ColorMenu;
-    d.fillScreen(BG); d.setTextWrap(false);
-    label(d, 16, 18, "ESP32 MAC ADDRESS", CYAN, 2);
-    label(d, 16, 55, "WI-FI STATION (STA)", MUTED);
-    d.fillRoundRect(10, 82, 300, 66, 8, CARD);
-    label(d, available ? 58 : 34, 106, available ? address : "MAC READ FAILED", available ? GOLD : WHITE, 2);
-    label(d, 16, 171, "Device address for your next project", WHITE);
-    label(d, 16, 189, "No Wi-Fi connection needed", MUTED);
-    label(d, 16, 224, "12  BACK TO GAME MENU", MUTED);
-  })) return;
-  display.clearDisplay(); display.setTextSize(1); display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 4); display.print("WI-FI STA MAC");
-  display.setCursor(0, 25); display.print(available ? address : "MAC READ FAILED");
-  display.setCursor(0, 54); display.print("12: menu"); display.display();
+  servoControl.start();
+  servoControl.draw(display);
 }
 
 void showDifficulty() {
@@ -653,6 +634,7 @@ void setup() {
 }
 
 void loop() {
+  servoControl.service();
   menuButton.update();
   actionButton.update();
   holdButton.update();
@@ -661,6 +643,7 @@ void loop() {
   bool pressed = actionArmed && actionButton.pressed;
 
   if (menuButton.pressed) {
+    if (gameState == SERVO_CONTROL) servoControl.leave();
     if (gameState == PLAYING) finishGame();  // Save a record even when leaving mid-game.
     gameState = TITLE;
     actionArmed = false;
@@ -684,13 +667,18 @@ void loop() {
       drawTitle();
     }
     if (pressed) {
-      if (selectedGame == MAC_ADDRESS_ENTRY) showMacAddress();
+      if (selectedGame == SERVO_CONTROL_ENTRY) showServoControl();
       else showDifficulty();
     }
     return;
   }
 
-  if (gameState == DEVICE_INFO) { delay(1); return; }
+  if (gameState == SERVO_CONTROL) {
+    servoControl.update(joystickX(), actionArmed && actionButton.held());
+    servoControl.draw(display);
+    delay(1);
+    return;
+  }
 
   if (gameState == DIFFICULTY) {
     int x = joystickX(), y = joystickY();
