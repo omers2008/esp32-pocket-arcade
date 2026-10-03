@@ -1,5 +1,10 @@
 # ESP32 Pocket Arcade
 
+The **MAC Address** entry at the end of the menu shows this ESP32's Wi-Fi
+station (STA) MAC address, read directly from the device. Press 13 to open it
+and 12 to return. It skips difficulty selection, has no score, and does not
+start Wi-Fi or connect to a network.
+
 A twenty-three-game handheld arcade for an ESP32, a 2-inch ST7789 SPI TFT,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
