@@ -82,7 +82,7 @@ constexpr uint8_t SCORED_GAME_COUNT = 23;
 ServoControl servoControl;
 constexpr uint8_t SERVO_CONTROL_ENTRY = SCORED_GAME_COUNT;
 constexpr uint8_t GAME_COUNT = SCORED_GAME_COUNT + 1;
-const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids", "Sky Patrol", "Skull Depths", "Donkey Kong", "Servo Control"};
+const char *const GAME_NAMES[GAME_COUNT] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids", "Sky Patrol", "Skull Depths", "Donkey Kong", "Floor Select"};
 const char *const SCORE_NAMESPACES[SCORED_GAME_COUNT] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks", "dino", "asteroids", "sky", "skulldepths", "dkong"};
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
@@ -674,7 +674,7 @@ void loop() {
   }
 
   if (gameState == SERVO_CONTROL) {
-    servoControl.update(joystickX(), actionArmed && actionButton.held());
+    servoControl.update(joystickY(), pressed);
     servoControl.draw(display);
     delay(1);
     return;

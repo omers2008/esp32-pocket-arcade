@@ -1,21 +1,24 @@
 # ESP32 Pocket Arcade
 
-The **Servo Control** entry replaces the MAC Address screen at the end of the
-menu. It sends a one-byte `L`, `R`, or `S` command using unencrypted ESP-NOW to
-the receiver's station MAC **1C:69:20:30:73:1C**, on Wi-Fi channel **1**.
-Center the joystick after opening to arm control, then tilt left/right to rotate
-and center to stop. Button **13** stops and requires recentering; **12** sends
-Stop and returns to the menu. Commands repeat every 100 ms while open. Stop is
-retried for 350 ms after leaving before turning this ESP32's radio off.
-Servo Control alone uses a wider deadzone: rotation starts beyond +/-1000 from
-the calibrated center and stops within +/-750. Other games are unchanged.
+The **Floor Select** entry replaces Servo Control. Center the joystick, then
+tilt up/down to select **1–10** (one step per tilt, no wrapping). Press **13**
+to send the chosen floor; **12** returns to the menu and switches the radio off.
+It retains the wider +/-1000 selection / +/-750 recenter thresholds.
 
-The receiver must use the same channel and retain its one-second command
-timeout. The supplied receiver maps L/S/R to servo writes 0/90/180; on a
-continuous-rotation servo these mean direction/neutral/direction, not angles.
-Neutral may need calibration on the receiver. Its local GPIO27 button overrides
-wireless commands, including Stop. The screen's radio delivery status does not
-confirm servo movement or override state. This mode has no difficulty or score.
+ESP-NOW destination: **1C:69:20:30:73:1C**, channel **1**, no encryption.
+Each press sends exactly one byte: `struct Message { uint8_t floor; };`
+Values are numeric **1 through 10**, not ASCII digits and not the old L/R/S
+commands. Opening the screen or changing the selection sends nothing. No
+heartbeat or automatic movement commands are sent. Radio delivery does not
+confirm that the receiver's application accepted the floor or arrived there.
+
+The receiver firmware must be updated for this protocol. The standalone
+[FloorReceiver example](examples/FloorReceiver/FloorReceiver.ino) validates the
+sender MAC and range and prints the requested floor to Serial at 115200 baud.
+It does **not** drive the servo and has not been uploaded to the receiver.
+Merge its receive handler into the other project's floor-position logic; a
+continuous-rotation servo needs position feedback to locate actual floors.
+This mode has no difficulty or high score.
 
 A twenty-three-game handheld arcade for an ESP32, a 2-inch ST7789 SPI TFT,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
