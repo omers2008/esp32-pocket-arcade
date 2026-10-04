@@ -1,7 +1,8 @@
 # ESP32 Pocket Arcade
 
 The **Floor Select** entry replaces Servo Control. Center the joystick, then
-tilt up/down to select **1–10** (one step per tilt, no wrapping). Press **13**
+move in four directions through a **2-row, 5-column grid** of numbered squares
+(1–5 above 6–10, one step per tilt, no wrapping). Press **13**
 to send the chosen floor; **12** returns to the menu and switches the radio off.
 It retains the wider +/-1000 selection / +/-750 recenter thresholds.
 

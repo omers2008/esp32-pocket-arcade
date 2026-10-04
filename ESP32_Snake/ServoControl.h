@@ -27,8 +27,8 @@ class ServoControl {
     }
 
   }
-  void update(int y,bool confirm){
-    input.update(y);
+  void update(int x,int y,bool confirm){
+    input.update(x,y);
     if(ready && confirm && !pending){
       Message message{static_cast<uint8_t>(input.floor)};
       radioStatus.store(0);pending=true;lastSent=input.floor;
@@ -50,12 +50,19 @@ class ServoControl {
       using namespace ColorMenu;
       d.fillScreen(BG);d.setTextWrap(false);
       label(d,12,12,"SELECT FLOOR",CYAN,2);
-      label(d,12,42,"TO 1C:69:20:30:73:1C  /  CH 1",MUTED);
-      d.fillRoundRect(12,68,296,76,8,CARD);
-      d.setTextSize(5);d.setTextColor(GOLD);d.setCursor(input.floor==10?130:145,88);d.print(input.floor);
-      label(d,12,158,error?error:!input.centered?"CENTER JOYSTICK FIRST":"UP / DOWN TO CHOOSE FLOOR",error?0xF9C7:WHITE);
-      label(d,12,180,!ready?"RADIO NOT READY":status==1?"RADIO: DELIVERED":status<0?"RADIO: SEND FAILED":"RADIO: WAITING",status<0?0xF9C7:MUTED);
-      d.setTextSize(1);d.setTextColor(MUTED);d.setCursor(12,196);d.print("LAST SENT: ");if(lastSent)d.print(lastSent);else d.print("-");
+      label(d,12,38,"JOYSTICK MOVE   13 SELECT",MUTED);
+      for(int floor=1;floor<=10;++floor){
+        int x=14+(floor-1)%5*60,y=56+(floor-1)/5*58;
+        bool selected=floor==input.floor;
+        d.fillRoundRect(x,y,52,52,5,selected?ACTIVE:CARD);
+        d.drawRoundRect(x,y,52,52,5,selected?CYAN:MUTED);
+        if(selected)d.drawRoundRect(x+1,y+1,50,50,4,CYAN);
+        d.setTextSize(3);d.setTextColor(selected?GOLD:WHITE);
+        d.setCursor(x+(floor==10?8:17),y+15);d.print(floor);
+      }
+      label(d,12,170,error?error:"Release stick between moves",error?0xF9C7:MUTED);
+      label(d,12,184,!ready?"RADIO NOT READY":status==1?"RADIO: DELIVERED":status<0?"RADIO: SEND FAILED":"RADIO: WAITING",status<0?0xF9C7:MUTED);
+      d.setTextSize(1);d.setTextColor(MUTED);d.setCursor(12,200);d.print("LAST SENT: ");if(lastSent)d.print(lastSent);else d.print("-");
       label(d,12,223,"13 SEND FLOOR   12 MENU",WHITE);
     }))return;
     shownFloor=input.floor;shownStatus=status;shownSent=lastSent;shownCentered=input.centered;lastDraw=millis();

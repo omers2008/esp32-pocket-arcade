@@ -674,7 +674,7 @@ void loop() {
   }
 
   if (gameState == SERVO_CONTROL) {
-    servoControl.update(joystickY(), pressed);
+    servoControl.update(joystickX(), joystickY(), pressed);
     servoControl.draw(display);
     delay(1);
     return;
