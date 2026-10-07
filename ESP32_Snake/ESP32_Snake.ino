@@ -112,6 +112,7 @@ uint8_t foodX = 0;
 uint8_t foodY = 0;
 Direction direction = RIGHT;
 Direction nextDirection = RIGHT;
+bool snakeTurnQueued = false;
 GameState gameState = TITLE;
 
 int joystickCenterX = 2048;
@@ -257,6 +258,7 @@ void startGame() {
   snakeX[2] = 14; snakeY[2] = 7;
   direction = RIGHT;
   nextDirection = RIGHT;
+  snakeTurnQueued = false;
   placeFood();
   lastMoveTime = millis();
   gameState = PLAYING;
@@ -483,8 +485,11 @@ void readJoystick() {
     }
   }
 
-  // A snake cannot reverse directly into itself.
-  if (moved && !isOpposite(wanted, direction)) nextDirection = wanted;
+  // Keep the first valid turn until the next tile; later samples cannot replace it.
+  if (moved && !snakeTurnQueued && wanted != direction && !isOpposite(wanted, direction)) {
+    nextDirection = wanted;
+    snakeTurnQueued = true;
+  }
 }
 
 uint16_t movementInterval() {
@@ -495,6 +500,8 @@ uint16_t movementInterval() {
 
 void moveSnake() {
   direction = nextDirection;
+  nextDirection = direction;
+  snakeTurnQueued = false;
 
   int newX = snakeX[0];
   int newY = snakeY[0];
