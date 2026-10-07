@@ -58,8 +58,8 @@ class SkullDepths {
 #endif
     d.clearDisplay(); d.setTextColor(SSD1306_WHITE); d.setTextSize(1);
     if (phase == INTRO) {
-      text(d, 0, "SKULL DEPTHS"); text(d, 11, "Stick: move / aim");
-      text(d, 22, "13 sword / 14 dash"); text(d, 33, "Dash avoids damage");
+      text(d, 0, "SKULL DEPTHS"); text(d, 11, "Stick: move");
+      text(d, 22, "13 auto-aim sword"); text(d, 33, "14 dash: avoid hits");
       text(d, 44, "Rooms > shop > boss"); text(d, 55, "13: enter dungeon");
     } else if (phase == REWARD) {
       text(d, 0, "ROOM CLEAR: PICK 1");
@@ -99,8 +99,8 @@ class SkullDepths {
       if (dashTicks) d.drawLine(int(x), int(y), int(x - dx * 6), int(y - dy * 6), Ink::Blue);
       if (slash) {
         float r = reach();
-        d.drawLine(int(x + fx * r - fy * 5), int(y + fy * r + fx * 5),
-                   int(x + fx * r + fy * 5), int(y + fy * r - fx * 5), Ink::Gold);
+        d.drawLine(int(x + slashFx * r - slashFy * 5), int(y + slashFy * r + slashFx * 5),
+                   int(x + slashFx * r + slashFy * 5), int(y + slashFy * r - slashFx * 5), Ink::Gold);
       }
       // Reserve full bands for HUD so attack effects never overlap text.
       d.fillRect(0, 0, 128, 10, SSD1306_BLACK);
@@ -134,6 +134,7 @@ class SkullDepths {
   int combo=0,comboTimer=0,parryFlash=0,damageFlash=0;
   bool heavySlash=false;
   float x = 12, y = 32, fx = 1, fy = 0, dx = 1, dy = 0;
+  float slashFx = 1, slashFy = 0;
   uint32_t lastFrame = 0, frames = 0;
 
   const char *areaName() const { return stage == 1 ? "CRYPT" : stage == 2 ? "RUINS" : "KEEP"; }
@@ -169,6 +170,7 @@ class SkullDepths {
   }
   void resetArena() {
     phase = FIGHT; x = 12; y = 32; fx = dx = 1; fy = dy = 0;
+    slashFx = 1; slashFy = 0;
     charges = maxCharges(); recharge = dashTicks = stealth = slow = attackCooldown = slash = 0;
     combo=comboTimer=parryFlash=damageFlash=0;heavySlash=false;
     immune = 40; autoTimer = 50; frames = 0; lastFrame = millis();
@@ -209,11 +211,23 @@ class SkullDepths {
     combo=comboTimer?combo%3+1:1;comboTimer=50;
     heavySlash=combo==3;
     attackCooldown = max(8, 22 - perks[HASTE] * 4)+(heavySlash?6:0); slash = heavySlash?10:7;
+    float range=reach()+(heavySlash?3:0);
+    slashFx=fx;slashFy=fy;
+    Enemy *target=nullptr;float closest=range*range;
+    for(auto &e:enemies)if(e.hp>0) {
+      float distance=dist2(x,y,e.x,e.y);
+      if(distance<=closest && !coverBetween(x,y,e.x,e.y)) {
+        target=&e;closest=distance;
+      }
+    }
+    if(target) {
+      slashFx=target->x-x;slashFy=target->y-y;
+      unit(slashFx,slashFy);
+    }
     bool empowered = stealth > 0, connected = false;
     for (auto &e : enemies) if (e.hp > 0) {
       float vx = e.x - x, vy = e.y - y;
-      float range=reach()+(heavySlash?3:0);
-      if (vx*vx + vy*vy <= range*range && vx*fx + vy*fy >= -2 && !coverBetween(x,y,e.x,e.y)) {
+      if (vx*vx + vy*vy <= range*range && vx*slashFx + vy*slashFy >= -2 && !coverBetween(x,y,e.x,e.y)) {
         hit(e, (damage()+(heavySlash?2:0)) * (empowered ? 2 : 1), true); connected = true;
         // Only the finisher interrupts a normal skull's committed attack.
         // Bosses resist stagger, so their warnings remain dangerous.
@@ -474,9 +488,10 @@ class SkullDepths {
       d.fillRoundRect(px-5,py-5,11,12,2,stealth?Ink::Purple:Ink::Cyan);
       d.fillRect(px-3,py-7,7,5,Ink::Skin);
       d.fillRect(px-3,py+6,3,3,Ink::Blue);d.fillRect(px+2,py+6,3,3,Ink::Blue);
-      d.drawLine(px+int(fx*6),py+int(fy*6),px+int(fx*11),py+int(fy*11),Ink::White);
+      float swordX=slash?slashFx:fx,swordY=slash?slashFy:fy;
+      d.drawLine(px+int(swordX*6),py+int(swordY*6),px+int(swordX*11),py+int(swordY*11),Ink::White);
     }
-    if(slash){float angle=atan2f(fy,fx),range=(reach()+(heavySlash?3:0))*2.5f;
+    if(slash){float angle=atan2f(slashFy,slashFx),range=(reach()+(heavySlash?3:0))*2.5f;
       for(int n=-6;n<6;++n){float a=angle+n*0.16f,b=angle+(n+1)*0.16f;
         int ax=px+int(cosf(a)*range),ay=py+int(sinf(a)*range),bx=px+int(cosf(b)*range),by=py+int(sinf(b)*range);
         if(ax>=8 && ax<313 && bx>=8 && bx<313 && ay>=49 && ay<212 && by>=49 && by<212)
@@ -494,7 +509,7 @@ class SkullDepths {
     label(d,12,12,"SKULL DEPTHS",Ink::Cyan,2);
     if(phase==INTRO) {
       label(d,12,40,"SWORD. DASH. SURVIVE.",Ink::Gold);
-      const char *lines[]={"13  Hold for a three-hit combo", "Third swing staggers normal skulls", "14  Dash through danger", "Dash into arrows to reflect them", "Red warnings show enemy attacks", "Clear rooms, pick perks, shop, boss"};
+      const char *lines[]={"13  Auto-aim sword / hold for combo", "Third swing staggers normal skulls", "14  Dash through danger", "Dash into arrows to reflect them", "Red warnings show enemy attacks", "Clear rooms, pick perks, shop, boss"};
       for(int i=0;i<6;++i)label(d,14,66+i*21,lines[i],i%2?Ink::Muted:Ink::White);
       label(d,14,209,"13  ENTER DUNGEON",Ink::Green,2);return;
     }

@@ -282,7 +282,9 @@ Room numbers match the OLED's `R` counter. Letters mark key-locked routes.
 
 ## Skull Depths
 
-Move and face your sword with the joystick. Hold GPIO13 to attack; tap GPIO14 to
+Move with the joystick. Hold GPIO13 to auto-aim each slash at the nearest enemy
+within sword reach and clear of pillars. The animation keeps that aim for the
+whole slash; with no reachable target, swings follow your movement facing. Tap GPIO14 to
 dash with 0.2 seconds of invulnerability. Dash charges refill every two seconds.
 Skull enemies wind up before attacking; touching them does no damage. Hat-wearing
 skulls are archers. Clear three rooms, buy supplies in the shop, then defeat the

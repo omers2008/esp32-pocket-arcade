@@ -52,7 +52,7 @@ are saved in flash and survive power-off.
 | Dino Runner | Up jump; down duck | Jump | Hold to duck |
 | Asteroids | Left/right rotate; up thrust | Hold to shoot | Hyperspace |
 | Sky Patrol | Point toward desired heading | Hold to boost | Hold to fire |
-| Skull Depths | Move / face sword direction; choose upgrades | Sword / confirm | Dash with invulnerability |
+| Skull Depths | Move; choose upgrades | Auto-aim sword / confirm | Dash with invulnerability |
 | Donkey Kong | Left/right move; up/down climb ladders | Jump / start | Unused |
 
 GPIO12 returns to the game menu in every game. Tap the joystick to step through
@@ -149,8 +149,10 @@ separately for Easy and Hard.
 ## Skull Depths
 
 An action roguelike with three areas (Crypt, Ruins, Keep). Each area contains
-three battle rooms, a shop, then a boss. Joystick movement sets the sword's facing;
-hold GPIO13 to swing and press GPIO14 to dash. A dash grants 0.2 seconds of
+three battle rooms, a shop, then a boss. Hold GPIO13 to swing toward the closest
+enemy within sword reach and clear of pillars; press GPIO14 to dash. With no
+reachable target, swings follow your movement facing. The aim stays fixed for
+each slash animation. A dash grants 0.2 seconds of
 invulnerability and recharges one charge every two seconds. Release GPIO14 between
 dashes. GPIO12 exits. Easy has eight starting health; Hard has six, more enemies,
 faster arrows and shorter enemy windups. Runs start fresh; best scores persist.

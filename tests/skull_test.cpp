@@ -73,8 +73,25 @@ int main() {
   e.x = g.x + 8; e.y = g.y; e.hp = 20;
   g.swing(); assert(e.hp == 16 && !g.stealth);
   g.swing(); assert(e.hp == 12 && g.heavySlash); // Third swing adds two damage.
-  e.x = g.x - 8; g.swing(); assert(e.hp == 12); // Directional arc.
-  g.grant(Game::MIGHT); e.x = g.x + 8; g.swing(); assert(e.hp == 9);
+  e.x = g.x - 8; g.swing(); assert(e.hp == 10); // Auto-aim also reaches behind the player.
+  g.grant(Game::MIGHT); e.x = g.x + 8; g.swing(); assert(e.hp == 7);
+
+  // Aim at the closest reachable foe, while keeping movement/dash facing intact.
+  begin(g);g.x=30;g.y=45;e.x=22;e.y=45;e.hp=40;
+  g.enemies[1]=e;g.enemies[1].x=42;
+  g.swing();assert(e.hp==38 && g.enemies[1].hp==40);
+  assert(g.slashFx==-1 && g.slashFy==0 && g.fx==1 && g.fy==0);
+  // Cover disqualifies a nearer target; sword reach still limits auto-aim.
+  begin(g);g.x=44;g.y=33;e.x=53;e.y=33;e.hp=40;
+  g.enemies[1]=e;g.enemies[1].x=32;
+  g.swing();assert(e.hp==40 && g.enemies[1].hp==38 && g.slashFx==-1);
+  begin(g);g.x=30;g.y=45;e.x=49;e.y=45;e.hp=40;
+  g.swing();assert(e.hp==40 && g.slashFx==g.fx && g.slashFy==g.fy);
+  // Finishers and reach upgrades extend the eligible auto-aim radius.
+  e.x=30;e.y=60;g.combo=2;g.comboTimer=50;
+  g.swing();assert(g.heavySlash && e.hp==36 && g.slashFy==1);
+  begin(g);g.x=30;g.y=45;e.x=30;e.y=59;e.hp=40;
+  g.grant(Game::REACH);g.swing();assert(e.hp==38 && g.slashFy==1);
 
   // Finishers interrupt normal windups, knock back, and respect boss resistance.
   begin(g); e.x=g.x+9;e.y=g.y;e.hp=30;e.windup=20;
