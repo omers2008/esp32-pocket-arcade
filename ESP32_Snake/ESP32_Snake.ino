@@ -5,6 +5,7 @@
 #include "ColorScreens.h"
 #include "Invaders.h"
 #include "Buttons.h"
+#include "JoystickSettings.h"
 #include "Pong.h"
 #include "Tetris.h"
 #include "Castle.h"
@@ -42,7 +43,8 @@ constexpr uint32_t SLOT_HARD_SCORE_RESET_VERSION = 1;
 constexpr bool INVERT_X = false;
 constexpr bool INVERT_Y = true;
 
-constexpr int JOYSTICK_DEAD_ZONE = 650;
+constexpr uint32_t SETTINGS_SAVE_DELAY_MS = 1000;
+constexpr int SETTINGS_NAV_DEADZONE = 500;
 
 // ---------- Display and playfield ----------
 constexpr int SCREEN_WIDTH = 128;
@@ -87,6 +89,11 @@ const char *const SCORE_NAMESPACES[SCORED_GAME_COUNT] = {"snake", "invaders", "p
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
+JoystickSettings joystickSettings;
+uint8_t selectedSettingsRow = 0;
+bool settingsStickReady = false;
+bool settingsDirty = false;
+uint32_t settingsChangedAt = 0;
 bool menuStickReady = true;
 ArcadeButton menuButton(MENU_BUTTON_PIN);
 ArcadeButton actionButton(ACTION_BUTTON_PIN);
@@ -96,7 +103,7 @@ bool actionArmed = false;
 uint32_t lastArcadeDraw = 0;
 
 enum Direction : uint8_t { UP, DOWN, LEFT, RIGHT };
-enum GameState : uint8_t { TITLE, DIFFICULTY, PLAYING, GAME_OVER, SERVO_CONTROL };
+enum GameState : uint8_t { TITLE, DIFFICULTY, PLAYING, GAME_OVER, SERVO_CONTROL, SETTINGS };
 
 uint8_t snakeX[MAX_SNAKE_LENGTH];
 uint8_t snakeY[MAX_SNAKE_LENGTH];
@@ -316,40 +323,161 @@ void calibrateJoystick() {
   joystickCenterY = totalY / SAMPLES;
 }
 
-int joystickX() {
+int rawJoystickX() {
   int value = analogRead(JOY_X_PIN) - joystickCenterX;
   return INVERT_X ? -value : value;
 }
 
-int joystickY() {
+int rawJoystickY() {
   int value = analogRead(JOY_Y_PIN) - joystickCenterY;
   return INVERT_Y ? -value : value;
 }
 
-void readJoystick() {
-  int x = analogRead(JOY_X_PIN) - joystickCenterX;
-  int y = analogRead(JOY_Y_PIN) - joystickCenterY;
+int joystickX() { return joystickSettings.applyX(rawJoystickX()); }
+int joystickY() { return joystickSettings.applyY(rawJoystickY()); }
 
-  if (INVERT_X) x = -x;
-  if (INVERT_Y) y = -y;
+void loadJoystickSettings() {
+  if (!preferences.begin("joycfg", true)) return;
+  joystickSettings.deadzoneX = preferences.getUShort("dz_x", JoystickSettings::DEFAULT_DEADZONE);
+  joystickSettings.deadzoneY = preferences.getUShort("dz_y", JoystickSettings::DEFAULT_DEADZONE);
+  joystickSettings.sensitivity = preferences.getUChar("sens", JoystickSettings::DEFAULT_SENSITIVITY);
+  joystickSettings.linked = preferences.getBool("linked", false);
+  preferences.end();
+  if (joystickSettings.deadzoneX < JoystickSettings::MIN_DEADZONE || joystickSettings.deadzoneX > JoystickSettings::MAX_DEADZONE)
+    joystickSettings.deadzoneX = JoystickSettings::DEFAULT_DEADZONE;
+  if (joystickSettings.deadzoneY < JoystickSettings::MIN_DEADZONE || joystickSettings.deadzoneY > JoystickSettings::MAX_DEADZONE)
+    joystickSettings.deadzoneY = JoystickSettings::DEFAULT_DEADZONE;
+  if (joystickSettings.sensitivity < JoystickSettings::MIN_SENSITIVITY || joystickSettings.sensitivity > JoystickSettings::MAX_SENSITIVITY)
+    joystickSettings.sensitivity = JoystickSettings::DEFAULT_SENSITIVITY;
+  if (joystickSettings.linked) joystickSettings.deadzoneY = joystickSettings.deadzoneX;
+}
+
+void saveJoystickSettings() {
+  if (!preferences.begin("joycfg", false)) {
+    Serial.println(F("Could not save joystick settings."));
+    settingsDirty = false;
+    return;
+  }
+  preferences.putUShort("dz_x", joystickSettings.deadzoneX);
+  preferences.putUShort("dz_y", joystickSettings.deadzoneY);
+  preferences.putUChar("sens", joystickSettings.sensitivity);
+  preferences.putBool("linked", joystickSettings.linked);
+  preferences.end();
+  settingsDirty = false;
+}
+
+void noteSettingsChange() {
+  settingsDirty = true;
+  settingsChangedAt = millis();
+}
+
+void drawSettings() {
+  display.setGame(-1);
+  if (display.colorFrame([&](Adafruit_GFX &d) {
+    using namespace ColorMenu;
+    d.fillScreen(BG); d.setTextWrap(false);
+    label(d,13,9,"JOYSTICK SETTINGS",CYAN,2);
+    label(d,13,32,"UP/DOWN ROW   LEFT/RIGHT ADJUST",MUTED);
+    for (int row=0; row<5; ++row) {
+      int y=52+row*31; bool active=row==selectedSettingsRow;
+      d.fillRoundRect(10,y,300,27,5,active?ACTIVE:CARD);
+      d.drawRoundRect(10,y,300,27,5,active?CYAN:CARD);
+      if (row==0 || row==1 || row==3) {
+        const char *name=row==0?"X DEADZONE":row==1?"Y DEADZONE":"SENSITIVITY";
+        label(d,20,y+9,name,active?WHITE:MUTED);
+        int value=row==0?joystickSettings.deadzoneX:row==1?joystickSettings.deadzoneY:joystickSettings.sensitivity;
+        int low=row==3?JoystickSettings::MIN_SENSITIVITY:JoystickSettings::MIN_DEADZONE;
+        int high=row==3?JoystickSettings::MAX_SENSITIVITY:JoystickSettings::MAX_DEADZONE;
+        char number[12];
+        if(row==3) snprintf(number,sizeof(number),"%u%%",value);
+        else snprintf(number,sizeof(number),"%u",value);
+        label(d,174,y+9,number,active?GOLD:WHITE);
+        int bx=224,by=y+10,bw=68;
+        d.fillRoundRect(bx,by,bw,7,3,BG);
+        int fill=(value-low)*bw/(high-low);
+        if(fill>0)d.fillRoundRect(bx,by,fill,7,3,active?CYAN:MUTED);
+        d.drawRoundRect(bx,by,bw,7,3,MUTED);
+      } else if(row==2) {
+        label(d,20,y+9,"LINK X/Y DEADZONES",active?WHITE:MUTED);
+        d.drawRoundRect(270,y+5,18,18,3,joystickSettings.linked?CYAN:MUTED);
+        if(joystickSettings.linked) {
+          d.drawLine(274,y+14,279,y+19,GOLD);
+          d.drawLine(279,y+19,285,y+9,GOLD);
+        }
+      } else {
+        label(d,20,y+9,"RESET ALL TO DEFAULTS",active?GOLD:MUTED);
+        label(d,261,y+9,"650 / 100%",active?WHITE:MUTED);
+      }
+    }
+    d.drawFastHLine(12,216,296,CARD);
+    label(d,13,224,"13: TOGGLE / RESET    12: BACK",WHITE);
+  })) return;
+
+  display.clearDisplay();
+  display.setTextColor(SSD1306_WHITE); display.setTextSize(1);
+  display.setCursor(0,0); display.print(F("JOYSTICK SETTINGS"));
+  display.setCursor(0,10); display.print(F("X DZ: ")); display.print(joystickSettings.deadzoneX);
+  display.setCursor(0,20); display.print(F("Y DZ: ")); display.print(joystickSettings.deadzoneY);
+  display.setCursor(0,30); display.print(F("LINK: ")); display.print(joystickSettings.linked?F("ON"):F("OFF"));
+  display.setCursor(0,40); display.print(F("SENS: ")); display.print(joystickSettings.sensitivity); display.print('%');
+  display.setCursor(0,50); display.print(F("STICK ROW/ADJUST 13 OK"));
+  display.display();
+}
+
+void updateSettings() {
+  int x=rawJoystickX(),y=rawJoystickY();
+  if(abs(x)<SETTINGS_NAV_DEADZONE && abs(y)<SETTINGS_NAV_DEADZONE) {
+    settingsStickReady=true;
+    return;
+  }
+  if(!settingsStickReady)return;
+  settingsStickReady=false;
+  bool changed=false;
+  if(abs(y)>=abs(x) && abs(y)>SETTINGS_NAV_DEADZONE) {
+    int previous=selectedSettingsRow;
+    if(y>0 && selectedSettingsRow>0)--selectedSettingsRow;
+    if(y<0 && selectedSettingsRow<4)++selectedSettingsRow;
+    if(previous!=selectedSettingsRow)drawSettings();
+    return;
+  }
+  if(abs(x)>SETTINGS_NAV_DEADZONE) {
+    int direction=x>0?1:-1;
+    if(selectedSettingsRow==0)changed=joystickSettings.adjustDeadzoneX(direction);
+    else if(selectedSettingsRow==1)changed=joystickSettings.adjustDeadzoneY(direction);
+    else if(selectedSettingsRow==3)changed=joystickSettings.adjustSensitivity(direction);
+    if(changed){noteSettingsChange();drawSettings();}
+  }
+}
+
+void activateSettingsRow() {
+  if(selectedSettingsRow==2)joystickSettings.setLinked(!joystickSettings.linked);
+  else if(selectedSettingsRow==4)joystickSettings.reset();
+  else return;
+  noteSettingsChange();
+  drawSettings();
+}
+
+void readJoystick() {
+  int x = joystickX();
+  int y = joystickY();
 
   Direction wanted = nextDirection;
   bool moved = false;
 
   // Prefer the axis pushed farther so diagonal readings feel predictable.
   if (abs(x) > abs(y)) {
-    if (x > JOYSTICK_DEAD_ZONE) {
+    if (x > 0) {
       wanted = RIGHT;
       moved = true;
-    } else if (x < -JOYSTICK_DEAD_ZONE) {
+    } else if (x < 0) {
       wanted = LEFT;
       moved = true;
     }
   } else {
-    if (y > JOYSTICK_DEAD_ZONE) {
+    if (y > 0) {
       wanted = UP;
       moved = true;
-    } else if (y < -JOYSTICK_DEAD_ZONE) {
+    } else if (y < 0) {
       wanted = DOWN;
       moved = true;
     }
@@ -628,6 +756,7 @@ void setup() {
   display.print(F("Center joystick..."));
   display.display();
   calibrateJoystick();
+  loadJoystickSettings();
 
   randomSeed(micros() ^ analogRead(JOY_X_PIN) ^ analogRead(JOY_Y_PIN));
   drawTitle();
@@ -642,6 +771,23 @@ void loop() {
   if (actionButton.released()) actionArmed = true;
   bool pressed = actionArmed && actionButton.pressed;
 
+  if (menuButton.pressed && gameState == TITLE) {
+    gameState = SETTINGS;
+    selectedSettingsRow = 0;
+    settingsStickReady = false;
+    actionArmed = false;
+    drawSettings();
+    return;
+  }
+  if (menuButton.pressed && gameState == SETTINGS) {
+    if (settingsDirty) saveJoystickSettings();
+    gameState = TITLE;
+    actionArmed = false;
+    menuStickReady = false;
+    menuScroll.reset();
+    drawTitle();
+    return;
+  }
   if (menuButton.pressed) {
     if (gameState == SERVO_CONTROL) servoControl.leave();
     if (gameState == PLAYING) finishGame();  // Save a record even when leaving mid-game.
@@ -683,7 +829,7 @@ void loop() {
   if (gameState == DIFFICULTY) {
     int x = joystickX(), y = joystickY();
     if (abs(x) < 350 && abs(y) < 350) menuStickReady = true;
-    if (menuStickReady && (abs(x) > JOYSTICK_DEAD_ZONE || abs(y) > JOYSTICK_DEAD_ZONE)) {
+    if (menuStickReady && (x != 0 || y != 0)) {
       selectedDifficulty = 1 - selectedDifficulty;
       menuStickReady = false;
       drawDifficulty();
@@ -692,6 +838,14 @@ void loop() {
       startGame();
       drawGame();
     }
+    return;
+  }
+
+  if (gameState == SETTINGS) {
+    updateSettings();
+    if (pressed) activateSettingsRow();
+    if (settingsDirty && millis()-settingsChangedAt>=SETTINGS_SAVE_DELAY_MS) saveJoystickSettings();
+    delay(1);
     return;
   }
 

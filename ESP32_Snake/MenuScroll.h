@@ -8,7 +8,7 @@ class MenuScroll {
   int update(int x, int y) {
     if (abs(x) < 350 && abs(y) < 350) armed = true;
     bool vertical = abs(y) >= abs(x);
-    int wanted = max(abs(x), abs(y)) <= 650 ? 0 :
+    int wanted = max(abs(x), abs(y)) == 0 ? 0 :
       vertical ? (y > 0 ? -1 : 1) : (x > 0 ? 1 : -1);
     if (!wanted || !armed) { direction = 0; repeating = false; return 0; }
     uint32_t now = millis();

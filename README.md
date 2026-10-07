@@ -25,6 +25,10 @@ A twenty-three-game handheld arcade for an ESP32, a 2-inch ST7789 SPI TFT,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
+Press GPIO12 on the game list to open joystick settings. Adjust the X/Y
+deadzones and sensitivity, link both deadzones, or restore defaults. Settings
+are saved in flash and survive power-off.
+
 | Game | Joystick | GPIO13 | GPIO14 |
 | --- | --- | --- | --- |
 | Snake | Steer | Select / retry | Unused |

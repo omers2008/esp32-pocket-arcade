@@ -6,6 +6,11 @@
   Tap for one step or hold up/down to repeat after 400 ms, then every 130 ms.
   Release to stop scrolling; press GPIO13 to select. After exiting gameplay,
   center the stick before scrolling again.
+  Press GPIO12 from the game list to open joystick settings: move up/down to
+  choose X deadzone, Y deadzone, linked deadzones, sensitivity, or reset; move
+  left/right to adjust sliders and press GPIO13 to toggle linking or restore
+  defaults. Settings save automatically and remain after power-off. Deadzones
+  range from 100–1400, sensitivity from 50–200%, and defaults are 650/650/100%.
   Then tilt to choose **Easy** or **Hard**, release GPIO13 and press it again to
   start. GPIO12 returns to the game list. Retrying also opens difficulty selection.
 - Battle Tanks: left/right rotates the tank and barrel; up drives forward and down
