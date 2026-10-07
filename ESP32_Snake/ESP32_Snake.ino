@@ -466,8 +466,12 @@ void readJoystick() {
   Direction wanted = nextDirection;
   bool moved = false;
 
-  // Prefer the axis pushed farther so diagonal readings feel predictable.
-  if (abs(x) > abs(y)) {
+  // A downward tilt can cross-couple into X; honor a filtered down signal
+  // before comparing axes so that cross-axis noise cannot turn it right.
+  if (y < 0) {
+    wanted = DOWN;
+    moved = true;
+  } else if (abs(x) > abs(y)) {
     if (x > 0) {
       wanted = RIGHT;
       moved = true;
