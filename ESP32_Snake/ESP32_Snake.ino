@@ -771,10 +771,11 @@ void loop() {
   if (actionButton.released()) actionArmed = true;
   bool pressed = actionArmed && actionButton.pressed;
 
-  if (menuButton.pressed && gameState == TITLE) {
+  if (holdArmed && holdButton.pressed && gameState == TITLE) {
     gameState = SETTINGS;
     selectedSettingsRow = 0;
     settingsStickReady = false;
+    holdArmed = false;
     actionArmed = false;
     drawSettings();
     return;
