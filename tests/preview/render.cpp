@@ -29,6 +29,7 @@
 #include "../../ESP32_Snake/SkyPatrol.h"
 #include "../../ESP32_Snake/SkullDepths.h"
 #include "../../ESP32_Snake/DonkeyKong.h"
+#include "../../ESP32_Snake/BlockBreaker.h"
 #undef private
 uint32_t testClock=2000;
 void save(const std::string &name) {
@@ -72,4 +73,10 @@ int main(){
     g.draw(d);save("SkullDepths");g.phase=SkullDepths::REWARD;g.choices[0]=0;g.choices[1]=2;g.choices[2]=4;
     g.selection=1;g.draw(d);save("SkullReward");g.phase=SkullDepths::SHOP;g.gold=30;g.hp=4;g.draw(d);save("SkullShop");}
   {DonkeyKong g;g.start(false);g.started=true;d.setGame(22,"Donkey Kong",false);g.draw(d);save("DonkeyKong");}
+  {BlockBreaker g;g.start(false);d.setGame(23,"Block Breaker",false);g.draw(d);save("BlockBreakerStart");
+    g.stage=6;g.loadStage();g.waiting=false;g.score=4800;g.hp=3;g.wideTicks=240;g.shields=1;
+    g.balls[0]={120,155,1,-3,true};g.grant(BlockBreaker::MULTI);
+    g.balls[1].x=145;g.balls[1].y=168;g.balls[2].x=188;g.balls[2].y=150;
+    for(int i=0;i<5;++i)g.drops[i]={float(44+i*54),float(133+(i%2)*16),static_cast<BlockBreaker::Power>(i),true};
+    g.draw(d);save("BlockBreakerPowers");}
 }

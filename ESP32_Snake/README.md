@@ -1,8 +1,8 @@
-# ESP32 Pocket Arcade: twenty-three games
+# ESP32 Pocket Arcade: twenty-four games
 
 ## Game controls
 
-- At startup, tilt the joystick to scroll between the twenty-three games (four visible at a time).
+- At startup, tilt the joystick to scroll between the twenty-four games (five visible at a time).
   Tap for one step or hold up/down to repeat after 400 ms, then every 130 ms.
   Release to stop scrolling; press GPIO13 to select. After exiting gameplay,
   center the stick before scrolling again.
@@ -279,6 +279,20 @@ Room numbers match the OLED's `R` counter. Letters mark key-locked routes.
   room's ceiling. Move sideways or jump to leave a ladder at a treasure ledge.
 - Jump from a ledge before its edge when crossing a pit beneath it. Spikes and
   pits remain dangerous during the blinking enemy-protection period.
+
+## Block Breaker
+
+Joystick left/right moves the paddle; GPIO13 launches the ball. Clear six stages
+of colored bricks, including armored bricks that take multiple hits. Easy has
+5 HP and a wider paddle; Hard has 3 HP and faster balls. Losing all active balls
+costs 1 HP; losing only one multiball does not. GPIO12 returns to the game list.
+Clear stage six to win. Easy/Hard high scores persist separately.
+
+Catch **W** for a wider paddle (10s), **S** for slower balls (8s), **M** for
+multiball (up to three balls), **+** for 1 HP, and **H** for a floor shield that
+rescues one ball. HP is capped at the starting value and shields at two.
+Temporary powers reset after losing a life or advancing a stage. Floor Select,
+the ESP-NOW control entry, always remains at the very bottom of the main menu.
 
 ## Skull Depths
 

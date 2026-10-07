@@ -1,5 +1,10 @@
 # Gameplay regression tests
 
+`block_breaker_test.cpp` checks queued launches, wall/paddle/armored-brick
+collisions, all six stages and victory, five power-ups, multiball HP loss,
+power expiration, difficulty, and native rendering without state changes.
+Compile with `/Itests\tft /Itests` on MSVC or `-Itests/tft -Itests` elsewhere.
+
 These tests compile the actual game headers, using `Arduino.h` for a controlled
 clock/random generator and `Adafruit_SSD1306.h` for no-op drawing calls.
 Keep assertions enabled (do not define `NDEBUG`). No external libraries needed.

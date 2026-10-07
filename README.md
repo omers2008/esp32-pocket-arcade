@@ -21,7 +21,7 @@ Merge its receive handler into the other project's floor-position logic; a
 continuous-rotation servo needs position feedback to locate actual floors.
 This mode has no difficulty or high score.
 
-A twenty-three-game handheld arcade for an ESP32, a 2-inch ST7789 SPI TFT,
+A twenty-four-game handheld arcade for an ESP32, a 2-inch ST7789 SPI TFT,
 an analog joystick, and three buttons. Includes Easy/Hard selection and
 separate high scores stored in flash for each game and difficulty.
 
@@ -54,6 +54,10 @@ are saved in flash and survive power-off.
 | Sky Patrol | Point toward desired heading | Hold to boost | Hold to fire |
 | Skull Depths | Move; choose upgrades | Auto-aim sword / confirm | Dash with invulnerability |
 | Donkey Kong | Left/right move; up/down climb ladders | Jump / start | Unused |
+| Block Breaker | Left/right paddle | Launch ball / retry | Unused |
+
+The ESP-NOW control entry (Floor Select) always stays last in the main menu.
+New games are inserted before it; this rule is also recorded in AGENTS.md.
 
 GPIO12 returns to the game menu in every game. Tap the joystick to step through
 games, or hold up/down to scroll repeatedly until you release it. Repeating starts
@@ -145,6 +149,20 @@ that take one hit; Hard has two lives, tougher enemies, and faster enemy fire.
 Collisions with aircraft or enemy bullets cost a life. Touching the water also
 costs a life, even during the brief respawn shield. GPIO12 exits; high scores save
 separately for Easy and Hard.
+
+## Block Breaker
+
+Move the paddle left/right with the joystick and press GPIO13 to launch. Clear
+six stages with different brick layouts and armor. Easy starts with 5 HP and a
+wider paddle; Hard starts with 3 HP and a faster ball. Losing every active ball
+costs 1 HP and opens another launch; clearing the last stage wins the run.
+GPIO12 returns to the menu. Easy/Hard high scores save separately.
+
+Catch falling power-ups: **W** widens the paddle for 10 seconds, **S** slows balls
+for 8 seconds, **M** adds up to two extra balls (three maximum), **+** restores
+1 HP up to the starting maximum, and **H** adds a floor shield (two maximum).
+Each shield saves one falling ball. Temporary powers reset on a new stage or
+after losing a life. The HUD shows HP, stage, score, and active power timers.
 
 ## Skull Depths
 
@@ -276,7 +294,7 @@ are unchanged.
 5. Keep the joystick centered during startup calibration.
 
 The sketch retains its original `ESP32_Snake` folder/name for Arduino compatibility.
-All twenty-three games are compiled into the same firmware. Tested with ESP32 core 3.3.11.
+All twenty-four games are compiled into the same firmware. Built with ESP32 core 3.3.12.
 The Adafruit libraries are external dependencies and are not vendored here.
 
 If Arduino CLI is installed and the core/libraries are already configured:

@@ -135,7 +135,7 @@ class ArcadeDisplay : public GFXcanvas1 {
     panel.setAddrWindow(left, top, scaledW, scaledH);
     for (int y = 0; y < ArcadeScreen::HEIGHT; ++y) {
       // One small scanline, no full RGB framebuffer. Blocking writes let us
-      // reuse it safely, keeping RAM available to all 23 games.
+      // reuse it safely, keeping RAM available to the games.
       for (int x = 0; x < ArcadeScreen::WIDTH; ++x) {
         uint16_t color = getPixel(x, y) ? ArcadeScreen::FOREGROUND : ArcadeScreen::BACKGROUND;
         for (int dx = 0; dx < ArcadeScreen::SCALE; ++dx) row[x * ArcadeScreen::SCALE + dx] = color;
@@ -158,8 +158,8 @@ class ArcadeDisplay : public GFXcanvas1 {
       "STICK  MOVE   13  ATTACK   14  ITEM", "STICK  DRIVE   13  FIRE   14  RICOCHET",
       "13/UP  JUMP   14/DOWN  DUCK", "STICK  STEER/THRUST   13  FIRE   14  WARP",
       "STICK  FLY   13  BOOST   14  FIRE", "STICK  MOVE   13  SWORD   14  DASH",
-      "STICK  MOVE/CLIMB   13  JUMP"};
-    return hints[game%23];
+      "STICK  MOVE/CLIMB   13  JUMP", "STICK  PADDLE   13  LAUNCH"};
+    return hints[game%(sizeof(hints)/sizeof(hints[0]))];
   }
   Adafruit_ST7789 panel;
   uint16_t row[320] = {};
