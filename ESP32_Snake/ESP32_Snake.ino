@@ -6,6 +6,7 @@
 #include "Invaders.h"
 #include "Buttons.h"
 #include "JoystickSettings.h"
+#include "SnakeSteering.h"
 #include "Pong.h"
 #include "Tetris.h"
 #include "Castle.h"
@@ -102,7 +103,6 @@ bool holdArmed = false;
 bool actionArmed = false;
 uint32_t lastArcadeDraw = 0;
 
-enum Direction : uint8_t { UP, DOWN, LEFT, RIGHT };
 enum GameState : uint8_t { TITLE, DIFFICULTY, PLAYING, GAME_OVER, SERVO_CONTROL, SETTINGS };
 
 uint8_t snakeX[MAX_SNAKE_LENGTH];
@@ -113,6 +113,7 @@ uint8_t foodY = 0;
 Direction direction = RIGHT;
 Direction nextDirection = RIGHT;
 bool snakeTurnQueued = false;
+SnakeSteering snakeSteering;
 GameState gameState = TITLE;
 
 int joystickCenterX = 2048;
@@ -259,6 +260,7 @@ void startGame() {
   direction = RIGHT;
   nextDirection = RIGHT;
   snakeTurnQueued = false;
+  snakeSteering.reset();
   placeFood();
   lastMoveTime = millis();
   gameState = PLAYING;
@@ -464,30 +466,7 @@ void readJoystick() {
   int y = joystickY();
 
   Direction wanted = nextDirection;
-  bool moved = false;
-
-  // A downward tilt can cross-couple into X; honor a filtered down signal
-  // before comparing axes so that cross-axis noise cannot turn it right.
-  if (y < 0) {
-    wanted = DOWN;
-    moved = true;
-  } else if (abs(x) > abs(y)) {
-    if (x > 0) {
-      wanted = RIGHT;
-      moved = true;
-    } else if (x < 0) {
-      wanted = LEFT;
-      moved = true;
-    }
-  } else {
-    if (y > 0) {
-      wanted = UP;
-      moved = true;
-    } else if (y < 0) {
-      wanted = DOWN;
-      moved = true;
-    }
-  }
+  bool moved = snakeSteering.read(x, y, millis(), wanted);
 
   // Keep the first valid turn until the next tile; later samples cannot replace it.
   if (moved && !snakeTurnQueued && wanted != direction && !isOpposite(wanted, direction)) {
