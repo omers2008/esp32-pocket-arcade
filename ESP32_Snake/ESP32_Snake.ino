@@ -30,6 +30,7 @@
 #include "SkullDepths.h"
 #include "DonkeyKong.h"
 #include "BlockBreaker.h"
+#include "UwbTagView.h"
 
 // ---------- Hardware ----------
 // TFT SPI wiring and orientation are configured in DisplayConfig.h.
@@ -85,13 +86,16 @@ DonkeyKong donkeyKong;
 BlockBreaker blockBreaker;
 constexpr uint8_t BLOCK_BREAKER_ENTRY = 23;
 ServoControl servoControl;
+UwbTagView uwbTagView;
+HardwareSerial uwbSerial(2);
 const char *const SCORE_NAMESPACES[] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks", "dino", "asteroids", "sky", "skulldepths", "dkong", "breaker"};
 constexpr uint8_t SCORED_GAME_COUNT = sizeof(SCORE_NAMESPACES)/sizeof(SCORE_NAMESPACES[0]);
 // New games go before this final ESP-NOW control entry (see AGENTS.md).
-const char *const GAME_NAMES[] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids", "Sky Patrol", "Skull Depths", "Donkey Kong", "Block Breaker", "Floor Select"};
+const char *const GAME_NAMES[] = {"Snake", "Space Invaders", "Pong", "Tetris", "Castlevania", "Duck Hunt", "Pac-Man", "Blackjack", "Street Fighter", "Rogue Cards", "Temple Quest", "Slot Machine", "4 In A Row", "Tic-Tac-Toe", "Minesweeper", "Pinball", "Forest Quest", "Battle Tanks", "Dino Runner", "Asteroids", "Sky Patrol", "Skull Depths", "Donkey Kong", "Block Breaker", "UWB Tag View", "Floor Select"};
 constexpr uint8_t GAME_COUNT = sizeof(GAME_NAMES)/sizeof(GAME_NAMES[0]);
+constexpr uint8_t UWB_TAG_ENTRY = SCORED_GAME_COUNT;
 constexpr uint8_t SERVO_CONTROL_ENTRY = GAME_COUNT - 1;
-static_assert(GAME_COUNT == SCORED_GAME_COUNT + 1, "ESP-NOW control must follow all scored games");
+static_assert(GAME_COUNT == SCORED_GAME_COUNT + 2, "Scored games must precede UWB view and final ESP-NOW control");
 uint8_t selectedGame = 0;  // Game order matches GAME_NAMES and SCORE_NAMESPACES.
 uint8_t selectedDifficulty = 0; // 0 = Easy, 1 = Hard
 uint32_t bestScores[GAME_COUNT][2] = {}; // Pong records paddle returns per rally.
@@ -108,7 +112,7 @@ bool holdArmed = false;
 bool actionArmed = false;
 uint32_t lastArcadeDraw = 0;
 
-enum GameState : uint8_t { TITLE, DIFFICULTY, PLAYING, GAME_OVER, SERVO_CONTROL, SETTINGS };
+enum GameState : uint8_t { TITLE, DIFFICULTY, PLAYING, GAME_OVER, SERVO_CONTROL, SETTINGS, UWB_VIEW };
 
 uint8_t snakeX[MAX_SNAKE_LENGTH];
 uint8_t snakeY[MAX_SNAKE_LENGTH];
@@ -600,6 +604,16 @@ void showServoControl() {
   servoControl.draw(display);
 }
 
+void showUwbTagView() {
+  gameState=UWB_VIEW;
+  actionArmed=holdArmed=false;
+  uwbTagView.start();
+  uwbSerial.setRxBufferSize(4096);
+  // GPIO17 is reserved as UART TX but stays physically unconnected. No writes.
+  uwbSerial.begin(UwbTagView::BAUD,SERIAL_8N1,UwbTagView::RX_PIN,17);
+  uwbTagView.draw(display,millis());
+}
+
 void showDifficulty() {
   gameState = DIFFICULTY;
   actionArmed = false; // Require a fresh press after selecting the game/retry.
@@ -794,6 +808,7 @@ void loop() {
   }
   if (menuButton.pressed) {
     if (gameState == SERVO_CONTROL) servoControl.leave();
+    if (gameState == UWB_VIEW) uwbSerial.end();
     if (gameState == PLAYING) finishGame();  // Save a record even when leaving mid-game.
     gameState = TITLE;
     actionArmed = false;
@@ -818,6 +833,7 @@ void loop() {
     }
     if (pressed) {
       if (selectedGame == SERVO_CONTROL_ENTRY) showServoControl();
+      else if (selectedGame == UWB_TAG_ENTRY) showUwbTagView();
       else showDifficulty();
     }
     return;
@@ -826,6 +842,18 @@ void loop() {
   if (gameState == SERVO_CONTROL) {
     servoControl.update(joystickX(), joystickY(), pressed);
     servoControl.draw(display);
+    delay(1);
+    return;
+  }
+
+  if (gameState == UWB_VIEW) {
+    for(int n=0;n<4096 && uwbSerial.available();++n) {
+      int byte=uwbSerial.read();
+      if(byte>=0)uwbTagView.receive(uint8_t(byte),millis());
+    }
+    uint32_t now=millis();
+    uwbTagView.update(joystickX(),joystickY(),pressed,holdArmed && holdButton.pressed,now);
+    uwbTagView.draw(display,now);
     delay(1);
     return;
   }

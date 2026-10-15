@@ -2,6 +2,13 @@
 
 ## Game controls
 
+The **UWB Tag View** utility appears after the games and before the final
+ESP-NOW Floor Select entry. It shows a paired MaUWB AOA Gen2 tag on a radar-style
+view, with distance and angle. Button 13 cycles tags, 14 toggles smoothing,
+joystick left/right changes range, up/down toggles raw data, and 12 returns.
+See [UWB wiring and protocol](../docs/UWB_TAG_VIEW.md) before connecting its UART.
+The utility has no difficulty or high score.
+
 - At startup, tilt the joystick to scroll between the twenty-four games (five visible at a time).
   Tap for one step or hold up/down to repeat after 400 ms, then every 130 ms.
   Release to stop scrolling; press GPIO13 to select. After exiting gameplay,

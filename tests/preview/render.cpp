@@ -30,6 +30,7 @@
 #include "../../ESP32_Snake/SkullDepths.h"
 #include "../../ESP32_Snake/DonkeyKong.h"
 #include "../../ESP32_Snake/BlockBreaker.h"
+#include "../../ESP32_Snake/UwbTagView.h"
 #undef private
 uint32_t testClock=2000;
 void save(const std::string &name) {
@@ -79,4 +80,10 @@ int main(){
     g.balls[1].x=145;g.balls[1].y=168;g.balls[2].x=188;g.balls[2].y=150;
     for(int i=0;i<5;++i)g.drops[i]={float(44+i*54),float(133+(i%2)*16),static_cast<BlockBreaker::Power>(i),true};
     g.draw(d);save("BlockBreakerPowers");}
+  {UwbTagView view;view.start();view.draw(d,2000);save("UwbWaiting");
+    UwbReading reading;reading.tag=0x154f;reading.valid=true;reading.angle=30;
+    reading.distanceCm=250;reading.rawAngle=34;reading.rawDistanceCm=253;
+    view.selected=0;view.tags[0]={reading,2930,true};view.showRaw=true;view.smooth=true;
+    for(int i=0;i<32;++i){reading.angle=int16_t(-20+i*50/31);reading.distanceCm=uint16_t(190+i*60/31);view.updatePosition(reading,2000+i*30);}
+    view.update(0,0,false,false,2930);view.draw(d,2930);save("UwbLive");}
 }

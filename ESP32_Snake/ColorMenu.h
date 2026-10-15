@@ -14,7 +14,10 @@ inline void label(Adafruit_GFX &d,int x,int y,const char *s,uint16_t color,int s
 }
 inline void icon(Adafruit_GFX &d,int game,int x,int y,uint16_t color) {
   // Hand-drawn pixel badges, grouped by the game's recognizable mechanics.
-  if(game==23) { // Block Breaker.
+  if(game==24) { // UWB tag viewer.
+    d.drawCircle(x+10,y+10,9,color);d.drawCircle(x+10,y+10,5,color);
+    d.drawLine(x+10,y+10,x+16,y+3,GOLD);d.fillCircle(x+15,y+5,2,WHITE);
+  } else if(game==23) { // Block Breaker.
     for(int row=0;row<2;++row)for(int col=0;col<3;++col)d.fillRect(x+col*7,y+row*5,6,4,color);
     d.fillCircle(x+11,y+13,2,GOLD);d.fillRect(x+4,y+18,13,2,CYAN);
   } else if(game==0) { // Snake.

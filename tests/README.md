@@ -1,5 +1,10 @@
 # Gameplay regression tests
 
+`uwb_test.cpp` checks both binary Anchor formats, every Anchor offset, checksums,
+fragments/noise/recovery, mask and range validation, stale/invalid target removal,
+tag selection/eviction, smoothing and angle wrap, range/raw controls, coordinates,
+and native rendering. Compile with `/Itests\tft /Itests` on MSVC.
+
 `block_breaker_test.cpp` checks queued launches, wall/paddle/armored-brick
 collisions, all six stages and victory, five power-ups, multiball HP loss,
 power expiration, difficulty, and native rendering without state changes.

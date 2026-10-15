@@ -29,6 +29,12 @@ Press GPIO14 on the game list to open joystick settings. Adjust the X/Y
 deadzones and sensitivity, link both deadzones, or restore defaults. Settings
 are saved in flash and survive power-off.
 
+**UWB Tag View** adds a native radar-style screen for a Makerfabs MaUWB AOA Gen2
+Anchor and its paired tag. It reads UART2 on GPIO16 at 115200 baud and shows
+distance, angle, a trail, optional smoothing and raw measurements. It appears
+before Floor Select, which remains last. See the [wiring and controls](docs/UWB_TAG_VIEW.md),
+including the distinction between 5 V module power and 3.3 V-safe UART signals.
+
 | Game | Joystick | GPIO13 | GPIO14 |
 | --- | --- | --- | --- |
 | Snake | Steer | Select / retry | Unused |
