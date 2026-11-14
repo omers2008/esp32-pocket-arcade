@@ -35,6 +35,8 @@ baud and sends decoded readings to the Arcade over ESP-NOW channel 1. The
 Arcade shows distance, angle, a trail, smoothing and raw measurements. It appears
 before Floor Select, which remains last. See the [wiring and controls](docs/UWB_TAG_VIEW.md),
 including the distinction between 5 V module power and 3.3 V-safe UART signals.
+The UWB ESP32 can also [pan a positional SG90 toward the tag](docs/UWB_SERVO_TRACKING.md)
+using GPIO18 for the servo signal and a separate 5 V servo supply.
 
 | Game | Joystick | GPIO13 | GPIO14 |
 | --- | --- | --- | --- |

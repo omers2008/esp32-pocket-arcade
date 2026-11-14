@@ -1,5 +1,10 @@
 # Gameplay regression tests
 
+`uwb_pan_test.cpp` simulates positional-servo tag centering with both motor
+polarities, deadband, identity locking, stale/invalid hold, travel/pulse limits,
+bounded catch-up, console state transitions and timer wrap. Compile with C++17;
+no Arduino/display mocks are needed.
+
 `uwb_link_test.cpp` checks the ESP-NOW packet's explicit wire layout, field
 validation, ordering and sender restarts, bounded latest-sample forwarding,
 clock wrap for sample ages, stale rejection, heartbeat/measurement separation,

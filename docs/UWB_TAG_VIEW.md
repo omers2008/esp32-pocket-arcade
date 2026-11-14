@@ -50,6 +50,10 @@ The Arcade no longer opens UART2 or uses GPIO16 for this utility.
 The existing screen wiring stays: SCL/SCLK=18, SDA/MOSI=23, CS=27, DC=26,
 RST=25, with VCC and BL at 3.3 V. The screen's SCL/SDA labels are SPI signals.
 
+The UWB ESP32 also supports automatic SG90 pan tracking on its **GPIO18**.
+See [servo wiring and direction calibration](UWB_SERVO_TRACKING.md). The servo
+uses the local UWB angle to center a locked tag; the radio packet is unchanged.
+
 ## ESP-NOW firmware and pairing
 
 | Device | Station MAC | Firmware |
