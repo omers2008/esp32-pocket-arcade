@@ -31,6 +31,7 @@
 #include "DonkeyKong.h"
 #include "BlockBreaker.h"
 #include "UwbTagView.h"
+#include "UwbRadioReceiver.h"
 
 // ---------- Hardware ----------
 // TFT SPI wiring and orientation are configured in DisplayConfig.h.
@@ -87,7 +88,7 @@ BlockBreaker blockBreaker;
 constexpr uint8_t BLOCK_BREAKER_ENTRY = 23;
 ServoControl servoControl;
 UwbTagView uwbTagView;
-HardwareSerial uwbSerial(2);
+UwbRadioReceiver uwbRadio;
 const char *const SCORE_NAMESPACES[] = {"snake", "invaders", "pong", "tetris", "castle", "duckhunt", "pacman", "blackjack", "fighter", "rogue", "temple", "slots", "fourrow", "tictactoe", "mines", "pinball", "rpg", "tanks", "dino", "asteroids", "sky", "skulldepths", "dkong", "breaker"};
 constexpr uint8_t SCORED_GAME_COUNT = sizeof(SCORE_NAMESPACES)/sizeof(SCORE_NAMESPACES[0]);
 // New games go before this final ESP-NOW control entry (see AGENTS.md).
@@ -608,9 +609,7 @@ void showUwbTagView() {
   gameState=UWB_VIEW;
   actionArmed=holdArmed=false;
   uwbTagView.start();
-  uwbSerial.setRxBufferSize(4096);
-  // GPIO17 is reserved as UART TX but stays physically unconnected. No writes.
-  uwbSerial.begin(UwbTagView::BAUD,SERIAL_8N1,UwbTagView::RX_PIN,17);
+  uwbTagView.useWireless(uwbRadio.start());
   uwbTagView.draw(display,millis());
 }
 
@@ -808,7 +807,7 @@ void loop() {
   }
   if (menuButton.pressed) {
     if (gameState == SERVO_CONTROL) servoControl.leave();
-    if (gameState == UWB_VIEW) uwbSerial.end();
+    if (gameState == UWB_VIEW) uwbRadio.leave();
     if (gameState == PLAYING) finishGame();  // Save a record even when leaving mid-game.
     gameState = TITLE;
     actionArmed = false;
@@ -847,9 +846,12 @@ void loop() {
   }
 
   if (gameState == UWB_VIEW) {
-    for(int n=0;n<4096 && uwbSerial.available();++n) {
-      int byte=uwbSerial.read();
-      if(byte>=0)uwbTagView.receive(uint8_t(byte),millis());
+    UwbLink::Message message;uint32_t receivedAt;
+    while(uwbRadio.poll(message,receivedAt)) {
+      uint32_t now=millis();
+      uwbTagView.bridgeStatus(message.uartBytes,message.badFrames,message.frames,receivedAt,message.session);
+      uint32_t age=uint32_t(message.ageMs)+(now-receivedAt);
+      if(message.kind==UwbLink::READING && age<1000)uwbTagView.receiveReading(message.reading,now-age);
     }
     uint32_t now=millis();
     uwbTagView.update(joystickX(),joystickY(),pressed,holdArmed && holdButton.pressed,now);

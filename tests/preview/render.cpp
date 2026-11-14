@@ -80,7 +80,9 @@ int main(){
     g.balls[1].x=145;g.balls[1].y=168;g.balls[2].x=188;g.balls[2].y=150;
     for(int i=0;i<5;++i)g.drops[i]={float(44+i*54),float(133+(i%2)*16),static_cast<BlockBreaker::Power>(i),true};
     g.draw(d);save("BlockBreakerPowers");}
-  {UwbTagView view;view.start();view.draw(d,2000);save("UwbWaiting");
+  {UwbTagView view;view.start();view.useWireless(true);view.draw(d,2000);save("UwbWaiting");
+    view.bridgeStatus(0,0,0,2200,1);view.draw(d,2200);save("UwbNoUart");
+    view.bridgeStatus(8100,0,100,2930,1);
     UwbReading reading;reading.tag=0x154f;reading.valid=true;reading.angle=30;
     reading.distanceCm=250;reading.rawAngle=34;reading.rawDistanceCm=253;
     view.selected=0;view.tags[0]={reading,2930,true};view.showRaw=true;view.smooth=true;

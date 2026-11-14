@@ -1,5 +1,10 @@
 # Gameplay regression tests
 
+`uwb_link_test.cpp` checks the ESP-NOW packet's explicit wire layout, field
+validation, ordering and sender restarts, bounded latest-sample forwarding,
+clock wrap for sample ages, stale rejection, heartbeat/measurement separation,
+and wireless display status. Compile with `/Itests\tft /Itests` on MSVC.
+
 `uwb_test.cpp` checks both binary Anchor formats, every Anchor offset, checksums,
 fragments/noise/recovery, mask and range validation, stale/invalid target removal,
 tag selection/eviction, smoothing and angle wrap, range/raw controls, coordinates,

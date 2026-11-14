@@ -4,7 +4,7 @@
 #include "ArcadeDisplay.h"
 #include "UwbProtocol.h"
 
-// Passive tag viewer; UART ownership stays in the sketch. No module commands.
+// Passive tag viewer; accepts UART reports or readings from the ESP-NOW bridge.
 class UwbTagView {
  public:
   static constexpr int RX_PIN=16;
@@ -13,10 +13,23 @@ class UwbTagView {
     parser.reset();for(auto &tag:tags)tag=Tag{};
     selected=-1;scaleIndex=0;autoRadius=2;smooth=showRaw=false;
     stickReady=false;dirty=true;lastDraw=0;lastStatus=-1;resetPosition();
+    wireless=radioReady=bridgeSeen=false;bridgeStamp=bridgeSession=0;
+  }
+  void useWireless(bool ready){wireless=true;radioReady=ready;dirty=true;}
+  void bridgeStatus(uint32_t bytes,uint32_t bad,uint32_t frames,uint32_t receivedAt,uint32_t session) {
+    if(!bridgeSeen || bridgeSession!=session) {
+      for(auto &tag:tags)tag=Tag{};
+      selected=-1;resetPosition();
+    }
+    bridgeSeen=true;bridgeStamp=receivedAt;bridgeSession=session;
+    parser.bytesSeen=bytes;parser.badFrames=bad;parser.frames=frames;dirty=true;
   }
   void receive(uint8_t byte,uint32_t now) {
     UwbReading reading;
     if(!parser.feed(byte,reading))return;
+    receiveReading(reading,now);
+  }
+  void receiveReading(const UwbReading &reading,uint32_t now) {
     int slot=-1;
     for(int i=0;i<MAX_TAGS;++i)if(tags[i].used && tags[i].reading.tag==reading.tag && tags[i].reading.anchor==reading.anchor){slot=i;break;}
     if(slot<0)for(int i=0;i<MAX_TAGS;++i)if(!tags[i].used){slot=i;break;}
@@ -81,11 +94,18 @@ class UwbTagView {
   bool smooth=false,showRaw=false,positionValid=false,stickReady=false,dirty=true;
   float angle=0,distance=0,autoRadius=2;
   uint32_t positionStamp=0,lastDraw=0;
+  bool wireless=false,radioReady=false,bridgeSeen=false;
+  uint32_t bridgeStamp=0,bridgeSession=0;
   static float scale(int i){const float values[]={0,1,2,5,10,20,50,100,200,700};return values[i];}
-  bool live(uint32_t now) const {return selected>=0 && tags[selected].used && tags[selected].reading.valid && now-tags[selected].stamp<1000;}
+  bool live(uint32_t now) const {
+    bool link=!wireless || (radioReady && bridgeSeen && now-bridgeStamp<1500);
+    return link && selected>=0 && tags[selected].used && tags[selected].reading.valid && now-tags[selected].stamp<1000;
+  }
   int status(uint32_t now) const {
+    if(wireless && !radioReady)return 4;
+    if(wireless && (!bridgeSeen || now-bridgeStamp>=1500))return 5;
     if(live(now))return 0;
-    if(selected>=0)return 1;
+    if(selected>=0 || parser.frames)return 1;
     return parser.bytesSeen?2:3;
   }
   void resetPosition(){positionValid=false;trailCount=trailHead=0;}
@@ -114,11 +134,11 @@ class UwbTagView {
     label(d,10,10,"TAG VIEW",INK,2);
     int state=status(now);
     d.fillRoundRect(233,8,77,20,4,PANEL);
-    label(d,241,14,state==0?"LIVE":state==1?"NO SIGNAL":state==2?"FORMAT?":"NO DATA",state==0?TEAL:AMBER);
+    label(d,241,14,state==0?"LIVE":state==1?"NO SIGNAL":state==2?"FORMAT?":state==4?"RADIO ERR":state==5?"NO BRIDGE":wireless?"NO UART":"NO DATA",state==0?TEAL:AMBER);
     char text[48];
     if(selected>=0)snprintf(text,sizeof(text),"TAG 0x%04X / A%u",unsigned(tags[selected].reading.tag),unsigned(tags[selected].reading.anchor));
     else snprintf(text,sizeof(text),"WAITING FOR GEN2 TAG");
-    label(d,10,36,text,MUTED);label(d,223,36,"UART 115200",MUTED);
+    label(d,10,36,text,MUTED);label(d,223,36,wireless?"ESP-NOW CH1":"UART 115200",MUTED);
     label(d,12,58,"RELATIVE POSITION",MUTED);
     float radius=scaleIndex?scale(scaleIndex):autoRadius;
     for(int ring=1;ring<=4;++ring) {
@@ -143,8 +163,8 @@ class UwbTagView {
       int px,py;point(angle,distance,radius,px,py);
       d.drawLine(104,180,px,py,TEAL);d.drawCircle(px,py,7,TEAL);d.fillCircle(px,py,3,INK);
     } else {
-      label(d,44,133,isLive?"OUTSIDE VIEW":"WAITING FOR TAG",isLive?AMBER:MUTED);
-      if(!isLive)label(d,30,145,parser.bytesSeen?"CHECK OUTPUT / TAG":"CHECK POWER / UART",MUTED);
+      label(d,35,133,isLive?"OUTSIDE VIEW":state==5?"WAITING FOR BRIDGE":state==4?"RADIO START FAILED":"WAITING FOR TAG",isLive?AMBER:MUTED);
+      if(!isLive)label(d,30,145,state==5?"POWER BRIDGE / CH1":state==4?"REOPEN RADAR VIEW":parser.bytesSeen?"CHECK OUTPUT / TAG":"CHECK POWER / UART",MUTED);
     }
     if(isLive && showRaw) {
       const UwbReading &r=tags[selected].reading;

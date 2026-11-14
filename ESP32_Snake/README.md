@@ -4,7 +4,8 @@
 
 The **UWB Tag View** utility appears after the games and before the final
 ESP-NOW Floor Select entry. It shows a paired MaUWB AOA Gen2 tag on a radar-style
-view, with distance and angle. Button 13 cycles tags, 14 toggles smoothing,
+view, receiving data from a separate UWB ESP32 over ESP-NOW channel 1. The
+Anchor's UART belongs on that UWB ESP32, not the Arcade. Button 13 cycles tags, 14 toggles smoothing,
 joystick left/right changes range, up/down toggles raw data, and 12 returns.
 See [UWB wiring and protocol](../docs/UWB_TAG_VIEW.md) before connecting its UART.
 The utility has no difficulty or high score.
