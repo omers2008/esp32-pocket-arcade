@@ -72,6 +72,8 @@ the separate `uwbpan` preferences namespace.
 | R | Reverse correction direction and save that choice |
 | T | Resume tracking, waiting for a fresh valid report |
 | C | Command neutral and pause, useful for horn alignment |
+| [ | Command 75 and pause (small manual test left of neutral) |
+| ] | Command 105 and pause (small manual test right of neutral) |
 | N | Forget the identity lock and acquire the next valid tag/Anchor pair |
 
 For a wrong direction: send **P**, then **R**, then **T**. Reversing invalidates
@@ -82,9 +84,31 @@ software command limits cannot identify a wrongly mounted mechanical stop.
 Once per second the log includes the commanded pan, pulse width, state, locked
 tag, filtered error, and reversal setting alongside the UART/radio counters.
 `CENTERED`, `TRACKING`, `NO TAG`, `LIMIT`, `PAUSED`, or `PWM ERROR` identify the
-control state. A reboot starts enabled at neutral and reacquires a target;
-pause is session-only, while direction is saved. Use the existing NVS keys for
-other features as before; this code does not clear them.
+control state. Direction and tracking-enabled state are saved in `uwbpan`.
+After a manual test/pause, power cycling starts at neutral and stays paused;
+send **T** to resume automatic tracking and save that enabled state. The
+previous manual position is not restored at boot. Existing NVS keys for other
+features are not cleared.
+
+## Servo-only diagnostic
+
+Use **C** before switching power off to save the paused mode. With power off,
+temporarily disconnect the Anchor and reconnect only the servo to GPIO18, 5 V,
+and GND. Keep the mount free to turn. Power up and send **[**, then **]**,
+then **C**, observing each movement before sending the next command. These
+commands bypass UWB feedback and use approximately 1417, 1583, and 1500 us.
+
+An accepted PWM write or a printed pulse value confirms the requested command,
+not the voltage/pulse physically reaching the servo. If the servo does not
+respond, check the actual signal pin (not the adjacent V/G rail), connector
+polarity and the red-to-black voltage while commanded. Resets or a supply dip
+point to the power path. A brief unloaded test may be attempted on the board's
+5 V pin when that is the only supply available, but it does not establish that
+the same supply can support loaded tracking with the Anchor attached. Use a
+separate servo supply for reliable operation under load.
+
+Reconnect the Anchor with power off after the servo test. Tracking remains
+paused until **T**, so the data link can be checked separately from servo motion.
 
 `PanTracker.h` contains the gains, limits, deadband, and timeout. The sketch's
 `SERVO_PIN` selects GPIO18, using the ESP32 core LEDC API without an additional

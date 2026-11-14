@@ -55,7 +55,11 @@ class PanTracker {
   void setReverse(bool value){reverse=value;sample=moving=false;}
   void setEnabled(bool value){enabled=value;sample=moving=false;}
   void nextTarget(){locked=sample=moving=false;}
-  void centerAndPause(uint32_t now){position=CENTER;enabled=false;sample=moving=false;lastTick=now;}
+  void positionAndPause(float target,uint32_t now) {
+    position=target<MIN_POSITION?MIN_POSITION:target>MAX_POSITION?MAX_POSITION:target;
+    enabled=false;sample=moving=false;lastTick=now;
+  }
+  void centerAndPause(uint32_t now){positionAndPause(CENTER,now);}
   const char *status(uint32_t now) const {
     if(!enabled)return "PAUSED";
     if(!locked)return "WAIT TAG";

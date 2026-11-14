@@ -56,6 +56,10 @@ int main() {
     pan.setEnabled(true);pan.tick(20100);assert(pan.command()==position); // Fresh report required.
     pan.setReverse(!pan.isReversed());pan.tick(20150);assert(pan.command()==position);
     pan.centerAndPause(20200);assert(pan.command()==90 && pan.pulseUs()==1500 && !pan.isEnabled());
+    pan.positionAndPause(75,20300);assert(pan.command()==75 && pan.pulseUs()==1417 && !pan.isEnabled());
+    pan.positionAndPause(105,20350);assert(pan.command()==105 && pan.pulseUs()==1583 && !pan.isEnabled());
+    pan.positionAndPause(-999,20400);assert(pan.command()==PanTracker::MIN_POSITION);
+    pan.positionAndPause(999,20450);assert(pan.command()==PanTracker::MAX_POSITION);
   }
   std::cout<<"PASS: proportional pan convergence, both polarities, deadband, identity lock, stale/invalid hold, pulse limits and clock wrap.\n";
 }

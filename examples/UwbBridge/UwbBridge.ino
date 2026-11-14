@@ -30,19 +30,29 @@ void writePan() {
   }
 }
 
+bool savePanSettings() {
+  Preferences prefs;
+  if(!prefs.begin("uwbpan",false))return false;
+  bool savedReverse=prefs.putBool("reverse",pan.isReversed())==1;
+  bool savedTracking=prefs.putBool("tracking",pan.isEnabled())==1;
+  prefs.end();return savedReverse && savedTracking;
+}
+
 void panConsole() {
   for(int n=0;n<32 && Serial.available();++n) {
     char command=char(Serial.read());
     if(command>='a' && command<='z')command-=32;
     if(command=='R') {
       pan.setReverse(!pan.isReversed());
-      Preferences prefs;
-      if(prefs.begin("uwbpan",false)){prefs.putBool("reverse",pan.isReversed());prefs.end();}
-      Serial.printf("Pan reverse=%d (saved when NVS available)\n",pan.isReversed());
     } else if(command=='P')pan.setEnabled(false);
     else if(command=='T')pan.setEnabled(true);
     else if(command=='C'){pan.centerAndPause(millis());writePan();}
-    else if(command=='N')pan.nextTarget();
+    else if(command=='['){pan.positionAndPause(75,millis());writePan();}
+    else if(command==']'){pan.positionAndPause(105,millis());writePan();}
+    else if(command=='N'){pan.nextTarget();continue;}
+    else continue;
+    Serial.printf("Pan command %c: position=%.1f us=%u tracking=%d reverse=%d saved=%d\n",
+      command,double(pan.command()),unsigned(pan.pulseUs()),pan.isEnabled(),pan.isReversed(),savePanSettings());
   }
 }
 
@@ -53,13 +63,14 @@ void onSent(const esp_now_send_info_t *,esp_now_send_status_t status) {
 
 void setup() {
   Serial.begin(115200);
-  bool reverse=true;
+  bool reverse=true,tracking=true;
   Preferences prefs;
-  if(prefs.begin("uwbpan",true)){reverse=prefs.getBool("reverse",true);prefs.end();}
+  if(prefs.begin("uwbpan",true)){reverse=prefs.getBool("reverse",true);tracking=prefs.getBool("tracking",true);prefs.end();}
   pan.begin(millis(),reverse);
+  if(!tracking)pan.setEnabled(false);
   servoReady=ledcAttach(SERVO_PIN,SERVO_HZ,SERVO_RESOLUTION);writePan();
   Serial.printf("SG90 GPIO18 / 50 Hz / center 1500us / reverse=%d / PWM %s\n",reverse,servoReady?"OK":"FAILED");
-  Serial.println("Pan console: R reverse+save, P pause, T track, C center+pause, N acquire next tag");
+  Serial.println("Pan console: [ 75deg, ] 105deg, C center+pause, P pause, T track, R reverse, N next tag; settings saved");
   anchorSerial.setRxBufferSize(4096);
   anchorSerial.begin(115200,SERIAL_8N1,16,17);
   WiFi.mode(WIFI_STA);WiFi.setSleep(false);
