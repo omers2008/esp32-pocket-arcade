@@ -66,6 +66,12 @@ pause and reverse it using the UWB ESP32's USB serial console (115200 baud).
 The default is reversed polarity; reversing is persisted across restarts in
 the separate `uwbpan` preferences namespace.
 
+The replacement servo/mount tested on 2026-11-14 uses **reverse=0** (not
+reversed). That direction and enabled automatic tracking were saved on the
+UWB ESP32. The fixed-tag check reduced a reported angle near +30 degrees to
+about +3 degrees and briefly zero. Preserve these preferences on firmware
+updates; a blank-flash installation will need its direction checked again.
+
 | Console character | Action |
 | --- | --- |
 | P | Pause tracking and hold the current position |
